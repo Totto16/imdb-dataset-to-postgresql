@@ -15,34 +15,43 @@ using namespace v8;
 class ParseWorker : public AsyncWorker {
 public:
   ParseWorker(Callback *callback, std::string path)
-      : AsyncWorker(callback), path(path){}
+      : AsyncWorker(callback), path(path) {}
 
   ~ParseWorker() {}
 
-  void Execute() {
-    result = std::move(parse_data(path));
-    // ERROROr<>
-  }
+  void Execute() { result = std::move(parse_data(path)); }
 
   // We have the results, and we're back in the event loop.
   void HandleOKCallback() {
     Nan::HandleScope scope;
 
-    v8::Local<v8::Array> results = New<v8::Array>(parsedValues.size());
-    int i = 0;
-    for_each(parsedValues.begin(), parsedValues.end(), [&](int value) {
-      Nan::Set(results, i, New<v8::Number>(value));
-      i++;
-    });
+    if (result.has_value()) {
 
-    Local<Value> result[] = {Null(), results};
+      auto resultVector = result.value();
 
-    callback->Call(2, result);
+      v8::Local<v8::Array> results = New<v8::Array>(resultVector.size());
+      int i = 0;
+      for_each(resultVector.begin(), resultVector.end(), [&](int value) {
+        Nan::Set(results, i, New<v8::Number>(value));
+        i++;
+      });
+
+      Local<Value> okResult[] = {Null(), results};
+
+      callback->Call(2, okResult, async_resource);
+    } else {
+
+      auto value = result.error();
+
+      Local<Value> errorResult[] = {Nan::Error(value.c_str()), Null()};
+
+      callback->Call(2, errorResult, async_resource);
+    }
   }
 
 private:
   std::string path;
-  ParseResult result = nullptr;
+  ParseResult result;
 };
 
 // Asynchronous access to the `getPrimes()` function
