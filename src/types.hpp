@@ -26,35 +26,38 @@ export type ImdbID = string // symbol
 
 export type Float = number // symbol
 export type Int = number // symbol
+*/
+typedef string ImdbID;
 
-export interface ITitleRating {
-    tconst: ImdbID
-    averageRating: Float
-    numVotes: Int
-}
+typedef struct {
+  ImdbID tconst;
+  float averageRating;
+  int numVotes;
+} ITitleRating;
 
+/*
 export type ANY = "A" | "B" | "C" | "TODO"
 
 export type RegionString = symbol //`${ANY}${ANY}`
 
 export type LanguageString = symbol */
 
-typedef string ImdbID;
-
 typedef string RegionString;
 
 typedef string LanguageString;
 
-struct ITitleAlternate {
-  titleId : ImdbID;
-  ordering : int;
-  title : string;
-  region : optional<RegionString>;
-  language : optional<LanguageString>;
-  types : vector<AlternativeType>;
-  attributes : vector<string>;
-  isOriginalTitle : optional<bool>;
-};
+typedef string AlternativeType;
+
+typedef struct {
+  ImdbID titleId;
+  int ordering;
+  string title;
+  optional<RegionString> region;
+  optional<LanguageString> language;
+  vector<AlternativeType> types;
+  vector<string> attributes;
+  optional<bool> isOriginalTitle;
+} ITitleAlternate;
 
 /* enum Genre {
   Action = "Action",
@@ -111,47 +114,81 @@ typedef string Genre; // TODO use enum
 
 typedef string TitleType;
 
-struct ITitleBasic {
-  tconst : ImdbID;
-  titleType : TitleType;
-  primaryTitle : string;
-  originalTitle : string;
-  isAdult : bool;
-  startYear : optional<int>;
-  endYear : optional<int>;
-  runtimeMinutes : optional<int>;
-  genres : vector<Genre>
-}
+typedef struct {
+  ImdbID tconst;
+  TitleType titleType;
+  string primaryTitle;
+  string originalTitle;
+  bool isAdult;
+  optional<int> startYear;
+  optional<int> endYear;
+  optional<int> runtimeMinutes;
+  vector<Genre> genres;
+} ITitleBasic;
 
 typedef string NameID;
 
-struct ITitleCrew {
-  tconst : ImdbID;
-  directors : vector<NameID>;
-  writers : vector<NameID>;
-}
+typedef struct {
+  ImdbID tconst;
+  vector<NameID> directors;
+  vector<NameID> writers;
+} ITitleCrew;
 
-struct ITitleEpisode {
-  tconst : ImdbID;
-  parentTconst : string;
-  seasonNumber : optional<int>;
-  episodeNumber : optional<int>;
-}
+typedef struct {
+  ImdbID tconst;
+  string parentTconst;
+  optional<int> seasonNumber;
+  optional<int> episodeNumber;
+} ITitleEpisode;
 
-struct ITitlePrincipal {
-  tconst : ImdbID;
-  ordering : int;
-  nconst : NameID;
-  category : string;
-  job : optional<string>;
-  characters : optional<string>;
-}
+typedef struct {
+  ImdbID tconst;
+  int ordering;
+  NameID nconst;
+  string category;
+  optional<string> job;
+  optional<string> characters;
+} ITitlePrincipal;
 
-struct INameBasic {
-  nconst : NameID;
-  primaryName : string;
-  birthYear : optional<int>;
-  deathYear : optional<int>;
-  primaryProfession : vector<string>;
-  knownForTitles : vector<ImdbID>
-}
+typedef struct {
+  NameID nconst;
+  string primaryName;
+  optional<int> birthYear;
+  optional<int> deathYear;
+  vector<string> primaryProfession;
+  vector<ImdbID> knownForTitles;
+} INameBasic;
+
+/* enum ParseType {
+  INameBasic,
+  ITitleAlternate,
+  ITitleBasic,
+  ITitleCrew,
+  ITitleEpisode,
+  ITitlePrincipal,
+  ITitleRating
+}; */
+/*
+template <typename T> struct ParseTypeMap {
+  static const std::string type;
+};
+
+template <> const std::string ParseTypeMap<INameBasic>::type = "name.basics";
+
+template <>
+const std::string ParseTypeMap<ITitleAlternate>::type = "title.akas";
+
+template <> const std::string ParseTypeMap<ITitleBasic>::type = "title.basics";
+
+template <> const std::string ParseTypeMap<ITitleCrew>::type = "title.crew";
+
+template <>
+const std::string ParseTypeMap<ITitleEpisode>::type = "title.episode";
+
+template <>
+const std::string ParseTypeMap<ITitlePrincipal>::type = "title.principals";
+
+template <>
+const std::string ParseTypeMap<ITitleRating>::type = "title.ratings";
+ */
+// template <> const std::string ParseTypeMap<string>::type = "";

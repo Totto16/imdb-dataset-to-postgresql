@@ -1,3 +1,4 @@
+#include <expected.hpp>
 #include <functional>
 #include <iostream>
 #include <nan.h>
@@ -14,12 +15,41 @@ using namespace v8;
 
 class ParseWorker : public AsyncWorker {
 public:
-  ParseWorker(Callback *callback, std::string path)
-      : AsyncWorker(callback), path(path) {}
+  ParseWorker(Callback *callback, std::string path, std::string type)
+      : AsyncWorker(callback), path(path), type(type) {}
 
   ~ParseWorker() {}
 
-  void Execute() { result = std::move(parse_data(path)); }
+  void Execute() {
+
+    if (type == "name.basics") {
+      cout << "test 1" << endl;
+      auto parser = TSVParser<INameBasic>{move(path), move(type)};
+      cout << "test 2" << endl;
+      result = std::move(parser.parseData());
+      cout << "test 3" << endl;
+    } else if (type == "title.akas") {
+      auto parser = TSVParser<ITitleAlternate>{path, type};
+      result = std::move(parser.parseData());
+    } else if (type == "title.basics") {
+      auto parser = TSVParser<ITitleBasic>{path, type};
+      result = std::move(parser.parseData());
+    } else if (type == "title.crew") {
+      auto parser = TSVParser<ITitleCrew>{path, type};
+      result = std::move(parser.parseData());
+    } else if (type == "title.episode") {
+      auto parser = TSVParser<ITitleEpisode>{path, type};
+      result = std::move(parser.parseData());
+    } else if (type == "title.principals") {
+      auto parser = TSVParser<ITitlePrincipal>{path, type};
+      result = std::move(parser.parseData());
+    } else if (type == "title.ratings") {
+      auto parser = TSVParser<ITitleRating>{path, type};
+      result = std::move(parser.parseData());
+    } else {
+      result = tl::make_unexpected("Not a valid type: '" + type + "'!");
+    }
+  }
 
   // We have the results, and we're back in the event loop.
   void HandleOKCallback() {
@@ -27,22 +57,13 @@ public:
 
     if (result.has_value()) {
 
-      auto resultVector = result.value();
-
-      v8::Local<v8::Array> results = New<v8::Array>(resultVector.size());
-      int i = 0;
-      for_each(resultVector.begin(), resultVector.end(), [&](int value) {
-        Nan::Set(results, i, New<v8::Number>(value));
-        i++;
-      });
-
-      Local<Value> okResult[] = {Null(), results};
+      auto resultArray = result.value();
+      Local<Value> okResult[] = {Null(), resultArray};
 
       callback->Call(2, okResult, async_resource);
     } else {
 
       auto value = result.error();
-
       Local<Value> errorResult[] = {Nan::Error(value.c_str()), Null()};
 
       callback->Call(2, errorResult, async_resource);
@@ -51,6 +72,7 @@ public:
 
 private:
   std::string path;
+  std::string type;
   ParseResult result;
 };
 
@@ -63,13 +85,19 @@ NAN_METHOD(parseFile) {
 
   std::string path = (*Utf8String(info[0]));
 
-  if (!info[1]->IsFunction()) {
-    Nan::ThrowError("The second argument must be a callback function!");
+  if (!info[1]->IsString()) {
+    Nan::ThrowError("The second argument must be a string!");
   }
 
-  Callback *callback = new Callback(info[1].As<Function>());
+  std::string type = (*Utf8String(info[1]));
 
-  AsyncQueueWorker(new ParseWorker(callback, path));
+  if (!info[2]->IsFunction()) {
+    Nan::ThrowError("The third argument must be a callback function!");
+  }
+
+  Callback *callback = new Callback(info[2].As<Function>());
+
+  AsyncQueueWorker(new ParseWorker(callback, path, type));
 }
 
 NAN_MODULE_INIT(Init) {

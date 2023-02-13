@@ -1,5 +1,8 @@
 const s = require("../index")
 
 ;(async () => {
-    console.log(await s.parseFile("t"))
+    const res = await s
+        .parseFile({ filename: "t", type: "name.basics" })
+        .catch(console.error)
+    console.log(res)
 })()

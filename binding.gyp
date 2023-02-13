@@ -2,16 +2,8 @@
     "targets": [
         {
             "target_name": "imdb-dataset-parser",
-            "cflags": [
-                "-fno-exceptions",
-                "-O3",
-                "-std=c20",
-                "-Werror",
-                "-Wall",
-                "-Wpedantic"
-            ],
             "cflags_cc": [
-                "-fno-exceptions",
+                "-fexceptions",
                 "-O3",
                 "-std=c++20",
                 "-Werror",
@@ -21,14 +13,38 @@
             ],
             "sources": [
                 "addon.cpp",
-                "src/TSVParser.cpp"
+                "src/TSVParser.cpp",
             ],
-            "cflags": ["-Wall", "-std=c++20"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "submodules/expected/include/tl/",
+                "submodules/expected/include/tl/"
+            ],
+            'dependencies': [
+                'csvlib',
+            ]
+        },
+        {
+            'target_name': 'csvlib',
+            'type': '<(library)',
+            "cflags_cc": [
+                "-fexceptions",
+                "-O3",
+                "-std=c++20",
+                "-Wall",
+                "-Wpedantic"
+            ],
+            "sources": [
+                "submodules/tsvlib/csvlib/csv/parser.cpp",
+                "submodules/tsvlib/csvlib/csv/datasource/utf8/DataSource.cpp"
+            ],
+            "include_dirs": [
                 "submodules/tsvlib/csvlib/",
             ],
-        }
+            'direct_dependent_settings': {
+                'include_dirs': [
+                    "submodules/tsvlib/csvlib/"
+                ],
+            },
+        },
     ]
 }
