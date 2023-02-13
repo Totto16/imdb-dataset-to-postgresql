@@ -1,0 +1,6 @@
+[submodule "submodules/expected"]
+	path = submodules/expected
+	url = https://github.com/TartanLlama/expected.git
+[submodule "submodules/tsvlib"]
+	path = submodules/tsvlib
+	url = https://github.com/dagronf/csvlib.git
