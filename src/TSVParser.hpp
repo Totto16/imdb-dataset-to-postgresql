@@ -3,10 +3,13 @@
 
 #include <csv/parser.hpp>
 #include <expected.hpp>
+#include <map>
+#include <memory>
 #include <nan.h>
 #include <string>
 #include <vector>
 
+#include "ParserStructure.hpp"
 #include "types.hpp"
 
 using namespace std;
@@ -14,15 +17,23 @@ using namespace v8;
 
 typedef tl::expected<Local<Value>, string> ParseResult;
 
-template <typename T> class TSVParser {
+typedef map<string, shared_ptr<ParserStructure>> ParserMap;
+
+class TSVParser {
 public:
-  TSVParser(string path, string type);
+  TSVParser(string path, string type, shared_ptr<ParserStructure> structure);
+  TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
+
   ParseResult parseData();
+  [[nodiscard]] static ParserMap getParserMap();
 
 private:
   string m_path;
   string m_type;
+  shared_ptr<ParserStructure> m_structure;
 };
 
-template <typename T> using MaybeParser = tl::expected<TSVParser<T> *, string>;
+using MaybeParser = tl::expected<TSVParser, string>;
+
+MaybeParser makeParser(string path, string type);

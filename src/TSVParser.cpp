@@ -2,24 +2,49 @@
 #include <csv/datasource/utf8/DataSource.hpp>
 #include <csv/parser.hpp>
 #include <expected.hpp>
-#include <iostream>
-#include <nan.h>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "Models.hpp"
+#include "ParserStructure.hpp"
 #include "TSVParser.hpp"
 
 using namespace std;
 using namespace v8;
 
-template <typename T>
-TSVParser<T>::TSVParser(string path, string type)
-    : m_path{move(path)}, m_type{move(type)} {
-  cout << "inner 1" << endl;
-};
+TSVParser::TSVParser(string path, string type,
+                     shared_ptr<ParserStructure> structure)
+    : m_path(path), m_type(type), m_structure(structure){};
 
-template <typename T> ParseResult TSVParser<T>::parseData() {
-  cout << "test here" << endl;
+/* TSVParser::TSVParser(const TSVParser &old)
+    : m_path(old.m_path), m_type(old.m_type), m_structure{} {
+  m_structure = make_unique(*old.m_structure);
+};
+ */
+MaybeParser makeParser(string path, string type) {
+
+  auto parserMap = TSVParser::getParserMap();
+
+  for (auto const &[key, value] : parserMap) {
+    if (type == key) {
+      return TSVParser{path, type, move(value)};
+    }
+  }
+
+  return tl::make_unexpected("Not a valid type: '" + type + "'!");
+}
+
+ParserMap TSVParser::getParserMap() {
+  auto parserMap = ParserMap{};
+
+  parserMap.insert({"title.akas", Model::mappedTitleAlternate()});
+
+  return parserMap;
+}
+
+ParseResult TSVParser::parseData() {
 
   csv::utf8::FileDataSource input;
 

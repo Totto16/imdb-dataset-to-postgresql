@@ -4,7 +4,7 @@
             "target_name": "imdb-dataset-parser",
             "cflags_cc": [
                 "-fexceptions",
-                "-O3",
+                "-g3",
                 "-std=c++20",
                 "-Werror",
                 "-Wall",
@@ -14,6 +14,9 @@
             "sources": [
                 "addon.cpp",
                 "src/TSVParser.cpp",
+                "src/ParserStructure.cpp",
+                "src/InternalParsers.cpp",
+                "src/Models.cpp"
             ],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",

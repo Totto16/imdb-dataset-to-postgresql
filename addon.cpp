@@ -21,33 +21,13 @@ public:
   ~ParseWorker() {}
 
   void Execute() {
+    MaybeParser maybeParser = makeParser(path, type);
 
-    if (type == "name.basics") {
-      cout << "test 1" << endl;
-      auto parser = TSVParser<INameBasic>{move(path), move(type)};
-      cout << "test 2" << endl;
-      result = std::move(parser.parseData());
-      cout << "test 3" << endl;
-    } else if (type == "title.akas") {
-      auto parser = TSVParser<ITitleAlternate>{path, type};
-      result = std::move(parser.parseData());
-    } else if (type == "title.basics") {
-      auto parser = TSVParser<ITitleBasic>{path, type};
-      result = std::move(parser.parseData());
-    } else if (type == "title.crew") {
-      auto parser = TSVParser<ITitleCrew>{path, type};
-      result = std::move(parser.parseData());
-    } else if (type == "title.episode") {
-      auto parser = TSVParser<ITitleEpisode>{path, type};
-      result = std::move(parser.parseData());
-    } else if (type == "title.principals") {
-      auto parser = TSVParser<ITitlePrincipal>{path, type};
-      result = std::move(parser.parseData());
-    } else if (type == "title.ratings") {
-      auto parser = TSVParser<ITitleRating>{path, type};
-      result = std::move(parser.parseData());
+    if (!maybeParser.has_value()) {
+      result = tl::make_unexpected(maybeParser.error());
     } else {
-      result = tl::make_unexpected("Not a valid type: '" + type + "'!");
+      auto parser = maybeParser.value();
+      result = std::move(parser.parseData());
     }
   }
 
