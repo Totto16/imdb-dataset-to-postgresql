@@ -15,8 +15,10 @@ using namespace v8;
 
 [[nodiscard]] inline Local<Value> Parser::asIs(const string &str) {
 
-  if (isNulledValue(str)) {
+  if (Parser::isNulledValue(str)) {
     Nan::ThrowError("NOT nullable type was null!");
+    // this shouldn't be reached, but I return an empty string nonetheless!
+    return Nan::EmptyString();
   }
 
   Nan::MaybeLocal<v8::String> result = Nan::New<v8::String>(str);
@@ -25,20 +27,20 @@ using namespace v8;
 }
 
 [[nodiscard]] inline Local<Value> Parser::imdbIdParser(const string &str) {
-  return asIs(str);
+  return Parser::asIs(str);
 }
 [[nodiscard]] inline Local<Value>
 Parser::alternativeTitleParser(const string &str) {
-  return asIs(str);
+  return Parser::asIs(str);
 }
 [[nodiscard]] inline Local<Value> Parser::titleTypeParser(const string &str) {
-  return asIs(str);
+  return Parser::asIs(str);
 }
 [[nodiscard]] inline Local<Value> Parser::genreParser(const string &str) {
-  return asIs(str);
+  return Parser::asIs(str);
 }
 [[nodiscard]] inline Local<Value> Parser::nameIDParser(const string &str) {
-  return asIs(str);
+  return Parser::asIs(str);
 }
 
 /*

@@ -8,10 +8,9 @@ using namespace std;
 using namespace v8;
 
 class Parser {
-private:
+public:
   [[nodiscard]] static bool isNulledValue(const string &str);
 
-public:
   [[nodiscard]] static Local<Value> asIs(const string &str);
 
   [[nodiscard]] static Local<Value> imdbIdParser(const string &str);

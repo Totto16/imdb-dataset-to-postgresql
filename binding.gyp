@@ -12,7 +12,7 @@
                 "-Wno-cast-function-type"  # since nan.h -> node.h has some warnings regarding that
             ],
             "sources": [
-                "addon.cpp",
+                "src/module.cpp",
                 "src/TSVParser.cpp",
                 "src/ParserStructure.cpp",
                 "src/InternalParsers.cpp",
@@ -46,7 +46,7 @@
             'direct_dependent_settings': {
                 'include_dirs': [
                     "submodules/tsvlib/csvlib/"
-                ],
+                ]
             },
         },
     ]

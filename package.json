@@ -1,11 +1,20 @@
 {
     "name": "imdb-dataset-parser",
-    "version": "0.0.1-aplha",
+    "version": "0.0.1-alpha",
     "description": "TODO",
     "gypfile": true,
+    "files": [
+        "dist/index.js",
+        "dist/index.d.ts",
+        "dist/types.d.ts"
+    ],
     "install": "node-gyp configure build",
     "scripts": {
-        "start": "node-gyp build --debug && node ./tests/test.js"
+        "configure": "node-gyp clean && node-gyp configure",
+        "build": "npm run configure && node-gyp build",
+        "debug": "npm run configure && node-gyp build --debug",
+        "test": "npx jest",
+        "build:test": "npm run build && npm run test"
     },
     "keywords": [],
     "author": {
@@ -13,15 +22,22 @@
         "url": "https://github.com/Totto16"
     },
     "dependencies": {
-        "bindings": "^1.5.0",
-        "nan": "^2.17.0"
+        "bindings": "^1.5.0"
     },
     "license": "MIT",
     "engines": {
-        "node": ">=18.10.0"
+        "node": "18.10.0"
     },
     "repository": {
         "type": "git",
         "url": "https://github.com/Totto16/imdb-dataset-parser.git"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.4.0",
+        "jest": "^29.4.2",
+        "nan": "^2.17.0",
+        "ts-jest": "^29.0.5",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.5"
     }
 }

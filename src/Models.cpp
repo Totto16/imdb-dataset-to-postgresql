@@ -23,7 +23,7 @@ shared_ptr<ParserStructure> Model::mappedTitleAlternate() {
           "isOriginalTitle",
       },
       vector<ParseFunction>{
-          Parser::imdbIdParser,
+          //Parser::imdbIdParser,
           /*  Parser::intParser,
            Parser::asIs,
            Parser::orNullParser(Parser::regionParser),
@@ -33,3 +33,156 @@ shared_ptr<ParserStructure> Model::mappedTitleAlternate() {
            Parser::orNullParser(Parser::booleanParser), */
       });
 }
+
+
+shared_ptr<ParserStructure> Model::mappedNameBasic() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+
+
+shared_ptr<ParserStructure> Model::mappedTitleBasic() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+
+
+shared_ptr<ParserStructure> Model::mappedTitleCrew() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+
+
+shared_ptr<ParserStructure> Model::mappedTitleEpisode() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+
+
+shared_ptr<ParserStructure> Model::mappedTitlePrincipal() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+
+
+
+
+shared_ptr<ParserStructure> Model::mappedTitleRating() {
+  return make_shared<ParserStructure>(
+      vector<string>{
+          "titleId",
+          "ordering",
+          "title",
+          "region",
+          "language",
+          "types",
+          "attributes",
+          "isOriginalTitle",
+      },
+      vector<ParseFunction>{
+          //Parser::imdbIdParser,
+          /*  Parser::intParser,
+           Parser::asIs,
+           Parser::orNullParser(Parser::regionParser),
+           Parser::orNullParser(Parser::languageParser),
+           Parser::arrayParser(Parser::alternativeTitleParser),
+           Parser::arrayParser(Parser::asIs),
+           Parser::orNullParser(Parser::booleanParser), */
+      });
+}
+

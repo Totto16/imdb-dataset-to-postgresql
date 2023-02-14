@@ -3,7 +3,7 @@
 #include <iostream>
 #include <nan.h>
 
-#include "src/TSVParser.hpp"
+#include "TSVParser.hpp"
 
 // inspired by https://github.com/freezer333/cppwebify-tutorial
 
@@ -44,7 +44,9 @@ public:
     } else {
 
       auto value = result.error();
-      Local<Value> errorResult[] = {Nan::Error(value.c_str()), Null()};
+      Nan::MaybeLocal<v8::String> stringValue = Nan::New<v8::String>(value);
+
+      Local<Value> errorResult[] = {stringValue.ToLocalChecked(), Null()};
 
       callback->Call(2, errorResult, async_resource);
     }
@@ -60,19 +62,19 @@ private:
 NAN_METHOD(parseFile) {
 
   if (!info[0]->IsString()) {
-    Nan::ThrowError("The first argument must be a string!");
+    Nan::ThrowError("The first argument must be a string");
   }
 
   std::string path = (*Utf8String(info[0]));
 
   if (!info[1]->IsString()) {
-    Nan::ThrowError("The second argument must be a string!");
+    Nan::ThrowError("The second argument must be a string");
   }
 
   std::string type = (*Utf8String(info[1]));
 
   if (!info[2]->IsFunction()) {
-    Nan::ThrowError("The third argument must be a callback function!");
+    Nan::ThrowError("The third argument must be a callback function");
   }
 
   Callback *callback = new Callback(info[2].As<Function>());
