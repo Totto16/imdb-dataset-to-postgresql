@@ -3,4 +3,4 @@
 	url = https://github.com/TartanLlama/expected.git
 [submodule "submodules/tsvlib"]
 	path = submodules/tsvlib
-	url = https://github.com/dagronf/csvlib.git
+	url = https://github.com/Totto16/csvlib.git
