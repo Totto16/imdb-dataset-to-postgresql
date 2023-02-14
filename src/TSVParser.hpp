@@ -15,7 +15,7 @@
 using namespace std;
 using namespace v8;
 
-typedef tl::expected<Local<Value>, string> ParseResult;
+typedef tl::expected<vector<int>, string> ParseResult;
 
 typedef map<string, shared_ptr<ParserStructure>> ParserMap;
 

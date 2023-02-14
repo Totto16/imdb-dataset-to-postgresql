@@ -33,8 +33,9 @@
                 "-fexceptions",
                 "-O3",
                 "-std=c++20",
+                "-Werror",
                 "-Wall",
-                "-Wpedantic"
+                "-Wpedantic",
             ],
             "sources": [
                 "submodules/tsvlib/csvlib/csv/parser.cpp",

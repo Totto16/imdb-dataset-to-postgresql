@@ -16,7 +16,7 @@ using namespace v8;
 class ParseWorker : public AsyncWorker {
 public:
   ParseWorker(Callback *callback, std::string path, std::string type)
-      : AsyncWorker(callback), path(path), type(type) {}
+      : AsyncWorker(callback, "imdb-dataset-parser"), path(path), type(type) {}
 
   ~ParseWorker() {}
 
@@ -27,7 +27,7 @@ public:
       result = tl::make_unexpected(maybeParser.error());
     } else {
       auto parser = maybeParser.value();
-      result = std::move(parser.parseData());
+      result = parser.parseData();
     }
   }
 
@@ -38,7 +38,17 @@ public:
     if (result.has_value()) {
 
       auto resultArray = result.value();
-      Local<Value> okResult[] = {Null(), resultArray};
+
+      v8::Local<v8::Array> results = Nan::New<v8::Array>(resultArray.size());
+      int i = 0;
+      for_each(resultArray.begin(), resultArray.end(), [&](int value) {
+        Nan::Set(results, i, Nan::New<v8::Number>(value));
+        i++;
+      });
+
+      Local<Value> okResult[] = {Null(), results};
+
+      //    Local<Value> okResult[] = {Null(), resultArray};
 
       callback->Call(2, okResult, async_resource);
     } else {
@@ -68,7 +78,7 @@ NAN_METHOD(parseFile) {
 
   if (!info[0]->IsString()) {
     Nan::ThrowError("The first argument must be a string");
-      return;
+    return;
   }
 
   std::string path = (*Utf8String(info[0]));
@@ -80,7 +90,7 @@ NAN_METHOD(parseFile) {
 
   if (!info[1]->IsString()) {
     Nan::ThrowError("The second argument must be a string");
-      return;
+    return;
   }
 
   std::string type = (*Utf8String(info[1]));
@@ -92,7 +102,7 @@ NAN_METHOD(parseFile) {
 
   if (!info[2]->IsFunction()) {
     Nan::ThrowError("The third argument must be a callback function");
-      return;
+    return;
   }
 
   Callback *callback = new Callback(info[2].As<Function>());
