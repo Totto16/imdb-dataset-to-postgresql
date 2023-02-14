@@ -5,7 +5,7 @@
         "target": "es2021",
         "module": "es2022",
         "moduleResolution": "node",
-        "lib": ["es2021", "dom"],
+        "lib": ["es2021"],
         "outDir": "dist",
         "allowJs": true,
         "rootDir": "module/",

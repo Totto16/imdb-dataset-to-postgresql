@@ -21,13 +21,13 @@ public:
     for (int32_t i = 0; i < n_; ++i) {
       stringstream ss;
       ss << "Test" << i;
-      while (!emitter((void *)sender, "test", ss.str().c_str())) {
+      while (!emitter(sender, "test", ss.str().c_str())) {
         std::this_thread::yield();
       }
-      while (!emitter((void *)sender, "test2", ss.str().c_str())) {
+      while (!emitter(sender, "test2", ss.str().c_str())) {
         std::this_thread::yield();
       }
-      while (!emitter((void *)sender, "test3", ss.str().c_str())) {
+      while (!emitter(sender, "test3", ss.str().c_str())) {
         std::this_thread::yield();
       }
     }
@@ -37,17 +37,17 @@ private:
   int32_t n_;
 };
 
-class EmittingThing : public Nan::ObjectWrap {
+class NativeParser : public Nan::ObjectWrap {
 public:
   static NAN_MODULE_INIT(Init) {
-    auto clsName = Nan::New("EmitterThing").ToLocalChecked();
+    auto clsName = Nan::New("NativeParser").ToLocalChecked();
     auto constructor = Nan::New<v8::FunctionTemplate>(New);
     auto tpl = constructor->InstanceTemplate();
     constructor->SetClassName(clsName);
     tpl->SetInternalFieldCount(1);
 
     Nan::SetPrototypeMethod(constructor, "on", On);
-    Nan::SetPrototypeMethod(constructor, "runReentrant", RunReentrant);
+    Nan::SetPrototypeMethod(constructor, "run", Run);
     Nan::SetPrototypeMethod(constructor, "removeAllListeners",
                             RemoveAllListeners);
     Nan::SetPrototypeMethod(constructor, "eventNames", EventNames);
@@ -56,7 +56,7 @@ public:
   };
 
 private:
-  EmittingThing() : emitter_(std::make_shared<EventEmitter>()) {}
+  NativeParser() : emitter_(std::make_shared<EventEmitter>()) {}
   static NAN_METHOD(On) {
     if (info.Length() != 2) {
       info.GetIsolate()->ThrowException(
@@ -77,8 +77,8 @@ private:
     auto s = *Nan::Utf8String(info[0]);
     Nan::Callback *callback = new Nan::Callback(info[1].As<Function>());
 
-    auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
-    thing->emitter_->on(s, callback);
+    auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
+    Parser->emitter_->on(s, callback);
   }
 
   static NAN_METHOD(RemoveAllListeners) {
@@ -87,7 +87,7 @@ private:
           Nan::TypeError("Wrong number of arguments"));
       return;
     }
-    auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
+    auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
 
     if (info.Length() == 1) {
       if (!info[0]->IsString()) {
@@ -96,9 +96,9 @@ private:
         return;
       }
       auto ev = *Nan::Utf8String(info[0]);
-      thing->emitter_->removeAllListenersForEvent(ev);
+      Parser->emitter_->removeAllListenersForEvent(ev);
     } else {
-      thing->emitter_->removeAllListeners();
+      Parser->emitter_->removeAllListeners();
     }
   }
 
@@ -108,11 +108,11 @@ private:
           Nan::TypeError("Wrong number of arguments"));
       return;
     }
-    auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
+    auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
     v8::Local<v8::Array> v = v8::Array::New(info.GetIsolate());
 
     size_t i = 0;
-    for (auto s : thing->emitter_->eventNames()) {
+    for (auto s : Parser->emitter_->eventNames()) {
       Nan::Set(v, i, (Nan::New<v8::String>(s)).ToLocalChecked());
       ++i;
     }
@@ -120,7 +120,7 @@ private:
     info.GetReturnValue().Set(v);
   }
 
-  static NAN_METHOD(RunReentrant) {
+  static NAN_METHOD(Run) {
     Nan::Callback *fn(nullptr);
     if (info.Length() < 1 || info.Length() > 2) {
       info.GetIsolate()->ThrowException(
@@ -143,9 +143,9 @@ private:
     }
 
     int32_t n = info[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
-    auto thing = Nan::ObjectWrap::Unwrap<EmittingThing>(info.Holder());
+    auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
 
-    ReentrantWorker *worker = new ReentrantWorker(fn, thing->emitter_, n);
+    ReentrantWorker *worker = new ReentrantWorker(fn, Parser->emitter_, n);
     Nan::AsyncQueueWorker(worker);
   }
 
@@ -156,7 +156,7 @@ private:
       return;
     }
 
-    EmittingThing *o = new EmittingThing();
+    NativeParser *o = new NativeParser();
     o->Wrap(info.This());
     info.GetReturnValue().Set(info.This());
   }
@@ -164,5 +164,5 @@ private:
   std::shared_ptr<NodeEvent::EventEmitter> emitter_;
 };
 
-NAN_MODULE_INIT(InitAll) { EmittingThing::Init(target); }
+NAN_MODULE_INIT(InitAll) { NativeParser::Init(target); }
 NODE_MODULE(NanObject, InitAll);
