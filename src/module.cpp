@@ -61,20 +61,38 @@ private:
 // Asynchronous access to the `getPrimes()` function
 NAN_METHOD(parseFile) {
 
+  if (info.Length() == 0) {
+    Nan::ThrowError("You must pass a first argument");
+    return;
+  }
+
   if (!info[0]->IsString()) {
     Nan::ThrowError("The first argument must be a string");
+      return;
   }
 
   std::string path = (*Utf8String(info[0]));
 
+  if (info.Length() == 1) {
+    Nan::ThrowError("You must pass a second argument");
+    return;
+  }
+
   if (!info[1]->IsString()) {
     Nan::ThrowError("The second argument must be a string");
+      return;
   }
 
   std::string type = (*Utf8String(info[1]));
 
+  if (info.Length() == 2) {
+    Nan::ThrowError("You must pass a third argument");
+    return;
+  }
+
   if (!info[2]->IsFunction()) {
     Nan::ThrowError("The third argument must be a callback function");
+      return;
   }
 
   Callback *callback = new Callback(info[2].As<Function>());

@@ -8,7 +8,7 @@ import {
     ITitleRating,
 } from "./types"
 
-const test = require("bindings")("imdb-dataset-parser") //require("./build/Release/imdb-dataset-parser.node")
+const imdbDatasetParser = require("bindings")("imdb-dataset-parser") //require("./build/Release/imdb-dataset-parser.node")
 
 export type ImdbDataType =
     | "name.basics"
@@ -39,7 +39,7 @@ export async function parseFile<T extends ImdbDataType>({
     type,
 }: ParseOptions<T>): Promise<Array<DataTypeToInterface[T]>> {
     return new Promise((resolve, reject) =>
-        test.parseFile(
+        imdbDatasetParser.parseFile(
             filePath,
             type,
             (err: string | null, res: Array<DataTypeToInterface[T]> | null) => {
