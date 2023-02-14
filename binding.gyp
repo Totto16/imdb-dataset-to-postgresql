@@ -1,14 +1,58 @@
-{
+# type: ignore
+{"target_defaults": {
+    "cflags": [
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-fexceptions",
+        "-O3",
+        "-Werror",
+        "-Wpedantic",
+    ],
+    "cflags_cc": [
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-fexceptions",
+        "-O3",
+        "-Werror",
+        "-Wpedantic",
+    ],
+    "defines": ["V8_DEPRECATION_WARNINGS=1"],
+    "include_dirs": ["<!(node -e \"require('nan')\")"],
+    "target_conditions": [
+        ['OS=="linux"', {
+            "cflags": [
+                "-std=c++20",
+                "-Wall",
+                "-Wextra",
+                "-Wno-unused-parameter",
+                "-fexceptions",
+                "-O3",
+                "-Werror",
+                "-Wpedantic"
+            ],
+            "cflags_cc": [
+                "-std=c++20",
+                "-Wall",
+                "-Wextra",
+                "-Wno-unused-parameter",
+                "-fexceptions",
+                "-O3",
+                "-Werror",
+                "-Wpedantic",
+                "-fno-omit-frame-pointer"
+            ],
+            "ldflags": ["-pthread"],
+        }],
+    ]
+},
     "targets": [
         {
             "target_name": "imdb-dataset-parser",
             "cflags_cc": [
-                "-fexceptions",
-                "-g3",
-                "-std=c++20",
-                "-Werror",
-                "-Wall",
-                "-Wpedantic",
                 "-Wno-cast-function-type"  # since nan.h -> node.h has some warnings regarding that
             ],
             "sources": [
@@ -16,11 +60,13 @@
                 "src/TSVParser.cpp",
                 "src/ParserStructure.cpp",
                 "src/InternalParsers.cpp",
-                "src/Models.cpp"
+                "src/Models.cpp",
+                "src/EventEmitter.cpp"
             ],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
-                "submodules/expected/include/tl/"
+                "submodules/expected/include/tl/",
+                "submodules/eventemitter/"
             ],
             'dependencies': [
                 'csvlib',
@@ -29,14 +75,6 @@
         {
             'target_name': 'csvlib',
             'type': '<(library)',
-            "cflags_cc": [
-                "-fexceptions",
-                "-O3",
-                "-std=c++20",
-                "-Werror",
-                "-Wall",
-                "-Wpedantic",
-            ],
             "sources": [
                 "submodules/tsvlib/csvlib/csv/parser.cpp",
                 "submodules/tsvlib/csvlib/csv/datasource/utf8/DataSource.cpp"
@@ -50,5 +88,5 @@
                 ]
             },
         },
-    ]
+]
 }
