@@ -10,86 +10,121 @@ const imdbDatasetParser = require("bindings")("imdb-dataset-parser")
 describe("wrong raw parameters", () => {
     it("should return an error, when no first argument was given", async () => {
         try {
-            imdbDatasetParser.parseFile()
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run()
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: You must pass a first argument"
+                "TypeError: Wrong number of arguments: expected 2 or 3"
             )
         }
     })
 
     it("should return an error, when the first argument is not a string", async () => {
         try {
-            imdbDatasetParser.parseFile(1)
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run(1)
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: The first argument must be a string"
+                "TypeError: Wrong number of arguments: expected 2 or 3"
             )
         }
     })
 
     it("should return an error, when no second argument was given", async () => {
         try {
-            imdbDatasetParser.parseFile("s")
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run("s")
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: You must pass a second argument"
+                "TypeError: Wrong number of arguments: expected 2 or 3"
             )
         }
     })
 
     it("should return an error, when the second argument is not a string", async () => {
         try {
-            imdbDatasetParser.parseFile("s", 1)
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run("s", 1)
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: The second argument must be a string"
+                "TypeError: The second argument must be a string"
             )
         }
     })
 
-    it("should return an error, when no third argument was given", async () => {
+    it("should return no error, when all arguments are correct and only 2 arguments are given", async () => {
         try {
-            imdbDatasetParser.parseFile("s", "s")
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run("s", "s")
+        } catch (e) {
+            fail("it should not reach here")
+        }
+    })
+
+    it("should return an error, when the third argument is not a boolean", async () => {
+        try {
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run("s", "s", 1)
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: You must pass a third argument"
+                "TypeError: The third argument must be boolean or 'auto'"
             )
         }
     })
 
-    it("should return an error, when the third argument is not a function", async () => {
+    it("should return an error, when the third argument is not 'auto'", async () => {
         try {
-            imdbDatasetParser.parseFile("s", "s", 1)
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run("s", "s", "test")
 
             fail("it should not reach here")
         } catch (e) {
             expect((e as any).toString()).toEqual(
-                "Error: The third argument must be a callback function"
+                "TypeError: The third argument must be the string 'auto', not another string"
             )
         }
     })
 
     it("should return no error, when all arguments are correct", async () => {
         try {
-            imdbDatasetParser.parseFile(
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run(
                 "s",
                 "s",
-                (err: string, test: null | Record<string, any>) => {
+                "auto"
+                /*  (err: string, test: null | Record<string, any>) => {
                     expect((err as any).toString()).toEqual(
                         "Not a valid type: 's'"
                     )
-                }
+                } */
+            )
+        } catch (e) {
+            fail("it should not reach here")
+        }
+    })
+
+    it("should return no error, when all arguments are correct", async () => {
+        try {
+            const parser = new imdbDatasetParser.NativeParser()
+            parser.run(
+                "s",
+                "s",
+                true
+                /*  (err: string, test: null | Record<string, any>) => {
+                    expect((err as any).toString()).toEqual(
+                        "Not a valid type: 's'"
+                    )
+                } */
             )
         } catch (e) {
             fail("it should not reach here")

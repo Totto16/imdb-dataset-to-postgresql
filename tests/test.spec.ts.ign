@@ -44,7 +44,7 @@ describe("wrong parameters", () => {
     })
 })
 
-/* describe("imdb dataset", () => {
+describe("imdb dataset", () => {
     const lines = 8
 
     it("should parse the ratings dataset", async () => {
@@ -54,7 +54,8 @@ describe("wrong parameters", () => {
         })
 
         console.log(result)
-        let i = 0
+        expect(Array.isArray(result)).toBe(true)
+        /* let i = 0
         for (const rating of result) {
             expect(rating.tconst).not.toBeUndefined()
             expect(rating.averageRating).not.toBeUndefined()
@@ -68,10 +69,10 @@ describe("wrong parameters", () => {
             i++
         }
 
-        expect(lines).toBe(i)
+        expect(lines).toBe(i) */
     })
 
-    it("should parse the basics dataset", async () => {
+    /*  it("should parse the basics dataset", async () => {
         const result = await parseFile({
             type: "title.basics",
             filePath: getFilePath("title.basics.tsv"),
@@ -188,6 +189,5 @@ describe("wrong parameters", () => {
         }
 
         expect(lines).toBe(i)
-    })
+    }) */
 })
- */

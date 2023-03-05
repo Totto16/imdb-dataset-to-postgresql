@@ -15,6 +15,9 @@
 using namespace std;
 using namespace v8;
 
+// ts: export type OmitHeadType = "auto" | boolean
+typedef enum { False = 0, True = 1, Auto = 2 } OmitHeadType;
+
 typedef tl::expected<vector<int>, string> ParseResult;
 
 typedef map<string, shared_ptr<ParserStructure>> ParserMap;

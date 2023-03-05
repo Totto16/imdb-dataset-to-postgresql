@@ -3,6 +3,7 @@
 #include <sstream>
 #include <thread>
 
+#include "TSVParser.hpp"
 #include "eventemitter.hpp"
 
 using namespace std;
@@ -10,31 +11,39 @@ using namespace NodeEvent;
 using namespace Nan;
 using namespace v8;
 
+// DOCS:
+
+// https://github.com/Totto16/imdb-dataset
+// https://github.com/Totto16/imdb-dataset-parser
+// https://github.com/nodejs/nan/blob/main/doc/asyncworker.md#api_nan_async_progress_worker
+// https://github.com/dagronf/csvlib
+// https://github.com/Totto16/cpp-eventemitter
+// https://v8docs.nodesource.com/node-18.2/de/deb/classv8_1_1_local.html
+// https://gyp.gsrc.io/docs/UserDocumentation.md#Add-a-new-library
+
 class ReentrantWorker : public AsyncEventEmittingReentrantCWorker<16> {
 public:
   ReentrantWorker(Nan::Callback *callback,
-                  std::shared_ptr<EventEmitter> emitter, size_t n)
-      : AsyncEventEmittingReentrantCWorker(callback, emitter), n_(n) {}
+                  std::shared_ptr<EventEmitter> emitter, string filePath,
+                  string type, OmitHeadType hasHead)
+      : AsyncEventEmittingReentrantCWorker(callback, emitter),
+        filePath{move(filePath)}, type{move(type)}, hasHead{hasHead} {}
 
   virtual void ExecuteWithEmitter(const ExecutionProgressSender *sender,
                                   eventemitter_fn_r emitter) override {
-    for (int32_t i = 0; i < n_; ++i) {
+    for (size_t i = 0; i < filePath.length(); ++i) {
       stringstream ss;
       ss << "Test" << i;
-      while (!emitter(sender, "test", ss.str().c_str())) {
-        std::this_thread::yield();
-      }
-      while (!emitter(sender, "test2", ss.str().c_str())) {
-        std::this_thread::yield();
-      }
-      while (!emitter(sender, "test3", ss.str().c_str())) {
+      while (!emitter(sender, "error", ss.str().c_str())) {
         std::this_thread::yield();
       }
     }
   }
 
 private:
-  int32_t n_;
+  string filePath;
+  string type;
+  OmitHeadType hasHead;
 };
 
 class NativeParser : public Nan::ObjectWrap {
@@ -121,31 +130,61 @@ private:
   }
 
   static NAN_METHOD(Run) {
-    Nan::Callback *fn(nullptr);
-    if (info.Length() < 1 || info.Length() > 2) {
+    // ts: run(filePath: string, type: string, hasHead?: "auto" | boolean): void
+    if (info.Length() < 2 || info.Length() > 3) {
       info.GetIsolate()->ThrowException(
-          Nan::TypeError("Wrong number of arguments"));
+          Nan::TypeError("Wrong number of arguments: expected 2 or 3"));
       return;
     }
-    if (!info[0]->IsNumber()) {
+    if (!info[0]->IsString()) {
       info.GetIsolate()->ThrowException(
-          Nan::TypeError("First argument must be number"));
+          Nan::TypeError("The first argument must be a string"));
       return;
     }
-    if (info.Length() == 2) {
-      if (info[1]->IsFunction()) {
-        fn = new Nan::Callback(info[1].As<Function>());
+
+    if (!info[1]->IsString()) {
+      info.GetIsolate()->ThrowException(
+          Nan::TypeError("The second argument must be a string"));
+      return;
+    }
+
+    string filePath = (*Utf8String(info[0]));
+    string type = (*Utf8String(info[1]));
+
+    OmitHeadType hasHead = OmitHeadType::Auto;
+
+    if (info.Length() == 3) {
+      if (info[2]->IsString()) {
+        string hasHeadString = (*Utf8String(info[2]));
+        if (hasHeadString == "auto") {
+          hasHead = OmitHeadType::Auto;
+        } else {
+          info.GetIsolate()->ThrowException(
+              Nan::TypeError("The third argument must be the string 'auto', "
+                             "not another string"));
+          return;
+        }
+      } else if (info[2]->IsBoolean()) {
+        bool hasHeadBool = info[2]->BooleanValue(info.GetIsolate());
+        if (hasHeadBool) {
+          hasHead = OmitHeadType::True;
+        } else {
+          hasHead = OmitHeadType::False;
+        }
       } else {
         info.GetIsolate()->ThrowException(
-            Nan::TypeError("Second argument must be function"));
+            Nan::TypeError("The third argument must be boolean or 'auto'"));
         return;
       }
     }
 
-    int32_t n = info[0]->Int32Value(Nan::GetCurrentContext()).ToChecked();
     auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
 
-    ReentrantWorker *worker = new ReentrantWorker(fn, Parser->emitter_, n);
+    // TODO: either remove this callback or use it for some purpose
+    Nan::Callback *fn(nullptr);
+
+    ReentrantWorker *worker =
+        new ReentrantWorker(fn, Parser->emitter_, filePath, type, hasHead);
     Nan::AsyncQueueWorker(worker);
   }
 

@@ -1,9 +1,10 @@
-import { existsSync } from "fs"
+import { createReadStream, existsSync, ReadStream } from "fs"
+import readline from "readline"
 
-import { DataTypeToInterface, ImdbDataType } from "./columns"
-import * as n from "./NativeParser"
-
-const { NativeParser } = require("bindings")("imdb-dataset-parser") //require("./build/Release/imdb-dataset-parser.node")
+import { dataTypeMap, DataTypeToInterface, ImdbDataType } from "./columns"
+import { Model } from "./Model"
+import { IMappedTypes } from "./types"
+import { sleep } from "./util"
 
 export enum IteratorState {
     NA,
@@ -14,60 +15,75 @@ export enum IteratorState {
 export interface ITSVParserOptions<T extends keyof DataTypeToInterface> {
     type: T
     filePath: string
-    hasHead?: OmitHeadType
+    hasHead?: boolean
     maxLines?: number
 }
 
-export function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-export type OmitHeadType = "auto" | boolean
+type OmitHeadTYpe = "auto" | boolean
 
 export class TSVParser<T extends ImdbDataType>
     implements AsyncIterable<DataTypeToInterface[T]>
 {
-    private nativeParser: n.NativeParser<T>
+    private stream: ReadStream
     private lines: DataTypeToInterface[T][] = []
     private maxLines = 100
     private state: IteratorState = IteratorState.NA
     private lineCount = 0
+    private omitHead: OmitHeadTYpe = "auto"
+
+    private model: Model<DataTypeToInterface[T]>
 
     constructor(options: ITSVParserOptions<T>) {
         const { filePath, type, hasHead, maxLines } = options
+        if (hasHead !== undefined) {
+            this.omitHead = hasHead
+        }
 
         if (maxLines !== undefined) {
             this.maxLines = maxLines
         }
 
-        // TODO this is done twice ?!?!
         if (!existsSync(filePath)) {
             throw new Error(`Cannot find file at path: ${filePath}`)
         }
 
+        this.model = new Model<DataTypeToInterface[T]>(
+            dataTypeMap[type] as IMappedTypes<DataTypeToInterface[T]>
+        )
+
         this.state = IteratorState.WORKING
 
-        this.nativeParser = new NativeParser()
+        this.stream = createReadStream(filePath)
 
-        this.nativeParser.on("parsedLine", this.parsedLine)
-        this.nativeParser.on("error", (err: string) => {
-            const error = new Error(err)
-            console.error(error)
-        })
-        this.nativeParser.on("end", () => {
+        let rl = readline.createInterface({ input: this.stream })
+        rl.on("line", this.onLine)
+        rl.on("error", (error) => console.error(error))
+        rl.on("close", () => {
             this.state = IteratorState.FINISHED
         })
-
-        this.nativeParser.run(filePath, type, hasHead)
     }
 
-    private parsedLine = (parsedLine: DataTypeToInterface[T]) => {
+    private onLine = (line: string) => {
+        if (!line) {
+            return
+        }
+
         ++this.lineCount
 
+        if (this.lineCount === 1 && this.omitHead !== false) {
+            if (this.omitHead === "auto") {
+                if (this.model.isHead(line)) {
+                    return
+                }
+            }
+            return
+        }
+
+        const parsedLine = this.model.parseLine(line)
         this.lines.push(parsedLine)
 
         if (this.lines.length === this.maxLines) {
-            this.nativeParser.pause()
+            this.stream.pause()
         }
     }
 
@@ -86,7 +102,7 @@ export class TSVParser<T extends ImdbDataType>
 
     public async next(): Promise<IteratorResult<DataTypeToInterface[T]>> {
         if (this.isEmpty()) {
-            this.nativeParser.resume()
+            this.stream.resume()
             await this.waitForNewLines()
         }
 
