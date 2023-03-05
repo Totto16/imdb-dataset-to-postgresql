@@ -10,6 +10,8 @@
 #include <vector>
 
 #include "ParserStructure.hpp"
+#include "eventemitter.hpp"
+#include "helper.hpp"
 #include "types.hpp"
 
 using namespace std;
@@ -18,7 +20,7 @@ using namespace v8;
 // ts: export type OmitHeadType = "auto" | boolean
 typedef enum { False = 0, True = 1, Auto = 2 } OmitHeadType;
 
-typedef tl::expected<vector<int>, string> ParseResult;
+typedef tl::expected<bool, string> ParseResult;
 
 typedef map<string, shared_ptr<ParserStructure>> ParserMap;
 
@@ -28,7 +30,8 @@ public:
   TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
 
-  ParseResult parseData();
+  ParseResult parseData(const ExecutionProgressSender *sender,
+                        EventEmitterFunctionReentrant emitter);
   [[nodiscard]] static ParserMap getParserMap();
 
 private:

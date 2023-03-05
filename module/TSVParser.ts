@@ -42,7 +42,7 @@ export class TSVParser<T extends ImdbDataType>
 
         // TODO this is done twice ?!?!
         if (!existsSync(filePath)) {
-            throw new Error(`Cannot find file at path: ${filePath}`)
+            throw new Error(`Filepath was invalid: '${filePath}'`)
         }
 
         this.state = IteratorState.WORKING
@@ -50,15 +50,18 @@ export class TSVParser<T extends ImdbDataType>
         this.nativeParser = new NativeParser()
 
         this.nativeParser.on("parsedLine", this.parsedLine)
-        this.nativeParser.on("error", (err: string) => {
-            const error = new Error(err)
-            console.error(error)
+        this.nativeParser.on("error", (err: Error | string) => {
+            if (err instanceof Error) {
+                throw err
+            } else {
+                throw new Error(`Received error while reading: ${err}`)
+            }
         })
         this.nativeParser.on("end", () => {
             this.state = IteratorState.FINISHED
         })
 
-        this.nativeParser.run(filePath, type, hasHead)
+        this.nativeParser.run(filePath, type, hasHead ?? "auto")
     }
 
     private parsedLine = (parsedLine: DataTypeToInterface[T]) => {
@@ -116,6 +119,10 @@ export class TSVParser<T extends ImdbDataType>
     }
 
     private get finished() {
+        /* console.log(
+            "finished: ",
+            this.state === IteratorState.FINISHED && this.lines.length === 0
+        ) */
         return this.state === IteratorState.FINISHED && this.lines.length === 0
     }
 

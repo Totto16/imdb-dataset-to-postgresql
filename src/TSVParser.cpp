@@ -12,6 +12,7 @@
 #include "Models.hpp"
 #include "ParserStructure.hpp"
 #include "TSVParser.hpp"
+#include "eventemitter.hpp"
 
 using namespace std;
 using namespace v8;
@@ -47,14 +48,15 @@ ParserMap TSVParser::getParserMap() {
   return parserMap;
 }
 
-ParseResult TSVParser::parseData() {
+ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
+                                 EventEmitterFunctionReentrant emitter) {
   csv::utf8::FileDataSource input;
 
   if (!input.open(m_path.c_str())) {
     return tl::make_unexpected("Filepath was invalid: '" + m_path + "'");
   }
 
-  vector<int> vec = vector<int>{};
+  shared_ptr<ParserStructure> map = getParserMap().get(type);
 
   csv::parse(
       input,
@@ -63,13 +65,14 @@ ParseResult TSVParser::parseData() {
         return true;
       },
       [&vec](const csv::record &record, double progress) -> bool {
-        cout << progress *100 << " %" << endl;
-        vec.push_back(record.content.size());
+        auto parserResult = map->parse(record);
+        std::shared_ptr<Constructable> parsedLine =
+            std::make_shared<ObjectConstructable>(parserResult);
+        while (!emitter(sender, "parsedLine", parsedLine)) {
+          std::this_thread::yield();
+        }
         return true;
       });
 
-  /*   vec.push_back(1);
-    vec.push_back(3);
-    vec.push_back(4); */
-  return vec;
+  return true;
 }

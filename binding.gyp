@@ -56,7 +56,6 @@
                 "-Wno-cast-function-type"  # since nan.h -> node.h has some warnings regarding that
             ],
             "sources": [
-                "src/module.cpp",
                 "src/TSVParser.cpp",
                 "src/ParserStructure.cpp",
                 "src/InternalParsers.cpp",

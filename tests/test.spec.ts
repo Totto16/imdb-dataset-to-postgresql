@@ -1,5 +1,6 @@
-import { ImdbDataType, parseFile } from "../module/index"
+import { TSVParser } from "../module/TSVParser"
 import { expect } from "@jest/globals"
+import { ImdbDataType } from "../module/columns"
 function fail(reason = "fail was called in a test."): never {
     throw new Error(reason)
 }
@@ -17,10 +18,11 @@ function isImdbId(str: string): boolean {
 describe("wrong parameters", () => {
     it("should return an error, when the type is wrong", async () => {
         try {
-            const result = await parseFile({
-                type: "unknown" as ImdbDataType,
+            const parser = new TSVParser({
                 filePath: getFilePath("title.ratings.tsv"),
+                type: "unknown" as ImdbDataType,
             })
+
             fail("it should not reach here")
         } catch (e) {
             expect(e).toBeInstanceOf(Error)
@@ -30,10 +32,11 @@ describe("wrong parameters", () => {
 
     it("should return an error, when the filePath isn't present", async () => {
         try {
-            const result = await parseFile({
+            const parser = new TSVParser({
                 type: "title.ratings",
                 filePath: getFilePath("s"),
             })
+
             fail("it should not reach here")
         } catch (e) {
             expect(e).toBeInstanceOf(Error)
@@ -48,15 +51,17 @@ describe("imdb dataset", () => {
     const lines = 8
 
     it("should parse the ratings dataset", async () => {
-        const result = await parseFile({
-            type: "title.ratings",
+        const parser = new TSVParser({
             filePath: getFilePath("title.ratings.tsv"),
+            type: "title.ratings",
         })
 
-        console.log(result)
-        expect(Array.isArray(result)).toBe(true)
-        /* let i = 0
-        for (const rating of result) {
+        for await (const rating of parser) {
+            
+        }
+
+        /*  let i = 0
+        for await (const rating of parser) {
             expect(rating.tconst).not.toBeUndefined()
             expect(rating.averageRating).not.toBeUndefined()
             expect(rating.numVotes).not.toBeUndefined()
@@ -69,6 +74,7 @@ describe("imdb dataset", () => {
             i++
         }
 
+        expect(lines).toBe(parser.getLineCount())
         expect(lines).toBe(i) */
     })
 

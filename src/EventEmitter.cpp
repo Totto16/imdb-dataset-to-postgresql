@@ -1,10 +1,12 @@
 #include <iostream>
+#include <memory>
 #include <nan.h>
 #include <sstream>
 #include <thread>
 
 #include "TSVParser.hpp"
 #include "eventemitter.hpp"
+#include "helper.hpp"
 
 using namespace std;
 using namespace NodeEvent;
@@ -21,7 +23,9 @@ using namespace v8;
 // https://v8docs.nodesource.com/node-18.2/de/deb/classv8_1_1_local.html
 // https://gyp.gsrc.io/docs/UserDocumentation.md#Add-a-new-library
 
-class ReentrantWorker : public AsyncEventEmittingReentrantCWorker<16> {
+// use a RingBuffer with 64 capacity (was 16 initially)!
+class ReentrantWorker
+    : public AsyncEventEmittingReentrantCWorker<RingBufferSize> {
 public:
   ReentrantWorker(Nan::Callback *callback,
                   std::shared_ptr<EventEmitter> emitter, string filePath,
@@ -29,13 +33,47 @@ public:
       : AsyncEventEmittingReentrantCWorker(callback, emitter),
         filePath{move(filePath)}, type{move(type)}, hasHead{hasHead} {}
 
-  virtual void ExecuteWithEmitter(const ExecutionProgressSender *sender,
-                                  eventemitter_fn_r emitter) override {
-    for (size_t i = 0; i < filePath.length(); ++i) {
-      stringstream ss;
-      ss << "Test" << i;
-      while (!emitter(sender, "error", ss.str().c_str())) {
+  virtual void
+  ExecuteWithEmitter(const ExecutionProgressSender *sender,
+                     EventEmitterFunctionReentrant emitter) override {
+    MaybeParser maybeParser = makeParser(filePath, type);
+
+    if (!maybeParser.has_value()) {
+      ParseResult result = tl::make_unexpected(maybeParser.error());
+
+      std::shared_ptr<Constructable> typeErrorVal =
+          std::make_shared<TypeErrorConstructable>(result);
+      while (!emitter(sender, "error", typeErrorVal)) {
         std::this_thread::yield();
+      }
+      return;
+    } else {
+      auto parser = maybeParser.value();
+      ParseResult result = parser.parseData(sender, emitter);
+
+      if (!result.has_value()) {
+        std::shared_ptr<Constructable> typeErrorVal =
+            std::make_shared<TypeErrorConstructable>(result);
+        while (!emitter(sender, "error", typeErrorVal)) {
+          std::this_thread::yield();
+        }
+        return;
+      }
+
+      auto value = result.value();
+      if (value) {
+        std::shared_ptr<Constructable> endVal =
+            std::make_shared<UndefinedConstructable>();
+        while (!emitter(sender, "end", endVal)) {
+          std::this_thread::yield();
+        }
+      } else {
+        std::shared_ptr<Constructable> unreachableVal =
+            std::make_shared<TypeErrorConstructable>("UNREACHABLE");
+        while (!emitter(sender, "error", unreachableVal)) {
+          std::this_thread::yield();
+        }
+        return;
       }
     }
   }
@@ -57,6 +95,8 @@ public:
 
     Nan::SetPrototypeMethod(constructor, "on", On);
     Nan::SetPrototypeMethod(constructor, "run", Run);
+    Nan::SetPrototypeMethod(constructor, "resume", Resume);
+    Nan::SetPrototypeMethod(constructor, "pause", Pause);
     Nan::SetPrototypeMethod(constructor, "removeAllListeners",
                             RemoveAllListeners);
     Nan::SetPrototypeMethod(constructor, "eventNames", EventNames);
@@ -109,6 +149,8 @@ private:
     } else {
       Parser->emitter_->removeAllListeners();
     }
+
+    info.GetReturnValue().Set(info.This());
   }
 
   static NAN_METHOD(EventNames) {
@@ -127,6 +169,30 @@ private:
     }
 
     info.GetReturnValue().Set(v);
+  }
+
+  // TODO implement correct
+  static NAN_METHOD(Resume) {
+    if (info.Length() > 0) {
+      info.GetIsolate()->ThrowException(
+          Nan::TypeError("Wrong number of arguments"));
+      return;
+    }
+    // auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
+
+    info.GetReturnValue().Set(Nan::Null());
+  }
+
+  // TODO implement correct
+  static NAN_METHOD(Pause) { // TODO
+    if (info.Length() > 0) {
+      info.GetIsolate()->ThrowException(
+          Nan::TypeError("Wrong number of arguments"));
+      return;
+    }
+    //  auto Parser = Nan::ObjectWrap::Unwrap<NativeParser>(info.Holder());
+
+    info.GetReturnValue().Set(Nan::Null());
   }
 
   static NAN_METHOD(Run) {
