@@ -69,6 +69,7 @@
             ],
             'dependencies': [
                 'csvlib',
+                "eventemitterlib"
             ]
         },
         {
@@ -87,5 +88,22 @@
                 ]
             },
         },
+    {
+            'target_name': 'eventemitterlib',
+            'type': '<(library)',
+            "sources": [
+                "submodules/eventemitter/constructable.cpp",
+                "submodules/eventemitter/eventemitter_impl.cpp",
+                "submodules/eventemitter/uv_rwlock_adaptor.cpp",
+            ],
+            "include_dirs": [
+                "submodules/eventemitter/",
+            ],
+            'direct_dependent_settings': {
+                'include_dirs': [
+                    "submodules/eventemitter/",
+                ]
+            },
+    },
 ]
 }
