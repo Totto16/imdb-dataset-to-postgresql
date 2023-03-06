@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include <array>
-#include <fmt/core.h>
 #include <memory>
 #include <nan.h>
 #include <stdexcept>
@@ -65,7 +64,7 @@ StaticParsers::booleanParser(const string &str) {
     return make_shared<TrueConstructable>();
   } else {
     return make_shared<ParserExceptionConstructable>(
-        fmt::format("Couldn't parse boolean of '{}'", str));
+        "Couldn't parse boolean of '" + str + "'");
   }
 }
 
@@ -93,7 +92,7 @@ StaticParsers::floatParser(const string &str) {
   const auto result = str2double(d, str.c_str());
   if (result != STR2DOUBLE_ERROR::SUCCESS) {
     return make_shared<ParserExceptionConstructable>(
-        fmt::format("Couldn't parse float of '{}'", str));
+        "Couldn't parse float of '" + str + "'");
   }
 
   return make_shared<DoubleNumberConstructable>(d);
@@ -129,8 +128,8 @@ StaticParsers::intParser(const string &str) {
   int i;
   const auto result = str2int(i, str.c_str());
   if (result != STR2INT_ERROR::SUCCESS) {
-    return make_shared<ParserExceptionConstructable>(
-        fmt::format("Couldn't parse int of '{}'", str));
+    return make_shared<ParserExceptionConstructable>("Couldn't parse int of '" +
+                                                     str + "'");
   }
 
   return make_shared<IntNumberConstructable>(i);

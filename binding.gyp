@@ -71,7 +71,7 @@
                 "submodules/expected/include/tl/",
                 "submodules/eventemitter/",
             ],
-            "dependencies": ["csvlib", "eventemitterlib", "fmtlib"],
+            "dependencies": ["csvlib", "eventemitterlib"],
         },
         {
             "target_name": "csvlib",
@@ -101,24 +101,6 @@
             "direct_dependent_settings": {
                 "include_dirs": [
                     "submodules/eventemitter/",
-                ]
-            },
-        },
-        {
-            "target_name": "fmtlib",
-            "type": "static_library",
-            "cflags_cc": ["-std=c++20", "-Wno-Error", "-fmodules-ts"],
-            "sources": [
-                "submodules/fmt/src/format.cc",
-                "submodules/fmt/src/os.cc",
-                "submodules/fmt/src/fmt.cc",
-            ],
-            "include_dirs": [
-                "submodules/fmt/include/",
-            ],
-            "direct_dependent_settings": {
-                "include_dirs": [
-                    "submodules/fmt/include/",
                 ]
             },
         },

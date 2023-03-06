@@ -1,7 +1,7 @@
 
 
 #include <expected.hpp>
-#include <fmt/core.h>
+#include <iostream>
 #include <nan.h>
 #include <stdexcept>
 #include <string>
@@ -26,10 +26,12 @@ ObjectValues ParserStructure::parse(const csv::record &record) {
   // dynamically!! (also in the original, the size has to be validated!)
   if (m_order.size() != m_declarations.size() ||
       m_order.size() != record.content.size()) {
-    throw length_error(fmt::format(
-        "all three needed vectors have to be the same length: order: "
-        "{} - declarations: {} - record: {} ",
-        m_order.size(), m_declarations.size(), record.content.size()));
+    std::cout << "order: " << m_order.size()
+              << " - m_declarations: " << m_declarations.size()
+              << " - record: " << record.content.size() << "\n";
+
+
+    throw length_error("all three needed vectors have to be the same length");
   }
 
   size_t i = 0;
