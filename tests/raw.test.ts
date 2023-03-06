@@ -98,16 +98,7 @@ describe("wrong raw parameters", () => {
     it("should return no error, when all arguments are correct", async () => {
         try {
             const parser = new imdbDatasetParser.NativeParser()
-            parser.run(
-                "s",
-                "s",
-                "auto"
-                /*  (err: string, test: null | Record<string, any>) => {
-                    expect((err as any).toString()).toEqual(
-                        "Not a valid type: 's'"
-                    )
-                } */
-            )
+            parser.run("s", "s", "auto")
         } catch (e) {
             fail("it should not reach here")
         }
@@ -116,16 +107,7 @@ describe("wrong raw parameters", () => {
     it("should return no error, when all arguments are correct", async () => {
         try {
             const parser = new imdbDatasetParser.NativeParser()
-            parser.run(
-                "s",
-                "s",
-                true
-                /*  (err: string, test: null | Record<string, any>) => {
-                    expect((err as any).toString()).toEqual(
-                        "Not a valid type: 's'"
-                    )
-                } */
-            )
+            parser.run("s", "s", true)
         } catch (e) {
             fail("it should not reach here")
         }

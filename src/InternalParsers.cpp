@@ -7,7 +7,6 @@
 #include <memory>
 #include <nan.h>
 #include <stdexcept>
-
 #include <string>
 
 #include "InternalParsers.hpp"
@@ -41,6 +40,10 @@ StaticParsers::alternativeTitleParser(const string &str) {
 }
 [[nodiscard]] shared_ptr<Constructable>
 StaticParsers::titleTypeParser(const string &str) {
+  return StaticParsers::asIs(str);
+}
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::nameIDParser(const string &str) {
   return StaticParsers::asIs(str);
 }
 [[nodiscard]] shared_ptr<Constructable>
@@ -157,7 +160,10 @@ StaticParsers::arrayParser(const ParserFunction &fn) {
       return make_shared<ArrayConstructable>(vec);
     }
 
-    // let parts = str.split(",").filter((a) = > a !== "")
+    auto parts = ParserHelper::split<std::vector>(str, ",");
+    for (const auto &value : parts) {
+      vec.push_back(fn(value));
+    }
     // return parts.map(parser)
     return make_shared<ArrayConstructable>(vec);
   };

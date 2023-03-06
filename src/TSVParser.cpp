@@ -52,6 +52,7 @@ ParserMap TSVParser::getParserMap() {
 ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
                                  EventEmitterFunctionReentrant emitter) {
   csv::utf8::FileDataSource input;
+	input.separator = '\t';
 
   if (!input.open(m_path.c_str())) {
     return tl::make_unexpected("Filepath was invalid: '" + m_path + "'");

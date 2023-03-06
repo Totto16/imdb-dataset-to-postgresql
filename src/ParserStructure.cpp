@@ -30,6 +30,9 @@ ObjectValues ParserStructure::parse(const csv::record &record) {
               << " - m_declarations: " << m_declarations.size()
               << " - record: " << record.content.size() << "\n";
 
+    for (const auto &field : record.content) {
+      std::cout << field.content << '\n';
+    }
 
     throw length_error("all three needed vectors have to be the same length");
   }

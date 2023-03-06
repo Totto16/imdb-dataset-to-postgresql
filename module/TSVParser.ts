@@ -24,6 +24,16 @@ export function sleep(ms: number): Promise<void> {
 
 export type OmitHeadType = "auto" | boolean
 
+const possibleValues: ImdbDataType[] = [
+    "name.basics",
+    "title.akas",
+    "title.basics",
+    "title.crew",
+    "title.episode",
+    "title.principals",
+    "title.ratings",
+]
+
 export class TSVParser<T extends ImdbDataType>
     implements AsyncIterable<DataTypeToInterface[T]>
 {
@@ -43,6 +53,10 @@ export class TSVParser<T extends ImdbDataType>
         // TODO this is done twice ?!?!
         if (!existsSync(filePath)) {
             throw new Error(`Filepath was invalid: '${filePath}'`)
+        }
+
+        if (!possibleValues.includes(type)) {
+            throw new Error(`Not a valid type: '${type}'`)
         }
 
         this.state = IteratorState.WORKING

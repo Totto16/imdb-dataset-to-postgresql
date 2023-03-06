@@ -56,11 +56,7 @@ describe("imdb dataset", () => {
             type: "title.ratings",
         })
 
-        for await (const rating of parser) {
-            
-        }
-
-        /*  let i = 0
+        let i = 0
         for await (const rating of parser) {
             expect(rating.tconst).not.toBeUndefined()
             expect(rating.averageRating).not.toBeUndefined()
@@ -75,17 +71,17 @@ describe("imdb dataset", () => {
         }
 
         expect(lines).toBe(parser.getLineCount())
-        expect(lines).toBe(i) */
+        expect(lines).toBe(i)
     })
 
-    /*  it("should parse the basics dataset", async () => {
-        const result = await parseFile({
-            type: "title.basics",
+    it("should parse the basics dataset", async () => {
+        const parser = new TSVParser({
             filePath: getFilePath("title.basics.tsv"),
+            type: "title.basics",
         })
 
         let i = 0
-        for (const basic of result) {
+        for await (const basic of parser) {
             expect(basic.tconst).not.toBeUndefined()
             expect(basic.titleType).not.toBeUndefined()
             expect(basic.primaryTitle).not.toBeUndefined()
@@ -107,13 +103,13 @@ describe("imdb dataset", () => {
     })
 
     it("should parse the akas dataset", async () => {
-        const result = await parseFile({
-            type: "title.akas",
+        const parser = new TSVParser({
             filePath: getFilePath("title.akas.tsv"),
+            type: "title.akas",
         })
 
         let i = 0
-        for (const alternate of result) {
+        for await (const alternate of parser) {
             expect(alternate.titleId).not.toBeUndefined()
             expect(alternate.ordering).not.toBeUndefined()
             //TODO better tests here
@@ -125,13 +121,13 @@ describe("imdb dataset", () => {
     })
 
     it("should parse the crew dataset", async () => {
-        const result = await parseFile({
-            type: "title.crew",
+        const parser = new TSVParser({
             filePath: getFilePath("title.crew.tsv"),
+            type: "title.crew",
         })
 
         let i = 0
-        for (const crew of result) {
+        for await (const crew of parser) {
             expect(crew.tconst).not.toBeUndefined()
             //TODO better tests here
 
@@ -142,13 +138,13 @@ describe("imdb dataset", () => {
     })
 
     it("should parse the episode dataset", async () => {
-        const result = await parseFile({
+        const parser = new TSVParser({
             filePath: getFilePath("title.episode.tsv"),
             type: "title.episode",
         })
 
         let i = 0
-        for (const episode of result) {
+        for await (const episode of parser) {
             expect(episode.tconst).not.toBeUndefined()
             expect(episode.parentTconst).not.toBeUndefined()
             //TODO better tests here
@@ -160,13 +156,13 @@ describe("imdb dataset", () => {
     })
 
     it("should parse the principal dataset", async () => {
-        const result = await parseFile({
+        const parser = new TSVParser({
+            filePath: getFilePath("title.principals.tsv"),
             type: "title.principals",
-            filePath: getFilePath("title.pricipals.tsv"),
         })
 
         let i = 0
-        for (const principal of result) {
+        for await (const principal of parser) {
             expect(principal.tconst).not.toBeUndefined()
             expect(principal.ordering).not.toBeUndefined()
             expect(principal.nconst).not.toBeUndefined()
@@ -179,13 +175,13 @@ describe("imdb dataset", () => {
     })
 
     it("should parse the name dataset", async () => {
-        const result = await parseFile({
-            type: "name.basics",
+        const parser = new TSVParser({
             filePath: getFilePath("name.basics.tsv"),
+            type: "name.basics",
         })
 
         let i = 0
-        for (const principal of result) {
+        for await (const principal of parser) {
             expect(principal.primaryName).not.toBeUndefined()
             expect(principal.birthYear).not.toBeUndefined()
             expect(principal.nconst).not.toBeUndefined()
@@ -195,5 +191,5 @@ describe("imdb dataset", () => {
         }
 
         expect(lines).toBe(i)
-    }) */
+    })
 })
