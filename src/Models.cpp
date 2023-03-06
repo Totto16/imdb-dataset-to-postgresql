@@ -23,14 +23,14 @@ shared_ptr<ParserStructure> Model::mappedTitleAlternate() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -47,14 +47,14 @@ shared_ptr<ParserStructure> Model::mappedNameBasic() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -71,14 +71,14 @@ shared_ptr<ParserStructure> Model::mappedTitleBasic() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -95,14 +95,14 @@ shared_ptr<ParserStructure> Model::mappedTitleCrew() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -119,14 +119,14 @@ shared_ptr<ParserStructure> Model::mappedTitleEpisode() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -143,14 +143,14 @@ shared_ptr<ParserStructure> Model::mappedTitlePrincipal() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }
 
@@ -167,13 +167,13 @@ shared_ptr<ParserStructure> Model::mappedTitleRating() {
           "isOriginalTitle",
       },
       vector<ParserFunction>{
-          Parser::imdbIdParser,
-          Parser::intParser,
-          Parser::asIs,
-          Parser::orNullParser(Parser::regionParser),
-          Parser::orNullParser(Parser::languageParser),
-          Parser::arrayParser(Parser::alternativeTitleParser),
-          Parser::arrayParser(Parser::asIs),
-          Parser::orNullParser(Parser::booleanParser),
+          StaticParsers::imdbIdParser,
+          StaticParsers::intParser,
+          StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::regionParser),
+          StaticParsers::orNullParser(StaticParsers::languageParser),
+          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
+          StaticParsers::arrayParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::booleanParser),
       });
 }

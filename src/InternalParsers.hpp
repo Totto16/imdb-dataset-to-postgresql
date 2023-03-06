@@ -28,7 +28,7 @@ private:
 
 using ParserFunction = function<shared_ptr<Constructable>(const string &str)>;
 
-class Parser {
+class StaticParsers {
 public:
   [[nodiscard]] static bool isNulledValue(const string &str);
 

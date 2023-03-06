@@ -7,3 +7,6 @@
 [submodule "submodules/eventemitter"]
 	path = submodules/eventemitter
 	url = https://github.com/Totto16/cpp-eventemitter.git
+[submodule "submodules/fmt"]
+	path = submodules/fmt
+	url = https://github.com/fmtlib/fmt.git

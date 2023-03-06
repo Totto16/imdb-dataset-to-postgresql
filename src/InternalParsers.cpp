@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <array>
+#include <fmt/core.h>
 #include <memory>
 #include <nan.h>
 #include <stdexcept>
@@ -17,13 +18,13 @@
 using namespace std;
 using namespace v8;
 
-[[nodiscard]] inline bool Parser::isNulledValue(const string &str) {
+[[nodiscard]] bool StaticParsers::isNulledValue(const string &str) {
   return ("\\N" == str);
 }
 
-[[nodiscard]] inline shared_ptr<Constructable> Parser::asIs(const string &str) {
+[[nodiscard]] shared_ptr<Constructable> StaticParsers::asIs(const string &str) {
 
-  if (Parser::isNulledValue(str)) {
+  if (StaticParsers::isNulledValue(str)) {
     return make_shared<ParserExceptionConstructable>(
         "NOT nullable type was null!");
   }
@@ -31,40 +32,40 @@ using namespace v8;
   return make_shared<StringConstructable>(str);
 }
 
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::imdbIdParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::imdbIdParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::alternativeTitleParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::alternativeTitleParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::titleTypeParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::titleTypeParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::genreParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::genreParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::regionParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::regionParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::languageParser(const string &str) {
-  return Parser::asIs(str);
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::languageParser(const string &str) {
+  return StaticParsers::asIs(str);
 }
 
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::booleanParser(const string &str) {
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::booleanParser(const string &str) {
   if (str == "0") {
     return make_shared<FalseConstructable>();
   } else if (str == "1") {
     return make_shared<TrueConstructable>();
   } else {
     return make_shared<ParserExceptionConstructable>(
-        "Couldn't parse boolean of '" + str + "'");
+        fmt::format("Couldn't parse boolean of '{}'", str));
   }
 }
 
@@ -86,13 +87,13 @@ STR2DOUBLE_ERROR str2double(double &d, char const *s) {
   return STR2DOUBLE_ERROR::SUCCESS;
 }
 
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::floatParser(const string &str) {
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::floatParser(const string &str) {
   double d;
   const auto result = str2double(d, str.c_str());
   if (result != STR2DOUBLE_ERROR::SUCCESS) {
     return make_shared<ParserExceptionConstructable>(
-        "Couldn't parse float of '" + str + "'");
+        fmt::format("Couldn't parse float of '{}'", str));
   }
 
   return make_shared<DoubleNumberConstructable>(d);
@@ -123,23 +124,23 @@ STR2INT_ERROR str2int(int32_t &i, char const *s, int base = 10) {
   return STR2INT_ERROR::SUCCESS;
 }
 
-[[nodiscard]] inline shared_ptr<Constructable>
-Parser::intParser(const string &str) {
+[[nodiscard]] shared_ptr<Constructable>
+StaticParsers::intParser(const string &str) {
   int i;
   const auto result = str2int(i, str.c_str());
   if (result != STR2INT_ERROR::SUCCESS) {
-    return make_shared<ParserExceptionConstructable>("Couldn't parse int of '" +
-                                                     str + "'");
+    return make_shared<ParserExceptionConstructable>(
+        fmt::format("Couldn't parse int of '{}'", str));
   }
 
   return make_shared<IntNumberConstructable>(i);
 }
 
-[[nodiscard]] inline ParserFunction
-Parser::orNullParser(const ParserFunction &fn) {
+[[nodiscard]] ParserFunction
+StaticParsers::orNullParser(const ParserFunction &fn) {
 
   return [&fn](const string &str) -> shared_ptr<Constructable> {
-    if (Parser::isNulledValue(str)) {
+    if (StaticParsers::isNulledValue(str)) {
       return make_shared<NullConstructable>();
     }
 
@@ -147,13 +148,13 @@ Parser::orNullParser(const ParserFunction &fn) {
   };
 }
 
-[[nodiscard]] inline ParserFunction
-Parser::arrayParser(const ParserFunction &fn) {
+[[nodiscard]] ParserFunction
+StaticParsers::arrayParser(const ParserFunction &fn) {
 
   return [&fn](const string &str) -> shared_ptr<Constructable> {
     ArrayValues vec = ArrayValues{};
 
-    if (Parser::isNulledValue(str)) {
+    if (StaticParsers::isNulledValue(str)) {
       return make_shared<ArrayConstructable>(vec);
     }
 
