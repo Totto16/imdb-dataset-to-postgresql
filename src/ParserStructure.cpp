@@ -2,6 +2,7 @@
 
 #include <expected.hpp>
 #include <nan.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,20 @@ ParserStructure::ParserStructure(vector<string> order,
 
 ObjectValues ParserStructure::parse(const csv::record &record) {
   ObjectValues values = ObjectValues{};
-  // TODO: here
+
+  // TODO the size has to be static asserted and the record.content size
+  // dynamically!! (also in the original, the size has to be validated!)
+  if (m_order.size() != m_declarations.size() ||
+      m_order.size() != record.content.size()) {
+    throw length_error("all three needed vectors have to be the same length");
+  }
+
+  size_t i = 0;
+  for (const auto &field : record.content) {
+    const auto &str = field.content;
+    values.emplace_back(m_order.at(i), m_declarations.at(i)(str));
+    ++i;
+  }
+
   return values;
 }
