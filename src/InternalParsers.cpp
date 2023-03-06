@@ -141,7 +141,7 @@ StaticParsers::intParser(const string &str) {
 [[nodiscard]] ParserFunction
 StaticParsers::orNullParser(const ParserFunction &fn) {
 
-  return [&fn](const string &str) -> shared_ptr<Constructable> {
+  return [fn](const string &str) -> shared_ptr<Constructable> {
     if (StaticParsers::isNulledValue(str)) {
       return make_shared<NullConstructable>();
     }
@@ -153,7 +153,7 @@ StaticParsers::orNullParser(const ParserFunction &fn) {
 [[nodiscard]] ParserFunction
 StaticParsers::arrayParser(const ParserFunction &fn) {
 
-  return [&fn](const string &str) -> shared_ptr<Constructable> {
+  return [fn](const string &str) -> shared_ptr<Constructable> {
     ArrayValues vec = ArrayValues{};
 
     if (StaticParsers::isNulledValue(str)) {

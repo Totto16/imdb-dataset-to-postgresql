@@ -104,11 +104,11 @@ shared_ptr<ParserStructure> Model::mappedTitlePrincipal() {
   return make_shared<ParserStructure>(
       vector<string>{"tconst", "ordering", "nconst", "category", "job",
                      "characters"},
-      vector<ParserFunction>{StaticParsers::imdbIdParser,
-                             StaticParsers::intParser,
-                             StaticParsers::nameIDParser, StaticParsers::asIs,
-                             StaticParsers::orNullParser(StaticParsers::asIs),
-                             StaticParsers::orNullParser(StaticParsers::asIs)});
+      vector<ParserFunction>{
+          StaticParsers::imdbIdParser, StaticParsers::intParser,
+          StaticParsers::nameIDParser, StaticParsers::asIs,
+          StaticParsers::orNullParser(StaticParsers::asIs),
+          StaticParsers::orNullParser(StaticParsers::asIs)});
 }
 
 shared_ptr<ParserStructure> Model::mappedTitleRating() {
