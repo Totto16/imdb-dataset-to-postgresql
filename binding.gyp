@@ -69,7 +69,6 @@
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
                 "submodules/expected/include/tl/",
-                "submodules/eventemitter/",
             ],
             "dependencies": ["csvlib", "eventemitterlib"],
         },

@@ -52,7 +52,7 @@ ParserMap TSVParser::getParserMap() {
 ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
                                  EventEmitterFunctionReentrant emitter) {
   csv::utf8::FileDataSource input;
-	input.separator = '\t';
+  input.separator = '\t';
 
   if (!input.open(m_path.c_str())) {
     return tl::make_unexpected("Filepath was invalid: '" + m_path + "'");
@@ -60,6 +60,7 @@ ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
 
   csv::parse(
       input,
+      //TODO: use nullptr
       [](const csv::field &field) -> bool {
         // Do something with 'field'
         return true;
@@ -71,6 +72,7 @@ ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
         while (!emitter(sender, "parsedLine", parsedLine)) {
           std::this_thread::yield();
         }
+        //TODO: here error handling!
         return true;
       });
 

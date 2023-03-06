@@ -164,7 +164,6 @@ StaticParsers::arrayParser(const ParserFunction &fn) {
     for (const auto &value : parts) {
       vec.push_back(fn(value));
     }
-    // return parts.map(parser)
     return make_shared<ArrayConstructable>(vec);
   };
 }

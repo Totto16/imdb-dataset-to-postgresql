@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "./submodules/expected/include/tl/",
                 "./submodules/tsvlib/csvlib/",
-                "./node_modules/nan/"
+                "./node_modules/nan/",
+                "./submodules/eventemitter/"
             ],
             "defines": [],
             "intelliSenseMode": "linux-gcc-x64",
