@@ -1,4 +1,3 @@
-#include <iostream>
 #include <memory>
 #include <nan.h>
 #include <sstream>
@@ -35,7 +34,7 @@ public:
   virtual void
   ExecuteWithEmitter(const ExecutionProgressSender *sender,
                      EventEmitterFunctionReentrant emitter) override {
-    MaybeParser maybeParser = makeParser(filePath, type);
+    MaybeParser maybeParser = makeParser(filePath, type, hasHead);
 
     if (!maybeParser.has_value()) {
       ParseResult result = tl::make_unexpected(maybeParser.error());
@@ -64,10 +63,10 @@ public:
       }
 
       auto value = result.value();
-      if (value) {
-        std::shared_ptr<Constructable> endVal =
-            std::make_shared<UndefinedConstructable>();
-        while (!emitter(sender, "end", endVal)) {
+      if (value >= 0) {
+        std::shared_ptr<Constructable> parsedLinesVal =
+            std::make_shared<IntNumberConstructable>(value);
+        while (!emitter(sender, "end", parsedLinesVal)) {
           std::this_thread::yield();
         }
       } else {
@@ -187,7 +186,7 @@ private:
   }
 
   // TODO implement correct
-  static NAN_METHOD(Pause) { // TODO
+  static NAN_METHOD(Pause) {
     if (info.Length() > 0) {
       info.GetIsolate()->ThrowException(
           Nan::TypeError("Wrong number of arguments"));

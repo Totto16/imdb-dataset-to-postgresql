@@ -1,7 +1,6 @@
 
 
 #include <expected.hpp>
-#include <iostream>
 #include <nan.h>
 #include <stdexcept>
 #include <string>
@@ -10,7 +9,6 @@
 #include "InternalParsers.hpp"
 #include "ParserStructure.hpp"
 #include "constructable.hpp"
-#include "types.hpp"
 
 using namespace std;
 using namespace v8;
@@ -26,13 +24,6 @@ ObjectValues ParserStructure::parse(const csv::record &record) {
   // dynamically!! (also in the original, the size has to be validated!)
   if (m_order.size() != m_declarations.size() ||
       m_order.size() != record.content.size()) {
-    std::cout << "order: " << m_order.size()
-              << " - m_declarations: " << m_declarations.size()
-              << " - record: " << record.content.size() << "\n";
-
-    for (const auto &field : record.content) {
-      std::cout << field.content << '\n';
-    }
 
     throw length_error("all three needed vectors have to be the same length");
   }

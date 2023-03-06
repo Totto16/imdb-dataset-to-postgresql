@@ -1,6 +1,6 @@
-import { TSVParser } from "../module/TSVParser"
+import { TSVParser } from "../src/ts/TSVParser"
 import { expect } from "@jest/globals"
-import { ImdbDataType } from "../module/columns"
+import { ImdbDataType } from "../src/ts/columns"
 function fail(reason = "fail was called in a test."): never {
     throw new Error(reason)
 }
@@ -56,6 +56,31 @@ describe("imdb dataset", () => {
             type: "title.ratings",
         })
 
+        let i = 0
+        for await (const rating of parser) {
+            expect(rating.tconst).not.toBeUndefined()
+            expect(rating.averageRating).not.toBeUndefined()
+            expect(rating.numVotes).not.toBeUndefined()
+
+            expect(typeof rating.tconst).toBe("string")
+            expect(isImdbId(rating.tconst)).toBe(true)
+            expect(typeof rating.averageRating).toBe("number")
+            expect(typeof rating.numVotes).toBe("number")
+            expect(Number.isInteger(rating.numVotes)).toBe(true)
+            i++
+        }
+
+        expect(lines).toBe(parser.getLineCount())
+        expect(lines).toBe(i)
+    })
+
+    it("should parse the ratings dataset with header", async () => {
+        const parser = new TSVParser({
+            filePath: getFilePath("title.ratings.header.tsv"),
+            type: "title.ratings",
+        })
+
+        const lines = 10
         let i = 0
         for await (const rating of parser) {
             expect(rating.tconst).not.toBeUndefined()

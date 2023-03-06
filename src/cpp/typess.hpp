@@ -110,6 +110,8 @@ enum AlternativeType {
 }
  */
 
+//TODO is this header needed
+
 typedef string Genre; // TODO use enum
 
 typedef string TitleType;

@@ -1,4 +1,6 @@
 import { expect } from "@jest/globals"
+import { iterate } from "@token-cjg/leakage"
+
 function fail(reason = "fail was called in a test."): never {
     throw new Error(reason)
 }
@@ -113,3 +115,61 @@ describe("wrong raw parameters", () => {
         }
     })
 })
+
+// this 2 tests don't work with ts, for some reason, they even do't fail at all after the timeout!
+/* describe("Verify EventEmitter Memory Is Reclaimed", function () {
+    describe("Verify callback memory is reclaimed, even if callback is not waited on", function () {
+        it("Should not increase memory usage over time", function (done) {
+            iterate(
+                () => {
+                    const parser = new imdbDatasetParser.NativeParser()
+
+                    let v = Buffer.alloc(1000)
+
+                    parser.on("error", (err: string) => {
+                        throw new Error(err)
+                    })
+
+                    parser.on("parsedLine", function (e: unknown) {
+                        console.log(e)
+                        v.compare(Buffer.alloc(1000))
+                    })
+                },
+                { iterations: 15, gcollections: 3 }
+            )
+            done()
+        }, 5000)
+    })
+
+    function getFilePath(path: string): string {
+        return `${__dirname}/files/${path}`
+    } */
+
+/*
+    describe("Verify memory allocated in the test-class EmitterThing is reclaimed", function () {
+        it("Should not increase memory usage over time", function () {
+
+             return iterate.async(() => {
+                return new Promise<void>((resolve, reject) => {
+                    const parser = new imdbDatasetParser.NativeParser()
+
+                    let v = Buffer.alloc(1000)
+
+                    parser.on("parsedLine", function () {
+                        v.compare(Buffer.alloc(1000))
+                    })
+
+                    parser.on("end", function () {
+                        return resolve()
+                    })
+
+                    parser.run(
+                        getFilePath("title.ratings.tsv"),
+                        "title.ratings",
+                        "auto"
+                    )
+                })
+            }) 
+        })
+    })
+})*/

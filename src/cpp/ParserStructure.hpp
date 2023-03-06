@@ -10,7 +10,6 @@
 
 #include "InternalParsers.hpp"
 #include "constructable.hpp"
-#include "types.hpp"
 
 using namespace std;
 using namespace v8;
@@ -22,7 +21,8 @@ public:
 
   ObjectValues parse(const csv::record &record);
 
-private:
   vector<string> m_order;
+
+private:
   vector<ParserFunction> m_declarations;
 };

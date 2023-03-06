@@ -18,7 +18,7 @@ public:
 
   virtual v8::Local<v8::Value> construct(Nan::HandleScope &scope,
                                          v8::Isolate *isolate) const override {
-    // TODO make some mechanimsm to get the exception out as aerly as possible!
+    // TODO make some mechanimsm to get the exception out as early as possible!
     return Nan::TypeError(m_value.c_str());
   };
 

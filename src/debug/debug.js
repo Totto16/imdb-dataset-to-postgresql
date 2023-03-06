@@ -1,8 +1,8 @@
 const imdbDatasetParser = require("bindings")("imdb-dataset-parser")
-const _path = require("path")
+const path = require("path")
 
-function getFilePath(path) {
-    return _path.join(__dirname, "..", `tests/files/${path}`)
+function getFilePath(name) {
+    return path.join(__dirname, "..", `tests/files/${name}`)
 }
 
 class TSVParser {

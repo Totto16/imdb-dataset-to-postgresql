@@ -1,28 +1,45 @@
 {
     "name": "imdb-dataset-parser",
-    "version": "0.0.1-alpha",
-    "description": "TODO",
+    "version": "1.0.0",
+    "description": "Parse data coming from https://www.imdb.com/interfaces/ with node-gpy and C++",
     "gypfile": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "files": [
-        "dist/index.js",
-        "dist/index.d.ts",
-        "dist/types.d.ts"
+        "./dist/columns.d.ts",
+        "./dist/columns.js",
+        "./dist/index.d.ts",
+        "./dist/index.js",
+        "./dist/NativeParser.d.ts",
+        "./dist/NativeParser.js",
+        "./dist/TSVParser.d.ts",
+        "./dist/TSVParser.js",
+        "./dist/types.d.ts",
+        "./dist/types.js"
     ],
     "install": "node-gyp configure build",
     "scripts": {
+        "install": "npm run build",
         "configure": "node-gyp clean && node-gyp configure",
-        "build": "npm run configure && node-gyp build",
-        "debug": "npm run configure && node-gyp build --debug",
+        "build": "npm run build:gyp",
+        "build:gyp": "npm run configure && node-gyp build",
+        "build:debug": "npm run configure && node-gyp build --debug",
+        "compile": "npm run build:tsc",
+        "build:tsc": "tsc",
         "test": "npx jest",
         "build:test": "npm run build && npm run test"
     },
-    "keywords": [],
+    "keywords": [
+        "imdb",
+        "tsv",
+        "parser",
+        "movie",
+        "cpp",
+        "noe-gyp"
+    ],
     "author": {
         "name": "Totto16",
         "url": "https://github.com/Totto16"
-    },
-    "dependencies": {
-        "bindings": "^1.5.0"
     },
     "license": "MIT",
     "engines": {
@@ -30,11 +47,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Totto16/imdb-dataset-parser.git"
+        "url": "git+https://github.com/Totto16/imdb-dataset-parser.git"
+    },
+    "dependencies": {
+        "bindings": "^1.5.0"
     },
     "devDependencies": {
+        "@token-cjg/leakage": "^0.6.0",
         "@types/jest": "^29.4.0",
-        "jest": "^29.4.2",
+        "jest": "^29.5.0",
         "nan": "^2.17.0",
         "ts-jest": "^29.0.5",
         "ts-node": "^10.9.1",

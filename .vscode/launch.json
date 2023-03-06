@@ -6,7 +6,7 @@
             "request": "launch",
             "name": "Debug Script",
             "program": "node",
-            "args": ["./src/debug.js"]
+            "args": ["./src/debug/debug.js"]
         }
     ]
 }

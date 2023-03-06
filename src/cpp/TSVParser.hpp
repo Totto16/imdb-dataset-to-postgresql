@@ -11,21 +11,21 @@
 
 #include "ParserStructure.hpp"
 #include "helper.hpp"
-#include "types.hpp"
 
 using namespace std;
 using namespace v8;
 
 // ts: export type OmitHeadType = "auto" | boolean
-typedef enum { False = 0, True = 1, Auto = 2 } OmitHeadType;
+enum class OmitHeadType { False = 0, True = 1, Auto = 2 };
 
-typedef tl::expected<bool, string> ParseResult;
+using ParseResult = tl::expected<int32_t, string>;
 
-typedef map<string, shared_ptr<ParserStructure>> ParserMap;
+using ParserMap = map<string, shared_ptr<ParserStructure>>;
 
 class TSVParser {
 public:
-  TSVParser(string path, string type, shared_ptr<ParserStructure> structure);
+  TSVParser(string path, string type, OmitHeadType hasHead,
+            shared_ptr<ParserStructure> structure);
   TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
 
@@ -33,12 +33,15 @@ public:
                         EventEmitterFunctionReentrant emitter);
   [[nodiscard]] static ParserMap getParserMap();
 
+  [[nodiscard]] bool isHeader(const csv::record &record);
+
 private:
   string m_path;
   string m_type;
+  OmitHeadType m_hasHead;
   shared_ptr<ParserStructure> m_structure;
 };
 
 using MaybeParser = tl::expected<TSVParser, string>;
 
-MaybeParser makeParser(string path, string type);
+MaybeParser makeParser(string path, string type, OmitHeadType hasHead);

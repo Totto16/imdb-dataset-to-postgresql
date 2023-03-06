@@ -60,15 +60,16 @@
                 "-Wno-cast-function-type"  # since nan.h -> node.h has some warnings regarding that
             ],
             "sources": [
-                "src/TSVParser.cpp",
-                "src/ParserStructure.cpp",
-                "src/InternalParsers.cpp",
-                "src/Models.cpp",
-                "src/EventEmitter.cpp",
+                "src/cpp/TSVParser.cpp",
+                "src/cpp/ParserStructure.cpp",
+                "src/cpp/InternalParsers.cpp",
+                "src/cpp/Models.cpp",
+                "src/cpp/EventEmitter.cpp",
             ],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
                 "submodules/expected/include/tl/",
+                "src/cpp/",
             ],
             "dependencies": ["csvlib", "eventemitterlib"],
         },

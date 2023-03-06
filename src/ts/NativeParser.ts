@@ -9,7 +9,7 @@ export declare class NativeParser<T extends ImdbDataType> extends EventEmitter {
         event: "parsedLine",
         listener: (parsedLine: DataTypeToInterface[T]) => void
     ): this
-    on(event: "end", listener: () => void): this
+    on(event: "end", listener: (linesParsed: number) => void): this
     pause(): void
     run(filePath: string, type: T, hasHead?: OmitHeadType): void
     resume(): void
