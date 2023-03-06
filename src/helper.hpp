@@ -1,10 +1,12 @@
 
 
 #pragma once
+#ifndef _NODE_EVENT_EMITTING_HELPER_H_
+#define _NODE_EVENT_EMITTING_HELPER_H_
 
-#include "async_queued_progress_worker.hpp"
-#include "eventemitter.hpp"
 #include <nan.h>
+
+#include "eventemitter.hpp"
 
 constexpr int RingBufferSize = 64;
 
@@ -18,3 +20,5 @@ using ExecutionProgressSender =
 using EventEmitterFunctionReentrant =
     std::function<int(const ExecutionProgressSender *sender,
                       const std::string event, const EventValue value)>;
+
+#endif

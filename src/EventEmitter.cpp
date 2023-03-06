@@ -5,7 +5,6 @@
 #include <thread>
 
 #include "TSVParser.hpp"
-#include "eventemitter.hpp"
 #include "helper.hpp"
 
 using namespace std;
@@ -41,8 +40,10 @@ public:
     if (!maybeParser.has_value()) {
       ParseResult result = tl::make_unexpected(maybeParser.error());
 
+      std::string error = result.error();
+
       std::shared_ptr<Constructable> typeErrorVal =
-          std::make_shared<TypeErrorConstructable>(result);
+          std::make_shared<TypeErrorConstructable>(error);
       while (!emitter(sender, "error", typeErrorVal)) {
         std::this_thread::yield();
       }
@@ -52,8 +53,10 @@ public:
       ParseResult result = parser.parseData(sender, emitter);
 
       if (!result.has_value()) {
+
+        std::string error = result.error();
         std::shared_ptr<Constructable> typeErrorVal =
-            std::make_shared<TypeErrorConstructable>(result);
+            std::make_shared<TypeErrorConstructable>(error);
         while (!emitter(sender, "error", typeErrorVal)) {
           std::this_thread::yield();
         }

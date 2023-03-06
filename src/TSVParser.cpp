@@ -7,12 +7,13 @@
 #include <memory>
 #include <nan.h>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "Models.hpp"
 #include "ParserStructure.hpp"
 #include "TSVParser.hpp"
-#include "eventemitter.hpp"
+#include "helper.hpp"
 
 using namespace std;
 using namespace v8;
@@ -25,9 +26,9 @@ MaybeParser makeParser(string path, string type) {
 
   auto parserMap = TSVParser::getParserMap();
 
-  for (auto const &[key, value] : parserMap) {
+  for (auto const &[key, structure] : parserMap) {
     if (type == key) {
-      return TSVParser{path, type, value};
+      return TSVParser{path, type, structure};
     }
   }
 
@@ -56,16 +57,14 @@ ParseResult TSVParser::parseData(const ExecutionProgressSender *sender,
     return tl::make_unexpected("Filepath was invalid: '" + m_path + "'");
   }
 
-  shared_ptr<ParserStructure> map = getParserMap().get(type);
-
   csv::parse(
       input,
       [](const csv::field &field) -> bool {
         // Do something with 'field'
         return true;
       },
-      [&vec](const csv::record &record, double progress) -> bool {
-        auto parserResult = map->parse(record);
+      [&](const csv::record &record, double progress) -> bool {
+        auto parserResult = m_structure->parse(record);
         std::shared_ptr<Constructable> parsedLine =
             std::make_shared<ObjectConstructable>(parserResult);
         while (!emitter(sender, "parsedLine", parsedLine)) {

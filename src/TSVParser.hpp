@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "ParserStructure.hpp"
-#include "eventemitter.hpp"
 #include "helper.hpp"
 #include "types.hpp"
 

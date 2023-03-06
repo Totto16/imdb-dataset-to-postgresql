@@ -1,10 +1,18 @@
 
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <array>
+#include <memory>
 #include <nan.h>
+#include <stdexcept>
+
 #include <string>
 
 #include "InternalParsers.hpp"
 #include "ParserStructure.hpp"
+#include "constructable.hpp"
 
 using namespace std;
 using namespace v8;
@@ -13,105 +21,144 @@ using namespace v8;
   return ("\\N" == str);
 }
 
-[[nodiscard]] inline Local<Value> Parser::asIs(const string &str) {
+[[nodiscard]] inline shared_ptr<Constructable> Parser::asIs(const string &str) {
 
   if (Parser::isNulledValue(str)) {
-    Nan::ThrowError("NOT nullable type was null!");
-    // this shouldn't be reached, but I return an empty string nonetheless!
-    return Nan::EmptyString();
+    return make_shared<ParserExceptionConstructable>(
+        "NOT nullable type was null!");
   }
 
-  Nan::MaybeLocal<v8::String> result = Nan::New<v8::String>(str);
-
-  return result.ToLocalChecked();
+  return make_shared<StringConstructable>(str);
 }
 
-[[nodiscard]] inline Local<Value> Parser::imdbIdParser(const string &str) {
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::imdbIdParser(const string &str) {
   return Parser::asIs(str);
 }
-[[nodiscard]] inline Local<Value>
+[[nodiscard]] inline shared_ptr<Constructable>
 Parser::alternativeTitleParser(const string &str) {
   return Parser::asIs(str);
 }
-[[nodiscard]] inline Local<Value> Parser::titleTypeParser(const string &str) {
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::titleTypeParser(const string &str) {
   return Parser::asIs(str);
 }
-[[nodiscard]] inline Local<Value> Parser::genreParser(const string &str) {
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::genreParser(const string &str) {
   return Parser::asIs(str);
 }
-[[nodiscard]] inline Local<Value> Parser::nameIDParser(const string &str) {
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::regionParser(const string &str) {
+  return Parser::asIs(str);
+}
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::languageParser(const string &str) {
   return Parser::asIs(str);
 }
 
-/*
-
-
-
-export function booleanParser(str : string) : boolean {
-  if (str == = "0") {
-    return false
-  } else if (str == = "1") {
-    return true
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::booleanParser(const string &str) {
+  if (str == "0") {
+    return make_shared<FalseConstructable>();
+  } else if (str == "1") {
+    return make_shared<TrueConstructable>();
   } else {
-        throw new Error(`Couldn't parse boolean of '${
-      str}'`)
+    return make_shared<ParserExceptionConstructable>(
+        "Couldn't parse boolean of '" + str + "'");
   }
 }
 
-export function floatParser(str : string) : Float {
-  const float = parseFloat(str) if (isNaN(float)) {
-        throw new Error(`Couldn't parse float of '${
-      str}'`)
-  }
-  return float
-}
+enum class STR2DOUBLE_ERROR { SUCCESS, OUT_OF_RANGE, INCONVERTIBLE };
 
-export function intParser(str : string) : Int {
-  const int = parseInt(str) if (isNaN(int)) {
-        throw new Error(`Couldn't parse int of '${
-      str}'`)
-  }
-  return int
-}
-
-export function regionParser(str : string) : RegionString {
-  // TODO validate
-  return str as unknown as RegionString
-}
-
-export function languageParser(str : string) : LanguageString {
-  // TODO validate
-  return str as unknown as LanguageString
-}
-
-export function arrayParser<T>(parser : Parser<T>) : Parser<Array<T>> {
-  return (str : string) : Array<T> = > {
-        if (isNulledValue(str)) {
-          return [] as T[]
-        }
-
-        let parts =
-            str.split(",").filter((a) = > a != = "") return parts.map(parser)
+STR2DOUBLE_ERROR str2double(double &d, char const *s) {
+  size_t pos;
+  try {
+    d = std::stod(s, &pos);
+  } catch (std::invalid_argument &ex) {
+    return STR2DOUBLE_ERROR::INCONVERTIBLE;
+  } catch (std::out_of_range &ex) {
+    return STR2DOUBLE_ERROR::OUT_OF_RANGE;
   }
 
- v8::Local<v8::Array> results = Nan::New<v8::Array>(vec.size());
-  int i = 0;
-  for_each(vec.begin(), vec.end(), [&](int value) {
-    Nan::Set(results, i, Nan::New<v8::Number>(value));
-    i++;
-  });
-
-
-}
-
-export function orNullParser<T>(parser : Parser<T>) : Parser<T | null> {
-  return (str : string) : T | null = > {
-        if (isNulledValue(str)) {
-          return null
-        }
-
-        return parser(str)
+  if (pos != strlen(s)) {
+    return STR2DOUBLE_ERROR::INCONVERTIBLE;
   }
+  return STR2DOUBLE_ERROR::SUCCESS;
 }
 
- */
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::floatParser(const string &str) {
+  double d;
+  const auto result = str2double(d, str.c_str());
+  if (result != STR2DOUBLE_ERROR::SUCCESS) {
+    return make_shared<ParserExceptionConstructable>(
+        "Couldn't parse float of '" + str + "'");
+  }
+
+  return make_shared<DoubleNumberConstructable>(d);
+}
+
+// from
+// https://stackoverflow.com/questions/194465/how-to-parse-a-string-to-an-int-in-c
+enum class STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
+
+// these ints are int32_t, since JS can only handles integers safely until ~57
+// bits, so it has to be an 32 bit number to be safe!
+STR2INT_ERROR str2int(int32_t &i, char const *s, int base = 10) {
+  char *end;
+  long l;
+  errno = 0;
+  // not using std::strtol, since that throws exceptions!
+  l = strtol(s, &end, base);
+  if ((errno == ERANGE && l == LONG_MAX) || l > INT32_MAX) {
+    return STR2INT_ERROR::OVERFLOW;
+  }
+  if ((errno == ERANGE && l == LONG_MIN) || l < INT32_MIN) {
+    return STR2INT_ERROR::UNDERFLOW;
+  }
+  if (*s == '\0' || *end != '\0') {
+    return STR2INT_ERROR::INCONVERTIBLE;
+  }
+  i = (int32_t)l;
+  return STR2INT_ERROR::SUCCESS;
+}
+
+[[nodiscard]] inline shared_ptr<Constructable>
+Parser::intParser(const string &str) {
+  int i;
+  const auto result = str2int(i, str.c_str());
+  if (result != STR2INT_ERROR::SUCCESS) {
+    return make_shared<ParserExceptionConstructable>("Couldn't parse int of '" +
+                                                     str + "'");
+  }
+
+  return make_shared<IntNumberConstructable>(i);
+}
+
+[[nodiscard]] inline ParserFunction
+Parser::orNullParser(const ParserFunction &fn) {
+
+  return [&fn](const string &str) -> shared_ptr<Constructable> {
+    if (Parser::isNulledValue(str)) {
+      return make_shared<NullConstructable>();
+    }
+
+    return fn(str);
+  };
+}
+
+[[nodiscard]] inline ParserFunction
+Parser::arrayParser(const ParserFunction &fn) {
+
+  return [&fn](const string &str) -> shared_ptr<Constructable> {
+    ArrayValues vec = ArrayValues{};
+
+    if (Parser::isNulledValue(str)) {
+      return make_shared<ArrayConstructable>(vec);
+    }
+
+    // let parts = str.split(",").filter((a) = > a !== "")
+    // return parts.map(parser)
+    return make_shared<ArrayConstructable>(vec);
+  };
+}

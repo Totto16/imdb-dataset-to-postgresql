@@ -8,7 +8,7 @@
         "-fexceptions",
         "-O3",
         "-Werror",
-        "-Wpedantic",
+        "-Wpedantic"
     ],
     "cflags_cc": [
         "-std=c++20",
@@ -18,7 +18,7 @@
         "-fexceptions",
         "-O3",
         "-Werror",
-        "-Wpedantic",
+        "-Wpedantic"
     ],
     "defines": ["V8_DEPRECATION_WARNINGS=1"],
     "include_dirs": ["<!(node -e \"require('nan')\")"],
@@ -45,7 +45,7 @@
                 "-Wpedantic",
                 "-fno-omit-frame-pointer"
             ],
-            "ldflags": ["-pthread"],
+            "ldflags": ["-pthread",   "-fuse-ld=mold"],
         }],
     ]
 },
