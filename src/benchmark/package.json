@@ -2,8 +2,10 @@
     "name": "imdb-dataset-parser-benchmark",
     "version": "1.0.0",
     "description": "TODO",
+    "main": "./dist/benchmark.js",
     "scripts": {
-        "start": "echo 'todo'"
+        "compile": "tsc",
+        "start": "npm run compile && node ."
     },
     "keywords": [],
     "author": {
@@ -11,7 +13,8 @@
         "url": "https://github.com/Totto16"
     },
     "dependencies": {
-        "imdb-dataset": "github:Totto16/imdb-dataset"
+        "imdb-dataset": "github:Totto16/imdb-dataset",
+        "imdb-dataset-parser": "file:../.."
     },
     "license": "MIT",
     "engines": {

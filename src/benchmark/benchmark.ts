@@ -1,12 +1,14 @@
 import { join } from "path"
-import { ImdbDataType } from "./columns"
-import { TSVParser } from "./TSVParser"
+import { ImdbDataType, TSVParser } from "imdb-dataset-parser"
 
 const toSearch = "tt17371078"
 
+//TODO: npm i git+https://github.com/Totto16/imdb-dataset-parser.git
+
+//TODO automate
 // to test this, download all datasets from https://datasets.imdbws.com/ and unpack them into "files/${type}.tsv/data.tsv"
 function getFilePath(path: string): string {
-    return join(__dirname, "../..", `/files/${path}/data.tsv`)
+    return join(__dirname, "..", `/files/${path}/data.tsv`)
 }
 
 async function run() {
@@ -40,14 +42,15 @@ async function runGeneric(type: ImdbDataType) {
 }
 
 async function start() {
+    //TODO measure both with leakage!
     const types: ImdbDataType[] = [
-        "name.basics",
+        /*         "name.basics",
         "title.akas",
         "title.basics",
         "title.crew",
         "title.episode",
-        "title.principals", // 5:45.689 (m:ss.mmm) -> 3:55.121 (m:ss.mmm)
-        "title.ratings", // 4.231s ->  2.646s
+        "title.principals", // only js: 3:55.121 (m:ss.mmm)  -- cpp:  */
+        "title.ratings", // only js: 2.646s  -- cpp: 2.956s SLOWER
     ]
 
     for (const type of types) {

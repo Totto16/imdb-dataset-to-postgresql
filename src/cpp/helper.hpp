@@ -8,7 +8,7 @@
 
 #include "eventemitter.hpp"
 
-constexpr int RingBufferSize = 64;
+constexpr int RingBufferSize = 16;
 
 using namespace Nan;
 using namespace NodeEvent;

@@ -35,7 +35,6 @@ export class TSVParser {
         if (maxLines !== undefined) {
             this.maxLines = maxLines;
         }
-        // TODO this is done twice ?!?!
         if (!existsSync(filePath)) {
             throw new Error(`Filepath was invalid: '${filePath}'`);
         }
