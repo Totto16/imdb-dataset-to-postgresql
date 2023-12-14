@@ -1,9 +1,0 @@
-[submodule "submodules/expected"]
-	path = submodules/expected
-	url = https://github.com/TartanLlama/expected.git
-[submodule "submodules/tsvlib"]
-	path = submodules/tsvlib
-	url = https://github.com/Totto16/csvlib.git
-[submodule "submodules/eventemitter"]
-	path = submodules/eventemitter
-	url = https://github.com/Totto16/cpp-eventemitter.git
