@@ -1,5 +1,4 @@
 src_files += files(
-    'EventEmitter.cpp',
     'InternalParsers.cpp',
     'Models.cpp',
     'ParserStructure.cpp',

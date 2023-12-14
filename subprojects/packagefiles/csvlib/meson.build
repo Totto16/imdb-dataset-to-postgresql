@@ -1,6 +1,7 @@
 project(
-    'IMDB Dataset to PostgresSQL',
+    'csvlib',
     'cpp',
+    version: '1.0.0',
     license: 'MIT',
     meson_version: '>=1·2.0',
     default_options: {
@@ -8,29 +9,18 @@ project(
         'optimization': '3',
         'cpp_std': 'c++23',
         'warning_level': '3',
-        'werror': 'true',
+        'werror': 'false',
         'b_ndebug': 'if-release',
     },
-    version: '1.0.0',
 )
 
-
-deps = []
-
-deps += dependency('csvlib')
-
-
-
-src_files = []
-header_files = []
 inc_dirs = []
 
-subdir('src')
+subdir('csvlib')
 
-executable(
-    'import',
-    src_files,
-    header_files,
-    dependencies: deps,
+
+csvlib_dep = declare_dependency(
     include_directories: inc_dirs,
+    version: meson.project_version(),
+    link_with: csvlib_lib,
 )
