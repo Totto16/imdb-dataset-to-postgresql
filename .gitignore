@@ -1,3 +1,11 @@
 /build/
 /.vscode/
 /downloads/
+
+
+/subprojects/*-*/
+/subprojects/*.zip
+/subprojects/*.gz
+/subprojects/packagecache
+!/subprojects/packagefiles/
+!subprojects/*.wrap

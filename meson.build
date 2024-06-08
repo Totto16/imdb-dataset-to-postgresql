@@ -17,7 +17,8 @@ project(
 deps = []
 
 deps += dependency('csvlib')
-## https://github.com/jtv/libpqxx
+deps += dependency('argparse')
+deps += dependency('postgres-cxx-client')
 
 src_files = []
 header_files = []
@@ -27,10 +28,10 @@ compile_args = []
 subdir('src')
 
 executable(
-    'import',
+    'imdb-sql-importer',
     src_files,
     header_files,
     dependencies: deps,
     include_directories: inc_dirs,
-    cpp_args: compile_args,
+    cpp_args: [compile_args, '-D_APP_VERSION=' + meson.project_version()],
 )
