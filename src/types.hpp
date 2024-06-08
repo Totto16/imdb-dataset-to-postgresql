@@ -5,28 +5,7 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 
-/*
-export type IMappedTypes<T extends Record<string, any>> = {
-    order: Array<keyof T>
-    declaration: MappedParsers<T>
-}
-
-export type Parser<T> = (value: string) => T
-
-export type MappedParsers<T extends Record<string, any>> = {
-    [key in keyof T]: Parser<T[key]>
-}
-
-type digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-
-export type ImdbID = string // symbol
-//;`tt${digit}${digit}${digit}${digit}${digit}${digit}${digit}$`
-
-export type Float = number // symbol
-export type Int = number // symbol
-*/
 typedef string ImdbID;
 
 typedef struct {
@@ -35,12 +14,6 @@ typedef struct {
   int numVotes;
 } ITitleRating;
 
-/*
-export type ANY = "A" | "B" | "C" | "TODO"
-
-export type RegionString = symbol //`${ANY}${ANY}`
-
-export type LanguageString = symbol */
 
 typedef string RegionString;
 

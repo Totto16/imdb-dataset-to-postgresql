@@ -5,6 +5,10 @@ src_files += files(
     'TSVParser.cpp',
 )
 
-
-header_files += files('helper.hpp')
+header_files += files(
+    'InternalParsers.hpp',
+    'Models.hpp',
+    'ParserStructure.hpp',
+    'TSVParser.hpp',
+)
 inc_dirs += include_directories('.')

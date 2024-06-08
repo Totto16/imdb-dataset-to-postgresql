@@ -11,8 +11,7 @@
 #include "InternalParsers.hpp"
 #include "constructable.hpp"
 
-using namespace std;
-using namespace v8;
+
 
 class ParserStructure {
 public:

@@ -10,8 +10,6 @@
 #include "ParserStructure.hpp"
 #include "constructable.hpp"
 
-using namespace std;
-using namespace v8;
 
 ParserStructure::ParserStructure(vector<string> order,
                                  vector<ParserFunction> declarations)

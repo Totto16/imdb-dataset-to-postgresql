@@ -1,30 +1,12 @@
 
 #pragma once
 
-#include "constructable.hpp"
+
 
 #include <functional>
 #include <memory>
-#include <nan.h>
 #include <string>
 
-using namespace std;
-using namespace v8;
-
-class ParserExceptionConstructable : public Constructable {
-public:
-  explicit ParserExceptionConstructable(const std::string &value)
-      : Constructable(), m_value{std::move(value)} {};
-
-  virtual v8::Local<v8::Value> construct(Nan::HandleScope &scope,
-                                         v8::Isolate *isolate) const override {
-    // TODO make some mechanimsm to get the exception out as early as possible!
-    return Nan::TypeError(m_value.c_str());
-  };
-
-private:
-  std::string m_value;
-};
 
 using ParserFunction = function<shared_ptr<Constructable>(const string &str)>;
 

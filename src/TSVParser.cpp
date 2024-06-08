@@ -4,7 +4,6 @@
 #include <expected.hpp>
 #include <map>
 #include <memory>
-#include <nan.h>
 #include <numeric>
 #include <string>
 #include <thread>
@@ -15,8 +14,6 @@
 #include "TSVParser.hpp"
 #include "helper.hpp"
 
-using namespace std;
-using namespace v8;
 
 TSVParser::TSVParser(string path, string type, OmitHeadType hasHead,
                      shared_ptr<ParserStructure> structure)

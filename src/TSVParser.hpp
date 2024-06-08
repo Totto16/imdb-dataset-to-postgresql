@@ -5,20 +5,16 @@
 #include <expected.hpp>
 #include <map>
 #include <memory>
-#include <nan.h>
 #include <string>
 #include <vector>
 
 #include "ParserStructure.hpp"
 #include "helper.hpp"
 
-using namespace std;
-using namespace v8;
-
 // ts: export type OmitHeadType = "auto" | boolean
 enum class OmitHeadType { False = 0, True = 1, Auto = 2 };
 
-using ParseResult = tl::expected<int32_t, string>;
+using ParseResult = ::expected<int32_t, string>;
 
 using ParserMap = map<string, shared_ptr<ParserStructure>>;
 

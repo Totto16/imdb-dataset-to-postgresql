@@ -8,7 +8,6 @@
 #include "Models.hpp"
 #include "ParserStructure.hpp"
 
-using namespace std;
 
 shared_ptr<ParserStructure> Model::mappedTitleAlternate() {
   return make_shared<ParserStructure>(

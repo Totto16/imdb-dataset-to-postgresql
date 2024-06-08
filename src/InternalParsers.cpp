@@ -5,7 +5,6 @@
 
 #include <array>
 #include <memory>
-#include <nan.h>
 #include <stdexcept>
 #include <string>
 
@@ -13,8 +12,7 @@
 #include "ParserStructure.hpp"
 #include "constructable.hpp"
 
-using namespace std;
-using namespace v8;
+
 
 [[nodiscard]] bool StaticParsers::isNulledValue(const string &str) {
   return ("\\N" == str);
