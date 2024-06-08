@@ -1,6 +1,6 @@
 -- CREATE DATABASE imdb;
 --
--- taken from https://www.imdb.com/INTerfaces/
+-- taken from https://developer.imdb.com/non-commercial-datasets/
 --
 
 -- create enum for titleType: ATTENTION: New values may be added in the future without warning
