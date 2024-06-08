@@ -12,3 +12,5 @@ header_files += files(
     'TSVParser.hpp',
 )
 inc_dirs += include_directories('.')
+
+subdir('helper')

@@ -22,6 +22,7 @@ deps += dependency('csvlib')
 src_files = []
 header_files = []
 inc_dirs = []
+compile_args = []
 
 subdir('src')
 
@@ -31,4 +32,5 @@ executable(
     header_files,
     dependencies: deps,
     include_directories: inc_dirs,
+    cpp_args: compile_args,
 )
