@@ -57,39 +57,13 @@ STR2DOUBLE_ERROR str2double(double &d, char const *s) {
   double d;
   const auto result = str2double(d, str.c_str());
   if (result != STR2DOUBLE_ERROR::SUCCESS) {
-    throw std::runtime_error("Couldn't parse float of '" + str + "'");
+    throw std::runtime_error("Couldn't parse double of '" + str + "'");
   }
 
   return d;
 }
 
-// from
-// https://stackoverflow.com/questions/194465/how-to-parse-a-string-to-an-int-in-c
-enum class STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
-
-STR2INT_ERROR str2int(std::int64_t &l, char const *s, int base = 10) {
-  char *end;
-  errno = 0;
-  // not using std::strtol, since that throws exceptions!
-  l = strtol(s, &end, base);
-  if ((errno == ERANGE && l == LONG_MAX)) {
-    return STR2INT_ERROR::OVERFLOW;
-  }
-  if ((errno == ERANGE && l == LONG_MIN)) {
-    return STR2INT_ERROR::UNDERFLOW;
-  }
-  if (*s == '\0' || *end != '\0') {
-    return STR2INT_ERROR::INCONVERTIBLE;
-  }
-  return STR2INT_ERROR::SUCCESS;
-}
-
-[[nodiscard]] std::int64_t StaticParsers::intParser(const std::string &str) {
-  std::int64_t i;
-  const auto result = str2int(i, str.c_str());
-  if (result != STR2INT_ERROR::SUCCESS) {
-    throw std::runtime_error("Couldn't parse int of '" + str + "'");
-  }
-
-  return i;
+[[nodiscard]] float StaticParsers::floatParser(const std::string &str) {
+  double d = StaticParsers::doubleParser(str);
+  return static_cast<float>(d);
 }

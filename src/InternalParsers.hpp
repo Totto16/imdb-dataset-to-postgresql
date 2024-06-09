@@ -2,6 +2,7 @@
 #pragma once
 
 #include <functional>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -30,6 +31,29 @@ split(const std::string &line, Separator sep) {
   return fields;
 }
 
+// from
+// https://stackoverflow.com/questions/194465/how-to-parse-a-string-to-an-int-in-c
+enum class STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
+
+using ParseIntType = std::int64_t;
+
+STR2INT_ERROR str2int(ParseIntType &l, char const *s, int base = 10) {
+  char *end;
+  errno = 0;
+  // not using std::strtol, since that throws exceptions!
+  l = strtol(s, &end, base);
+  if ((errno == ERANGE && l == LONG_MAX)) {
+    return STR2INT_ERROR::OVERFLOW;
+  }
+  if ((errno == ERANGE && l == LONG_MIN)) {
+    return STR2INT_ERROR::UNDERFLOW;
+  }
+  if (*s == '\0' || *end != '\0') {
+    return STR2INT_ERROR::INCONVERTIBLE;
+  }
+  return STR2INT_ERROR::SUCCESS;
+}
+
 } // namespace ParserHelper
 
 class StaticParsers {
@@ -45,7 +69,32 @@ public:
 
   [[nodiscard]] static double doubleParser(const std::string &str);
 
-  [[nodiscard]] static std::int64_t intParser(const std::string &str);
+  [[nodiscard]] static float floatParser(const std::string &str);
+
+  template <std::integral T>
+  [[nodiscard]] static T intParser(const std::string &str) {
+    ParserHelper::ParseIntType i;
+    const auto result = ParserHelper::str2int(i, str.c_str());
+    if (result != ParserHelper::STR2INT_ERROR::SUCCESS) {
+      throw std::runtime_error("Couldn't parse int of '" + str + "'");
+    }
+
+    static_assert(std::numeric_limits<T>::is_signed ==
+                  std::numeric_limits<ParserHelper::ParseIntType>::is_signed);
+
+    static_assert(std::numeric_limits<T>::max() <=
+                  std::numeric_limits<ParserHelper::ParseIntType>::max());
+
+    if (i > std::numeric_limits<T>::max()) {
+      throw std::runtime_error("integer out of bounds, to big");
+    }
+
+    if (i < std::numeric_limits<T>::min()) {
+      throw std::runtime_error("integer out of bounds, to small");
+    }
+
+    return static_cast<T>(i);
+  }
 
   template <typename T>
   [[nodiscard]] static ParserFunction<std::optional<T>>

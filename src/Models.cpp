@@ -12,9 +12,10 @@
 std::shared_ptr<Parseable> Model::mappedTitleAlternate() {
   return make_shared<ParserStructure<TitleAlternate>>(
       std::vector<AdvancedParser<TitleAlternate>>{
-          MAKE_PARSER(TitleAlternate, titleId, StaticParsers::asIs),       //
-          MAKE_PARSER(TitleAlternate, ordering, StaticParsers::intParser), //
-          MAKE_PARSER(TitleAlternate, title, StaticParsers::asIs),         //
+          MAKE_PARSER(TitleAlternate, titleId, StaticParsers::asIs), //
+          MAKE_PARSER(TitleAlternate, ordering,
+                      StaticParsers::intParser<std::int64_t>),     //
+          MAKE_PARSER(TitleAlternate, title, StaticParsers::asIs), //
           MAKE_PARSER(TitleAlternate, region,
                       StaticParsers::asIsNullable), //
           MAKE_PARSER(TitleAlternate, language,
@@ -37,10 +38,10 @@ std::shared_ptr<Parseable> Model::mappedNameBasic() {
           MAKE_PARSER(NameBasic, primaryName, StaticParsers::asIs),
           MAKE_PARSER(NameBasic, birthYear,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(NameBasic, deathYear,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(
               NameBasic, primaryProfession,
               StaticParsers::arrayParser<std::string>(StaticParsers::asIs)),
@@ -59,13 +60,13 @@ std::shared_ptr<Parseable> Model::mappedTitleBasic() {
           MAKE_PARSER(TitleBasic, isAdult, StaticParsers::booleanParser),
           MAKE_PARSER(TitleBasic, startYear,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(TitleBasic, endYear,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(TitleBasic, runtimeMinutes,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(
               TitleBasic, genres,
               StaticParsers::arrayParser<std::string>(StaticParsers::asIs))});
@@ -90,10 +91,10 @@ std::shared_ptr<Parseable> Model::mappedTitleEpisode() {
           MAKE_PARSER(TitleEpisode, parentTconst, StaticParsers::asIs),
           MAKE_PARSER(TitleEpisode, seasonNumber,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
           MAKE_PARSER(TitleEpisode, episodeNumber,
                       StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser)),
+                          StaticParsers::intParser<std::int64_t>)),
       });
 }
 
@@ -101,7 +102,8 @@ std::shared_ptr<Parseable> Model::mappedTitlePrincipal() {
   return make_shared<ParserStructure<TitlePrincipal>>(
       std::vector<AdvancedParser<TitlePrincipal>>{
           MAKE_PARSER(TitlePrincipal, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitlePrincipal, ordering, StaticParsers::intParser),
+          MAKE_PARSER(TitlePrincipal, ordering,
+                      StaticParsers::intParser<std::int64_t>),
           MAKE_PARSER(TitlePrincipal, nconst, StaticParsers::asIs),
           MAKE_PARSER(TitlePrincipal, category, StaticParsers::asIs),
           MAKE_PARSER(
@@ -117,6 +119,7 @@ std::shared_ptr<Parseable> Model::mappedTitleRating() {
       std::vector<AdvancedParser<TitleRating>>{
           MAKE_PARSER(TitleRating, tconst, StaticParsers::asIs),
           MAKE_PARSER(TitleRating, averageRating, StaticParsers::doubleParser),
-          MAKE_PARSER(TitleRating, numVotes, StaticParsers::intParser),
+          MAKE_PARSER(TitleRating, numVotes,
+                      StaticParsers::intParser<std::int64_t>),
       });
 }
