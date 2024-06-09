@@ -47,9 +47,9 @@ public:
   virtual ~ParserStructure() = default;
 
   void setup_prepared_statement(postgres::Connection &connection) override {
-    // TODO
     (void)connection;
-    //   m_prepared_command_name
+    //  connection.exec{m_prepared_command_name,
+    //  postgres::Statement<T>::placeholders()}
   }
 
   void insert_record(postgres::Connection &connection,

@@ -118,7 +118,7 @@ std::shared_ptr<Parseable> Model::mappedTitleRating() {
   return make_shared<ParserStructure<TitleRating>>(
       std::vector<AdvancedParser<TitleRating>>{
           MAKE_PARSER(TitleRating, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleRating, averageRating, StaticParsers::doubleParser),
+          MAKE_PARSER(TitleRating, averageRating, StaticParsers::floatParser),
           MAKE_PARSER(TitleRating, numVotes,
                       StaticParsers::intParser<std::int64_t>),
       });
