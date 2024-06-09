@@ -25,13 +25,21 @@ std::string pingResultToName(const PGPing input) {
 [[nodiscard]] helper::expected<postgres::Connection, std::string>
 helper::get_connection(const CommandLineArguments &arguments) {
 
-  postgres::Config config{postgres::Config::Builder{}
-                              .host(arguments.host)
-                              .port(arguments.port)
-                              .dbname(arguments.dbname)
-                              .user(arguments.user)
-                              .password(arguments.password)
-                              .build()};
+  postgres::Config::Builder builder{};
+
+  builder.host(arguments.host);
+  builder.port(arguments.port);
+  builder.dbname(arguments.dbname);
+
+  if (arguments.user.has_value()) {
+    builder.user(arguments.user.value());
+  }
+
+  if (arguments.password.has_value()) {
+    builder.password(arguments.password.value());
+  }
+
+  postgres::Config config{builder.build()};
 
   const auto result = postgres::Connection::ping(config);
 

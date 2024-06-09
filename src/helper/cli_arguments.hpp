@@ -11,9 +11,8 @@ struct CommandLineArguments {
   int port;
   std::string dbname;
 
-  // TODO: make optional
-  std::string user;
-  std::string password;
+  std::optional<std::string> user;
+  std::optional<std::string> password;
 
   std::string file;
   std::optional<std::string> type;

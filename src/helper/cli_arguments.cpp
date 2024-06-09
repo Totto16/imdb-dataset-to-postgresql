@@ -7,6 +7,20 @@
 #define STRINGIFY(a) STRINGIFY_HELPER_(a)
 #define STRINGIFY_HELPER_(a) #a
 
+namespace {
+
+template <typename T>
+inline std::optional<T> get_optional(argparse::ArgumentParser &parser,
+                                     const std::string &value) {
+  if (parser.present<T>(value)) {
+    return parser.get<T>(value);
+  }
+
+  return std::nullopt;
+}
+
+} // namespace
+
 helper::expected<CommandLineArguments, std::string>
 helper::parse_args(const std::vector<std::string> &arguments) {
   argparse::ArgumentParser parser{"imdb-sql-importer", STRINGIFY(_APP_VERSION),
@@ -78,8 +92,8 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .host = parser.get<std::string>("host"),
         .port = parser.get<int>("port"),
         .dbname = parser.get<std::string>("dbname"),
-        .user = parser.get<std::string>("user"),
-        .password = parser.get<std::string>("password"),
+        .user = get_optional<std::string>(parser, "user"),
+        .password = get_optional<std::string>(parser, "password"),
         .file = parser.get<std::string>("file"),
         .type = type,
         .hasHead = hasHead,
