@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "InternalParsers.hpp"
+#include "helper/postgres.hpp"
 
 template <typename T>
 using AdvancedParserFunction =
@@ -47,9 +48,10 @@ public:
   virtual ~ParserStructure() = default;
 
   void setup_prepared_statement(postgres::Connection &connection) override {
-    (void)connection;
-    //  connection.exec{m_prepared_command_name,
-    //  postgres::Statement<T>::placeholders()}
+
+    connection.exec(postgres::PrepareData{
+        m_prepared_command_name, postgres::Statement<T>::insert(),
+        helper::PreparedStatement<T>::types()});
   }
 
   void insert_record(postgres::Connection &connection,

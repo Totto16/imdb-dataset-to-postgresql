@@ -11,7 +11,7 @@ using ImdbID = std::string;
 
 struct TitleRating {
   ImdbID tconst;
-  double averageRating;
+  float averageRating;
   std::int64_t numVotes;
 
   POSTGRES_CXX_TABLE("title.ratings", tconst, averageRating, numVotes);

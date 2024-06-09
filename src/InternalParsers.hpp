@@ -37,7 +37,7 @@ enum class STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
 
 using ParseIntType = std::int64_t;
 
-STR2INT_ERROR str2int(ParseIntType &l, char const *s, int base = 10) {
+inline STR2INT_ERROR str2int(ParseIntType &l, char const *s, int base = 10) {
   char *end;
   errno = 0;
   // not using std::strtol, since that throws exceptions!
