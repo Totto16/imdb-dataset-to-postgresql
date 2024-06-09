@@ -18,8 +18,8 @@ using AdvancedParserFunction =
 template <typename T>
 using AdvancedParser = std::pair<std::string, AdvancedParserFunction<T>>;
 
-#include "postgres.hpp"
 #include <csv/parser.hpp>
+#include <postgres/Postgres.h>
 
 struct Parseable {
 
@@ -31,7 +31,29 @@ struct Parseable {
   [[nodiscard]] virtual const std::vector<std::string> names() const = 0;
 };
 
-template <typename T> class ParserStructure : public Parseable {
+namespace {
+// from:
+// https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+inline void replaceAll(std::string &str, const std::string &from,
+                       const std::string &to) {
+  if (from.empty()) {
+    return;
+  }
+  size_t start_pos = 0;
+  while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length(); // In case 'to' contains 'from', like replacing
+                              // 'x' with 'yx'
+  }
+}
+} // namespace
+
+template <typename T>
+concept IsTable = postgres::internal::isVisitable<T>();
+
+template <typename T>
+  requires IsTable<T>
+class ParserStructure : public Parseable {
 private:
   std::vector<AdvancedParser<T>> m_parser;
   std::string m_prepared_command_name;
@@ -40,9 +62,9 @@ public:
   ParserStructure(std::vector<AdvancedParser<T>> &&parser)
       : m_parser{std::move(parser)} {
 
-    // TODO:REPLACE . with _
     m_prepared_command_name =
         postgres::Statement<T>::table() + "_prepared_insert";
+    replaceAll(m_prepared_command_name, ".", "_");
   }
 
   virtual ~ParserStructure() = default;
@@ -70,10 +92,8 @@ public:
       ++i;
     }
 
-    // TODO: RangeStatement and Statement
     (void)connection;
-    /*  connection.exec(postgres::PreparedCommand{
-         m_prepared_command_name, postgres::Statement<T>::fields()}); */
+    connection.exec(postgres::PreparedCommand{m_prepared_command_name, value});
   }
 
   [[nodiscard]] virtual const std::vector<std::string> names() const override {

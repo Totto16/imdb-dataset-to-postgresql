@@ -4,8 +4,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-#include "postgres.hpp"
+#include <postgres/Postgres.h>
 
 using ImdbID = std::string;
 

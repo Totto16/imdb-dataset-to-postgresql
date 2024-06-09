@@ -4,7 +4,7 @@
 #include "helper/cli_arguments.hpp"
 #include "helper/expected.hpp"
 
-#include "../postgres.hpp"
+#include <postgres/Postgres.h>
 #include <type_traits>
 
 namespace helper {
@@ -26,9 +26,7 @@ template <typename S> using IsOptional = is_instantiation_of<std::optional, S>;
 
 namespace {
 struct TypesCollector {
-  template <typename T> void accept(char const *const name) {
-    (void)name;
-
+  template <typename T> void accept(char const *const) {
     Oid oid;
     if constexpr (IsOptional<T>::value) {
       oid = oid_of(static_cast<T::value_type *>(nullptr));
@@ -56,7 +54,19 @@ private:
 
   Oid oid_of(std::vector<std::string> *) { return TEXTARRAYOID; }
 };
+/*
+template <typename... Arg> struct ValuesCollector {
+  template <typename T> void accept(char const *const, const T& value) {
 
+
+    std::get<>types(oid);
+  }
+
+  std::tuple<... Arg> values;
+
+private:
+};
+ */
 } // namespace
 
 namespace helper {
@@ -67,5 +77,11 @@ template <typename T> struct PreparedStatement {
     T::visitPostgresDefinition(collector);
     return collector.types;
   }
+
+  /*  template <typename... Arg> static auto values(const T &value) {
+     auto collector = ValuesCollector<Arg...>{};
+     value.visitPostgresFields(collector);
+     return collector.values;
+   } */
 };
 } // namespace helper

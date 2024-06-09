@@ -12,6 +12,7 @@ test_src_files = files(
   'src/DispatcherTest.cpp',
   'src/FieldTest.cpp',
   'src/main.cpp',
+  'src/PreparedCommandTest.cpp',
   'src/ReceiverTest.cpp',
   'src/ResultTest.cpp',
   'src/RowTest.cpp',
