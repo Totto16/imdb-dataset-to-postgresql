@@ -60,13 +60,15 @@ CREATE TABLE IF NOT EXISTS public.title_basics (
 	genres title_basics_genres [],
 	PRIMARY KEY(tconst)
 );
+
 -- create enum for category: ATTENTION: New values may be added in the future without warning
 CREATE TYPE general_job AS ENUM (
 	'director',
 	'cinematographer',
 	'composer',
 	'editor',
-	'actor' -- etc. -- TODO: add missing ones
+	'actor',
+	'miscellaneous' -- etc. -- TODO: add missing ones
 );
 -- create the table name_basics
 CREATE TABLE IF NOT EXISTS public.name_basics (
