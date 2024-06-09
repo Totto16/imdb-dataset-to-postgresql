@@ -73,7 +73,7 @@ public:
 
     connection.exec(postgres::PrepareData{
         m_prepared_command_name, postgres::Statement<T>::insert(),
-        helper::PreparedStatement<T>::types()});
+        postgres::PreparedStatement<T>::types()});
   }
 
   void insert_record(postgres::Connection &connection,
@@ -92,7 +92,6 @@ public:
       ++i;
     }
 
-    (void)connection;
     connection.exec(postgres::PreparedCommand{m_prepared_command_name, value});
   }
 
