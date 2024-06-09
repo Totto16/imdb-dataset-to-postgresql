@@ -2,9 +2,9 @@
 #pragma once
 
 #include <optional>
+#include <postgres/Postgres.h>
 #include <string>
 #include <vector>
-#include <postgres/Postgres.h>
 
 using ImdbID = std::string;
 
@@ -13,14 +13,14 @@ struct TitleRating {
   float averageRating;
   std::int64_t numVotes;
 
-  POSTGRES_CXX_TABLE("title.ratings", tconst, averageRating, numVotes);
+  POSTGRES_CXX_TABLE("title_ratings", tconst, averageRating, numVotes);
 };
 
 using RegionString = std::string;
 
 using LanguageString = std::string;
 
-using AlternativeType = std::string;
+POSTGRES_CXX_ENUM(AlternativeType, "title_akas_type");
 
 struct TitleAlternate {
   ImdbID titleId;
@@ -32,13 +32,13 @@ struct TitleAlternate {
   std::vector<std::string> attributes;
   std::optional<bool> isOriginalTitle;
 
-  POSTGRES_CXX_TABLE("title.akas", titleId, ordering, title, region, language,
+  POSTGRES_CXX_TABLE("title_akas", titleId, ordering, title, region, language,
                      types, attributes, isOriginalTitle);
 };
 
-using Genre = std::string;
+POSTGRES_CXX_ENUM(Genre, "title_basics_titleType");
 
-using TitleType = std::string;
+POSTGRES_CXX_ENUM(TitleType, "title_basics_genres");
 
 struct TitleBasic {
   ImdbID tconst;
@@ -51,7 +51,7 @@ struct TitleBasic {
   std::optional<std::int64_t> runtimeMinutes;
   std::vector<Genre> genres;
 
-  POSTGRES_CXX_TABLE("title.basics", tconst, titleType, primaryTitle,
+  POSTGRES_CXX_TABLE("title_basics", tconst, titleType, primaryTitle,
                      originalTitle, isAdult, startYear, endYear, runtimeMinutes,
                      genres);
 };
@@ -63,7 +63,7 @@ struct TitleCrew {
   std::vector<NameID> directors;
   std::vector<NameID> writers;
 
-  POSTGRES_CXX_TABLE("title.crew", tconst, directors, writers);
+  POSTGRES_CXX_TABLE("title_crew", tconst, directors, writers);
 };
 
 struct TitleEpisode {
@@ -72,7 +72,7 @@ struct TitleEpisode {
   std::optional<std::int64_t> seasonNumber;
   std::optional<std::int64_t> episodeNumber;
 
-  POSTGRES_CXX_TABLE("title.episode", tconst, parentTconst, seasonNumber,
+  POSTGRES_CXX_TABLE("title_episode", tconst, parentTconst, seasonNumber,
                      episodeNumber);
 };
 
@@ -84,18 +84,20 @@ struct TitlePrincipal {
   std::optional<std::string> job;
   std::optional<std::string> characters;
 
-  POSTGRES_CXX_TABLE("title.principals", tconst, ordering, nconst, category,
+  POSTGRES_CXX_TABLE("title_principals", tconst, ordering, nconst, category,
                      job, characters);
 };
+
+POSTGRES_CXX_ENUM(GenralJob, "general_job");
 
 struct NameBasic {
   NameID nconst;
   std::string primaryName;
   std::optional<std::int64_t> birthYear;
   std::optional<std::int64_t> deathYear;
-  std::vector<std::string> primaryProfession;
+  std::vector<GenralJob> primaryProfession;
   std::vector<ImdbID> knownForTitles;
 
-  POSTGRES_CXX_TABLE("name.basics", nconst, primaryName, birthYear, deathYear,
+  POSTGRES_CXX_TABLE("name_basics", nconst, primaryName, birthYear, deathYear,
                      primaryProfession, knownForTitles);
 };

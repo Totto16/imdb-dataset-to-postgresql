@@ -49,7 +49,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .help("set the user of the PostgreSQL Server")
       .metavar("user");
 
-  parser.add_argument("-p", "--password")
+  parser.add_argument("--password")
       .help("set the password of the PostgreSQL Server")
       .metavar("password");
 
