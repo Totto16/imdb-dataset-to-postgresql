@@ -7,35 +7,32 @@
 #include "InternalParsers.hpp"
 #include "Models.hpp"
 #include "ParserStructure.hpp"
+#include "types.hpp"
 
-
-shared_ptr<ParserStructure> Model::mappedTitleAlternate() {
-  return make_shared<ParserStructure>(
-      vector<string>{
-          "titleId",
-          "ordering",
-          "title",
-          "region",
-          "language",
-          "types",
-          "attributes",
-          "isOriginalTitle",
-      },
-      vector<ParserFunction>{
-          StaticParsers::imdbIdParser,
-          StaticParsers::intParser,
-          StaticParsers::asIs,
-          StaticParsers::orNullParser(StaticParsers::regionParser),
-          StaticParsers::orNullParser(StaticParsers::languageParser),
-          StaticParsers::arrayParser(StaticParsers::alternativeTitleParser),
-          StaticParsers::arrayParser(StaticParsers::asIs),
-          StaticParsers::orNullParser(StaticParsers::booleanParser),
-      });
+std::shared_ptr<Parseable> Model::mappedTitleAlternate() {
+  return make_shared<ParserStructure<TitleAlternate>>(
+      std::vector<AdvancedParser<TitleAlternate>>{
+          MAKE_PARSER(TitleAlternate, titleId, StaticParsers::asIs),       //
+          MAKE_PARSER(TitleAlternate, ordering, StaticParsers::intParser), //
+          MAKE_PARSER(TitleAlternate, title, StaticParsers::asIs),         //
+          MAKE_PARSER(TitleAlternate, region,
+                      StaticParsers::asIsNullable), //
+          MAKE_PARSER(TitleAlternate, language,
+                      StaticParsers::asIsNullable), //
+          MAKE_PARSER(
+              TitleAlternate, types,
+              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)), //
+          MAKE_PARSER(
+              TitleAlternate, attributes,
+              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)), //
+          MAKE_PARSER(TitleAlternate, isOriginalTitle,
+                      StaticParsers::orNullParser<bool>(
+                          StaticParsers::booleanParser))});
 }
-
-shared_ptr<ParserStructure> Model::mappedNameBasic() {
+/*
+std::shared_ptr<Parseable> Model::mappedNameBasic() {
   return make_shared<ParserStructure>(
-      vector<string>{
+      std::vector<std::string>{
           "nconst",
           "primaryName",
           "birthYear",
@@ -43,7 +40,7 @@ shared_ptr<ParserStructure> Model::mappedNameBasic() {
           "primaryProfession",
           "knownForTitles",
       },
-      vector<ParserFunction>{
+      std::vector<ParserFunction>{
           StaticParsers::nameIDParser,
           StaticParsers::asIs,
           StaticParsers::orNullParser(StaticParsers::intParser),
@@ -53,9 +50,9 @@ shared_ptr<ParserStructure> Model::mappedNameBasic() {
       });
 }
 
-shared_ptr<ParserStructure> Model::mappedTitleBasic() {
+std::shared_ptr<Parseable> Model::mappedTitleBasic() {
   return make_shared<ParserStructure>(
-      vector<string>{
+      std::vector<std::string>{
           "tconst",
           "titleType",
           "primaryTitle",
@@ -66,7 +63,7 @@ shared_ptr<ParserStructure> Model::mappedTitleBasic() {
           "runtimeMinutes",
           "genres",
       },
-      vector<ParserFunction>{
+      std::vector<ParserFunction>{
           StaticParsers::imdbIdParser,
           StaticParsers::titleTypeParser,
           StaticParsers::asIs,
@@ -79,19 +76,20 @@ shared_ptr<ParserStructure> Model::mappedTitleBasic() {
       });
 }
 
-shared_ptr<ParserStructure> Model::mappedTitleCrew() {
+std::shared_ptr<Parseable> Model::mappedTitleCrew() {
   return make_shared<ParserStructure>(
-      vector<string>{"tconst", "directors", "writers"},
-      vector<ParserFunction>{
+      std::vector<std::string>{"tconst", "directors", "writers"},
+      std::vector<ParserFunction>{
           StaticParsers::imdbIdParser,
           StaticParsers::arrayParser(StaticParsers::nameIDParser),
           StaticParsers::arrayParser(StaticParsers::nameIDParser)});
 }
 
-shared_ptr<ParserStructure> Model::mappedTitleEpisode() {
+std::shared_ptr<Parseable> Model::mappedTitleEpisode() {
   return make_shared<ParserStructure>(
-      vector<string>{"tconst", "parentTconst", "seasonNumber", "episodeNumber"},
-      vector<ParserFunction>{
+      std::vector<std::string>{"tconst", "parentTconst", "seasonNumber",
+                               "episodeNumber"},
+      std::vector<ParserFunction>{
           StaticParsers::imdbIdParser,
           StaticParsers::asIs,
           StaticParsers::orNullParser(StaticParsers::intParser),
@@ -99,23 +97,24 @@ shared_ptr<ParserStructure> Model::mappedTitleEpisode() {
       });
 }
 
-shared_ptr<ParserStructure> Model::mappedTitlePrincipal() {
+std::shared_ptr<Parseable> Model::mappedTitlePrincipal() {
   return make_shared<ParserStructure>(
-      vector<string>{"tconst", "ordering", "nconst", "category", "job",
-                     "characters"},
-      vector<ParserFunction>{
+      std::vector<std::string>{"tconst", "ordering", "nconst", "category",
+                               "job", "characters"},
+      std::vector<ParserFunction>{
           StaticParsers::imdbIdParser, StaticParsers::intParser,
           StaticParsers::nameIDParser, StaticParsers::asIs,
           StaticParsers::orNullParser(StaticParsers::asIs),
           StaticParsers::orNullParser(StaticParsers::asIs)});
 }
 
-shared_ptr<ParserStructure> Model::mappedTitleRating() {
+std::shared_ptr<Parseable> Model::mappedTitleRating() {
   return make_shared<ParserStructure>(
-      vector<string>{"tconst", "averageRating", "numVotes"},
-      vector<ParserFunction>{
+      std::vector<std::string>{"tconst", "averageRating", "numVotes"},
+      std::vector<ParserFunction>{
           StaticParsers::imdbIdParser,
           StaticParsers::floatParser,
           StaticParsers::intParser,
       });
 }
+ */

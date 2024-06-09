@@ -1,43 +1,13 @@
-
+#
 #pragma once
-
-
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
-
-using ParserFunction = function<shared_ptr<Constructable>(const string &str)>;
-
-class StaticParsers {
-public:
-  [[nodiscard]] static bool isNulledValue(const string &str);
-
-  [[nodiscard]] static shared_ptr<Constructable> asIs(const string &str);
-
-  [[nodiscard]] static shared_ptr<Constructable>
-  imdbIdParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  alternativeTitleParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  titleTypeParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable> genreParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  nameIDParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  regionParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  languageParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable>
-  booleanParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable> floatParser(const string &str);
-  [[nodiscard]] static shared_ptr<Constructable> intParser(const string &str);
-
-  [[nodiscard]] static ParserFunction orNullParser(const ParserFunction &fn);
-  [[nodiscard]] static ParserFunction arrayParser(const ParserFunction &fn);
-
-}; // namespace Parser
+template <typename T>
+using ParserFunction = std::function<T(const std::string &str)>;
 
 namespace ParserHelper {
 
@@ -61,3 +31,52 @@ split(const std::string &line, Separator sep) {
 }
 
 } // namespace ParserHelper
+
+class StaticParsers {
+public:
+  [[nodiscard]] static bool isNulledValue(const std::string &str);
+
+  [[nodiscard]] static std::string asIs(const std::string &str);
+
+  [[nodiscard]] static std::optional<std::string>
+  asIsNullable(const std::string &str);
+
+  [[nodiscard]] static bool booleanParser(const std::string &str);
+
+  [[nodiscard]] static double doubleParser(const std::string &str);
+
+  [[nodiscard]] static std::int64_t intParser(const std::string &str);
+
+  template <typename T>
+  [[nodiscard]] static ParserFunction<std::optional<T>>
+  orNullParser(const ParserFunction<T> &fn) {
+    return [fn](const std::string &str) -> std::optional<T> {
+      if (StaticParsers::isNulledValue(str)) {
+        return std::nullopt;
+      }
+
+      return fn(str);
+    };
+  }
+
+  template <typename T>
+  [[nodiscard]] static ParserFunction<std::vector<T>>
+  arrayParser(const ParserFunction<T> &fn) {
+
+    return [fn](const std::string &str) -> std::vector<T> {
+      std::vector<T> vec = {};
+
+      if (StaticParsers::isNulledValue(str)) {
+        return vec;
+      }
+
+      auto parts = ParserHelper::split<std::vector>(str, ",");
+      for (const auto &value : parts) {
+        vec.push_back(fn(value));
+      }
+
+      return vec;
+    };
+  }
+
+}; // namespace Parser

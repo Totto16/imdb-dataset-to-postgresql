@@ -1,8 +1,8 @@
 src_files += files(
     'InternalParsers.cpp',
     'Models.cpp',
-    'ParserStructure.cpp',
     'TSVParser.cpp',
+    'main.cpp',
 )
 
 header_files += files(

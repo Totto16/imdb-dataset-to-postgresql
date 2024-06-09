@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "postgres.hpp"
+
 using ImdbID = std::string;
 
-struct ITitleRating {
+struct TitleRating {
   ImdbID tconst;
   float averageRating;
   int numVotes;
@@ -19,22 +21,25 @@ using LanguageString = std::string;
 
 using AlternativeType = std::string;
 
-struct ITitleAlternate {
+struct TitleAlternate {
   ImdbID titleId;
-  int ordering;
+  std::int64_t ordering;
   std::string title;
   std::optional<RegionString> region;
   std::optional<LanguageString> language;
   std::vector<AlternativeType> types;
   std::vector<std::string> attributes;
   std::optional<bool> isOriginalTitle;
+
+  POSTGRES_CXX_TABLE("title.akas", titleId, ordering, title, region, language,
+                     types, attributes, isOriginalTitle);
 };
 
 using Genre = std::string; // TODO use enum
 
 using TitleType = std::string;
 
-struct ITitleBasic {
+struct TitleBasic {
   ImdbID tconst;
   TitleType titleType;
   std::string primaryTitle;
@@ -48,20 +53,20 @@ struct ITitleBasic {
 
 using NameID = std::string;
 
-struct ITitleCrew {
+struct TitleCrew {
   ImdbID tconst;
   std::vector<NameID> directors;
   std::vector<NameID> writers;
 };
 
-struct ITitleEpisode {
+struct TitleEpisode {
   ImdbID tconst;
   std::string parentTconst;
   std::optional<int> seasonNumber;
   std::optional<int> episodeNumber;
 };
 
-struct ITitlePrincipal {
+struct TitlePrincipal {
   ImdbID tconst;
   int ordering;
   NameID nconst;
@@ -70,7 +75,7 @@ struct ITitlePrincipal {
   std::optional<std::string> characters;
 };
 
-struct INameBasic {
+struct NameBasic {
   NameID nconst;
   std::string primaryName;
   std::optional<int> birthYear;

@@ -2,42 +2,41 @@
 #pragma once
 
 #include <csv/parser.hpp>
-#include <expected.hpp>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
-#include <vector>
 
 #include "ParserStructure.hpp"
-#include "helper.hpp"
+#include "helper/expected.hpp"
+#include "postgres.hpp"
 
-// ts: export type OmitHeadType = "auto" | boolean
-enum class OmitHeadType { False = 0, True = 1, Auto = 2 };
+using OmitHeadType = std::optional<bool>;
 
-using ParseResult = ::expected<int32_t, string>;
+using ParseResult = helper::expected<std::int32_t, std::string>;
 
-using ParserMap = map<string, shared_ptr<ParserStructure>>;
+using ParserMap = std::map<std::string, std::shared_ptr<Parseable>>;
 
 class TSVParser {
 public:
-  TSVParser(string path, string type, OmitHeadType hasHead,
-            shared_ptr<ParserStructure> structure);
+  TSVParser(std::string path, std::string type, OmitHeadType hasHead,
+            std::shared_ptr<Parseable> structure);
   TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
 
-  ParseResult parseData(const ExecutionProgressSender *sender,
-                        EventEmitterFunctionReentrant emitter);
+  ParseResult parseData(postgres::Connection &connection);
   [[nodiscard]] static ParserMap getParserMap();
 
   [[nodiscard]] bool isHeader(const csv::record &record);
 
 private:
-  string m_path;
-  string m_type;
+  std::string m_path;
+  std::string m_type;
   OmitHeadType m_hasHead;
-  shared_ptr<ParserStructure> m_structure;
+  std::shared_ptr<Parseable> m_structure;
 };
 
-using MaybeParser = tl::expected<TSVParser, string>;
+using MaybeParser = tl::expected<TSVParser, std::string>;
 
-MaybeParser makeParser(string path, string type, OmitHeadType hasHead);
+MaybeParser makeParser(std::string path, std::string type,
+                       OmitHeadType hasHead);
