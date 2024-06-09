@@ -3,6 +3,7 @@ src_files += files(
     'Models.cpp',
     'TSVParser.cpp',
     'main.cpp',
+    'ParseMetadata.cpp',
 )
 
 header_files += files(
@@ -10,6 +11,7 @@ header_files += files(
     'Models.hpp',
     'ParserStructure.hpp',
     'TSVParser.hpp',
+    'ParseMetadata.hpp',
 )
 inc_dirs += include_directories('.')
 

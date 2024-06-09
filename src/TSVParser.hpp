@@ -6,15 +6,16 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <string>
 #include <postgres/Postgres.h>
+#include <string>
 
 #include "ParserStructure.hpp"
 #include "helper/expected.hpp"
+#include "ParseMetadata.hpp"
 
 using OmitHeadType = std::optional<bool>;
 
-using ParseResult = helper::expected<std::int32_t, std::string>;
+using ParseResult = helper::expected<ParseMetadata, std::string>;
 
 using ParserMap = std::map<std::string, std::shared_ptr<Parseable>>;
 
@@ -25,7 +26,8 @@ public:
   TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
 
-  ParseResult parseData(postgres::Connection &connection);
+  ParseResult parseData(postgres::Connection &connection,
+                        ParseOptions options);
   [[nodiscard]] static ParserMap getParserMap();
 
   [[nodiscard]] bool isHeader(const csv::record &record);

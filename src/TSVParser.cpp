@@ -4,14 +4,16 @@
 #include <csv/parser.hpp>
 #include <exception>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <numeric>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "Models.hpp"
+#include "ParseMetadata.hpp"
 #include "ParserStructure.hpp"
 #include "TSVParser.hpp"
 #include "helper/expected.hpp"
@@ -86,7 +88,23 @@ ParserMap TSVParser::getParserMap() {
   return headLineString == line;
 }
 
-ParseResult TSVParser::parseData(postgres::Connection &connection) {
+namespace {
+// partially from here:
+// https://www.reddit.com/r/cpp_questions/comments/11wlf49/whats_the_most_efficient_way_to_get_the_line/
+std::uint64_t countLines(std::ifstream &in_stream) {
+  auto iterator = std::istreambuf_iterator<char>{in_stream};
+  return std::count_if(iterator, std::istreambuf_iterator<char>(),
+                       [](char c) { return c == '\n'; });
+}
+
+std::uint64_t countLines(const std::filesystem::path &file) {
+  std::ifstream fileStream{file, std::ios::binary};
+  return countLines(fileStream);
+}
+} // namespace
+
+ParseResult TSVParser::parseData(postgres::Connection &connection,
+                                 ParseOptions options) {
   csv::utf8::FileDataSource input;
   input.separator = '\t';
 
@@ -95,7 +113,13 @@ ParseResult TSVParser::parseData(postgres::Connection &connection) {
                                            m_file.string() + "'"};
   }
 
-  int32_t parsedLines = 0;
+  ParseMetadata result{};
+
+  if (options.scanLines) {
+    std::uint64_t availableLines = countLines(m_file);
+    std::cout << "There are " << availableLines << "liens to scan\n";
+  }
+
   bool skippedHeader = false;
 
   try {
@@ -103,10 +127,9 @@ ParseResult TSVParser::parseData(postgres::Connection &connection) {
 
     csv::parse(input, nullptr,
                [&](const csv::record &record, double progress) -> bool {
-                 // TODO: display progress
-                 (void)progress;
+                 std::cout << progress << "\n";
 
-                 if (parsedLines == 0 && !skippedHeader) {
+                 if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
                      skippedHeader = true;
                      return true;
@@ -118,9 +141,19 @@ ParseResult TSVParser::parseData(postgres::Connection &connection) {
                    }
                  }
 
-                 m_structure->insert_record(connection, record);
+                 if (options.ignoreErrors) {
+                   try {
+                     m_structure->insert_record(connection, record);
 
-                 ++parsedLines;
+                     result.addLine();
+                   } catch (std::exception &exc) {
+                     result.addError(exc.what());
+                   }
+                 } else {
+                   m_structure->insert_record(connection, record);
+
+                   result.addLine();
+                 }
 
                  return true;
                });
@@ -131,5 +164,5 @@ ParseResult TSVParser::parseData(postgres::Connection &connection) {
     return helper::unexpected<std::string>{exc.what()};
   }
 
-  return parsedLines;
+  return result;
 }
