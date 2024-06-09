@@ -63,15 +63,12 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  std::cout << "Successfully inserted " << result->lines() << "rows\n";
+  std::cout << "Successfully inserted " << result->lines() << " rows\n";
+
+  std::cout << "It took " << result->duration() << "\n";
 
   if (options.ignoreErrors) {
-    std::cerr << "ignored " << result->errors().size() << " Errors\n";
-    if (!arguments.verbose) {
-      for (const auto &error : result->errors()) {
-        std::cerr << error << "\n";
-      }
-    }
+    std::cerr << "ignored " << result->errors() << " Errors\n";
   }
 
   return EXIT_SUCCESS;

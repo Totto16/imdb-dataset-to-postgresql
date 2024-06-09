@@ -11,16 +11,8 @@ ParseMetadata::ParseMetadata()
 
 [[nodiscard]] std::uint64_t ParseMetadata::lines() const { return m_lines; }
 
-[[nodiscard]] const std::vector<std::string> &ParseMetadata::errors() const {
-  return m_errors;
-}
+[[nodiscard]] std::uint64_t ParseMetadata::errors() const { return m_errors; }
 
 void ParseMetadata::addLine() { m_lines++; }
 
-void ParseMetadata::addError(const std::string &error) {
-  m_errors.push_back(error);
-}
-
-void ParseMetadata::addError(std::string &&error) {
-  m_errors.emplace_back(std::move(error));
-}
+void ParseMetadata::addError() { m_errors++; }

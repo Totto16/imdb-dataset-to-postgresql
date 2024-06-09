@@ -12,7 +12,7 @@ struct ParseOptions {
 struct ParseMetadata {
 private:
   std::uint64_t m_lines;
-  std::vector<std::string> m_errors;
+  std::uint64_t m_errors;
   std::chrono::steady_clock::time_point m_start;
 
 public:
@@ -22,10 +22,9 @@ public:
 
   [[nodiscard]] std::uint64_t lines() const;
 
-  [[nodiscard]] const std::vector<std::string> &errors() const;
+  [[nodiscard]] std::uint64_t errors() const;
 
   void addLine();
 
-  void addError(const std::string &);
-  void addError(std::string &&);
+  void addError();
 };

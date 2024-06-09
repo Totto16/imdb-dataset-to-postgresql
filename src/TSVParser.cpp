@@ -101,6 +101,20 @@ std::uint64_t countLines(const std::filesystem::path &file) {
   std::ifstream fileStream{file, std::ios::binary};
   return countLines(fileStream);
 }
+
+// from here:
+// https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
+#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define PBWIDTH 60
+
+void printProgress(double percentage) {
+  int val = (int)(percentage * 100);
+  int lpad = (int)(percentage * PBWIDTH);
+  int rpad = PBWIDTH - lpad;
+  printf("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
+  fflush(stdout);
+}
+
 } // namespace
 
 ParseResult TSVParser::parseData(postgres::Connection &connection,
@@ -117,20 +131,17 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   if (options.verbose) {
     std::uint64_t availableLines = countLines(m_file);
-    std::cout << "There are " << availableLines << "liens to scan\n";
+    std::cout << "There are " << availableLines << " lines to scan\n";
   }
 
   bool skippedHeader = false;
+  double lastProgress = 0.0;
 
   try {
     m_structure->setup_prepared_statement(connection);
 
     csv::parse(input, nullptr,
                [&](const csv::record &record, double progress) -> bool {
-                 if (options.verbose) {
-                   std::cout << progress << "\n";
-                 }
-
                  if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
                      skippedHeader = true;
@@ -154,12 +165,17 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                                  << exc.what() << "\n";
                      }
 
-                     result.addError(exc.what());
+                     result.addError();
                    }
                  } else {
                    m_structure->insert_record(connection, record);
 
                    result.addLine();
+                 }
+
+                 if (progress - lastProgress >= 0.001) {
+                   printProgress(progress);
+                   lastProgress = progress;
                  }
 
                  return true;
