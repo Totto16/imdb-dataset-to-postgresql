@@ -63,11 +63,10 @@ helper::parse_args(const std::vector<std::string> &arguments) {
 
     std::optional<bool> hasHead = std::nullopt;
 
-    // TODO: test if this works as expected
     if (parser.get<bool>("has-head")) {
       hasHead = true;
     } else if (parser.get<bool>("has-no-head")) {
-      hasHead = true;
+      hasHead = false;
     }
 
     std::optional<std::string> type = std::nullopt;

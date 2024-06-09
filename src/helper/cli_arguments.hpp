@@ -10,6 +10,8 @@ struct CommandLineArguments {
   std::string host;
   int port;
   std::string dbname;
+
+  // TODO: make optional
   std::string user;
   std::string password;
 
