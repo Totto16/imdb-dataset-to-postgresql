@@ -59,12 +59,12 @@ ParserMap TSVParser::getParserMap() {
   auto parserMap = ParserMap{};
 
   parserMap.insert({"title.akas", Model::mappedTitleAlternate()});
-  /*   parserMap.insert({"name.basics", Model::mappedNameBasic()});
-    parserMap.insert({"title.basics", Model::mappedTitleBasic()});
-    parserMap.insert({"title.crew", Model::mappedTitleCrew()});
-    parserMap.insert({"title.episode", Model::mappedTitleEpisode()});
-    parserMap.insert({"title.principals", Model::mappedTitlePrincipal()});
-    parserMap.insert({"title.ratings", Model::mappedTitleRating()}); */
+  parserMap.insert({"name.basics", Model::mappedNameBasic()});
+  parserMap.insert({"title.basics", Model::mappedTitleBasic()});
+  parserMap.insert({"title.crew", Model::mappedTitleCrew()});
+  parserMap.insert({"title.episode", Model::mappedTitleEpisode()});
+  parserMap.insert({"title.principals", Model::mappedTitlePrincipal()});
+  parserMap.insert({"title.ratings", Model::mappedTitleRating()});
 
   return parserMap;
 }

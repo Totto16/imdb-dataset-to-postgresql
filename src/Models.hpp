@@ -20,11 +20,11 @@
 class Model {
 public:
   static std::shared_ptr<Parseable> mappedTitleAlternate();
-  /*   static std::shared_ptr<Parseable> mappedNameBasic();
-    static std::shared_ptr<Parseable> mappedTitleBasic();
-    static std::shared_ptr<Parseable> mappedTitleCrew();
-    static std::shared_ptr<Parseable> mappedTitleEpisode();
-    static std::shared_ptr<Parseable> mappedTitlePrincipal();
-    static std::shared_ptr<Parseable> mappedTitleRating(); */
+  static std::shared_ptr<Parseable> mappedNameBasic();
+  static std::shared_ptr<Parseable> mappedTitleBasic();
+  static std::shared_ptr<Parseable> mappedTitleCrew();
+  static std::shared_ptr<Parseable> mappedTitleEpisode();
+  static std::shared_ptr<Parseable> mappedTitlePrincipal();
+  static std::shared_ptr<Parseable> mappedTitleRating();
 
 }; // namespace Model
