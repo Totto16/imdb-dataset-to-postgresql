@@ -6,6 +6,7 @@
 /subprojects/*-*/
 /subprojects/*.zip
 /subprojects/*.gz
+/subprojects/csvlib
 /subprojects/packagecache
 !/subprojects/packagefiles/
 !subprojects/*.wrap
