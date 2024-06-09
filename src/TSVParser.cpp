@@ -115,7 +115,7 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   ParseMetadata result{};
 
-  if (options.scanLines) {
+  if (options.verbose) {
     std::uint64_t availableLines = countLines(m_file);
     std::cout << "There are " << availableLines << "liens to scan\n";
   }
@@ -127,7 +127,9 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
     csv::parse(input, nullptr,
                [&](const csv::record &record, double progress) -> bool {
-                 std::cout << progress << "\n";
+                 if (options.verbose) {
+                   std::cout << progress << "\n";
+                 }
 
                  if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
@@ -147,6 +149,11 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
                      result.addLine();
                    } catch (std::exception &exc) {
+                     if (options.verbose) {
+                       std::cerr << "An error occurred, but was ignored: "
+                                 << exc.what() << "\n";
+                     }
+
                      result.addError(exc.what());
                    }
                  } else {

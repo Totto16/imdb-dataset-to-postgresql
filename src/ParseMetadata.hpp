@@ -6,7 +6,7 @@
 
 struct ParseOptions {
   bool ignoreErrors;
-  bool scanLines;
+  bool verbose;
 };
 
 struct ParseMetadata {

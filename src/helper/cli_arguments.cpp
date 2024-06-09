@@ -62,6 +62,14 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .help("the type to import")
       .metavar("type");
 
+  parser.add_argument("-v", "--verbose")
+      .help("be more verbose about what's happening")
+      .flag();
+
+  parser.add_argument("-i", "--ignore-errors")
+      .help("ignore errors and just log them")
+      .flag();
+
   auto &head_group = parser.add_mutually_exclusive_group();
 
   head_group.add_argument("--has-head")
@@ -97,6 +105,8 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .file = parser.get<std::string>("file"),
         .type = type,
         .hasHead = hasHead,
+        .verbose = parser.get<bool>("verbose"),
+        .ignoreErrors = parser.get<bool>("ignore-errors"),
     };
 
   } catch (const std::exception &error) {

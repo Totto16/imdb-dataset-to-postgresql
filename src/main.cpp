@@ -52,7 +52,8 @@ int main(int argc, char **argv) {
 
   auto parser = std::move(maybeParser);
 
-  ParseOptions options = {};
+  ParseOptions options = {.ignoreErrors = arguments.ignoreErrors,
+                          .verbose = arguments.verbose};
 
   auto result = parser->parseData(connection, options);
 
@@ -66,8 +67,10 @@ int main(int argc, char **argv) {
 
   if (options.ignoreErrors) {
     std::cerr << "ignored " << result->errors().size() << " Errors\n";
-    for (const auto &error : result->errors()) {
-      std::cerr << error << "\n";
+    if (!arguments.verbose) {
+      for (const auto &error : result->errors()) {
+        std::cerr << error << "\n";
+      }
     }
   }
 

@@ -17,6 +17,9 @@ struct CommandLineArguments {
   std::string file;
   std::optional<std::string> type;
   std::optional<bool> hasHead;
+
+  bool verbose;
+  bool ignoreErrors;
 };
 
 namespace helper {
