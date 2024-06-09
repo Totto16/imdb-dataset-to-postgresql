@@ -14,7 +14,7 @@ struct CommandLineArguments {
   std::string password;
 
   std::string file;
-  std::string type;
+  std::optional<std::string> type;
   std::optional<bool> hasHead;
 };
 

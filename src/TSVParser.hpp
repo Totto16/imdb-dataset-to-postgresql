@@ -2,6 +2,7 @@
 #pragma once
 
 #include <csv/parser.hpp>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
@@ -19,7 +20,7 @@ using ParserMap = std::map<std::string, std::shared_ptr<Parseable>>;
 
 class TSVParser {
 public:
-  TSVParser(std::string path, std::string type, OmitHeadType hasHead,
+  TSVParser(std::filesystem::path file, std::string type, OmitHeadType hasHead,
             std::shared_ptr<Parseable> structure);
   TSVParser(const TSVParser &) = default;
   ~TSVParser() = default;
@@ -30,7 +31,7 @@ public:
   [[nodiscard]] bool isHeader(const csv::record &record);
 
 private:
-  std::string m_path;
+  std::filesystem::path m_file;
   std::string m_type;
   OmitHeadType m_hasHead;
   std::shared_ptr<Parseable> m_structure;
@@ -38,5 +39,6 @@ private:
 
 using MaybeParser = tl::expected<TSVParser, std::string>;
 
-MaybeParser makeParser(std::string path, std::string type,
+MaybeParser makeParser(std::filesystem::path file,
+                       std::optional<std::string> optionalType,
                        OmitHeadType hasHead);

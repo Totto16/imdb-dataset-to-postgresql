@@ -44,11 +44,9 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .metavar("file")
       .required();
 
-  // TODO: make this optional and detect it based on the filename
   parser.add_argument("-t", "--type")
       .help("the type to import")
-      .metavar("type")
-      .required();
+      .metavar("type");
 
   auto &head_group = parser.add_mutually_exclusive_group();
 
@@ -65,10 +63,16 @@ helper::parse_args(const std::vector<std::string> &arguments) {
 
     std::optional<bool> hasHead = std::nullopt;
 
+    // TODO: test if this works as expected
     if (parser.get<bool>("has-head")) {
       hasHead = true;
     } else if (parser.get<bool>("has-no-head")) {
       hasHead = true;
+    }
+
+    std::optional<std::string> type = std::nullopt;
+    if (parser.present<std::string>("type")) {
+      type = parser.get<std::string>("type");
     }
 
     return CommandLineArguments{
@@ -78,7 +82,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .user = parser.get<std::string>("user"),
         .password = parser.get<std::string>("password"),
         .file = parser.get<std::string>("file"),
-        .type = parser.get<std::string>("type"),
+        .type = type,
         .hasHead = hasHead,
     };
 

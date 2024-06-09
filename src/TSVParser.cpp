@@ -3,6 +3,7 @@
 #include <csv/datasource/utf8/DataSource.hpp>
 #include <csv/parser.hpp>
 #include <exception>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <numeric>
@@ -16,22 +17,42 @@
 #include "helper/expected.hpp"
 #include "postgres/Error.h"
 
-TSVParser::TSVParser(std::string path, std::string type, OmitHeadType hasHead,
-                     std::shared_ptr<Parseable> structure)
-    : m_path(path), m_type(type), m_hasHead{hasHead}, m_structure{structure} {};
+TSVParser::TSVParser(std::filesystem::path file, std::string type,
+                     OmitHeadType hasHead, std::shared_ptr<Parseable> structure)
+    : m_file{file}, m_type{type}, m_hasHead{hasHead}, m_structure{structure} {};
 
-MaybeParser makeParser(std::string path, std::string type,
+MaybeParser makeParser(std::filesystem::path file,
+                       std::optional<std::string> optionalType,
                        OmitHeadType hasHead) {
+
+  if (!std::filesystem::exists(file)) {
+    return helper::unexpected<std::string>{"File doesn't exist: '" +
+                                           file.string() + "'"};
+  }
 
   auto parserMap = TSVParser::getParserMap();
 
+  if (optionalType.has_value()) {
+    auto type = optionalType.value();
+
+    for (auto const &[key, structure] : parserMap) {
+      if (type == key) {
+        return TSVParser{file, type, hasHead, structure};
+      }
+    }
+
+    return helper::unexpected<std::string>{"Not a valid type: '" + type + "'"};
+  }
+
+  auto filename = file.filename().string();
+
   for (auto const &[key, structure] : parserMap) {
-    if (type == key) {
-      return TSVParser{path, type, hasHead, structure};
+    if (filename.contains(key)) {
+      return TSVParser{file, key, hasHead, structure};
     }
   }
 
-  return helper::unexpected<std::string>{"Not a valid type: '" + type + "'"};
+  return helper::unexpected<std::string>{"Couldn't detect type based on file"};
 }
 
 ParserMap TSVParser::getParserMap() {
@@ -69,9 +90,9 @@ ParseResult TSVParser::parseData(postgres::Connection &connection) {
   csv::utf8::FileDataSource input;
   input.separator = '\t';
 
-  if (!input.open(m_path.c_str())) {
-    return helper::unexpected<std::string>{"Filepath was invalid: '" + m_path +
-                                           "'"};
+  if (!input.open(m_file.string().c_str())) {
+    return helper::unexpected<std::string>{"Filepath was invalid: '" +
+                                           m_file.string() + "'"};
   }
 
   int32_t parsedLines = 0;
