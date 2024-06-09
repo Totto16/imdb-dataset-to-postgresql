@@ -128,4 +128,10 @@ public:
     };
   }
 
+  template <typename T>
+  [[nodiscard]] static T enumParser(const std::string &str) {
+    auto result = asIs(str);
+    return T{std::move(result)};
+  }
+
 }; // namespace Parser

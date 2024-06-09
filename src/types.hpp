@@ -88,14 +88,14 @@ struct TitlePrincipal {
                      job, characters);
 };
 
-POSTGRES_CXX_ENUM(GenralJob, "general_job");
+POSTGRES_CXX_ENUM(GeneralJob, "general_job");
 
 struct NameBasic {
   NameID nconst;
   std::string primaryName;
   std::optional<std::int64_t> birthYear;
   std::optional<std::int64_t> deathYear;
-  std::vector<GenralJob> primaryProfession;
+  std::vector<GeneralJob> primaryProfession;
   std::vector<ImdbID> knownForTitles;
 
   POSTGRES_CXX_TABLE("name_basics", nconst, primaryName, birthYear, deathYear,

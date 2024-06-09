@@ -20,9 +20,9 @@ std::shared_ptr<Parseable> Model::mappedTitleAlternate() {
                       StaticParsers::asIsNullable), //
           MAKE_PARSER(TitleAlternate, language,
                       StaticParsers::asIsNullable), //
-          MAKE_PARSER(
-              TitleAlternate, types,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)), //
+          MAKE_PARSER(TitleAlternate, types,
+                      StaticParsers::arrayParser<AlternativeType>(
+                          StaticParsers::enumParser<AlternativeType>)), //
           MAKE_PARSER(
               TitleAlternate, attributes,
               StaticParsers::arrayParser<std::string>(StaticParsers::asIs)), //
@@ -42,9 +42,9 @@ std::shared_ptr<Parseable> Model::mappedNameBasic() {
           MAKE_PARSER(NameBasic, deathYear,
                       StaticParsers::orNullParser<std::int64_t>(
                           StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(
-              NameBasic, primaryProfession,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)),
+          MAKE_PARSER(NameBasic, primaryProfession,
+                      StaticParsers::arrayParser<GeneralJob>(
+                          StaticParsers::enumParser<GeneralJob>)),
           MAKE_PARSER(
               NameBasic, knownForTitles,
               StaticParsers::arrayParser<std::string>(StaticParsers::asIs))});
@@ -54,7 +54,8 @@ std::shared_ptr<Parseable> Model::mappedTitleBasic() {
   return make_shared<ParserStructure<TitleBasic>>(
       std::vector<AdvancedParser<TitleBasic>>{
           MAKE_PARSER(TitleBasic, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleBasic, titleType, StaticParsers::asIs),
+          MAKE_PARSER(TitleBasic, titleType,
+                      StaticParsers::enumParser<TitleType>),
           MAKE_PARSER(TitleBasic, primaryTitle, StaticParsers::asIs),
           MAKE_PARSER(TitleBasic, originalTitle, StaticParsers::asIs),
           MAKE_PARSER(TitleBasic, isAdult, StaticParsers::booleanParser),
@@ -67,9 +68,9 @@ std::shared_ptr<Parseable> Model::mappedTitleBasic() {
           MAKE_PARSER(TitleBasic, runtimeMinutes,
                       StaticParsers::orNullParser<std::int64_t>(
                           StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(
-              TitleBasic, genres,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs))});
+          MAKE_PARSER(TitleBasic, genres,
+                      StaticParsers::arrayParser<Genre>(
+                          StaticParsers::enumParser<Genre>))});
 }
 
 std::shared_ptr<Parseable> Model::mappedTitleCrew() {
