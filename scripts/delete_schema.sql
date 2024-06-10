@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS public.title_ratings;
 DROP TABLE IF EXISTS public.title_principals;
 DROP TABLE IF EXISTS public.title_episode;
 DROP TABLE IF EXISTS public.title_crew;
-DROP TABLE IF EXISTS public.title_akas ;
-DROP TABLE IF EXISTS public.name_basics ;
+DROP TABLE IF EXISTS public.title_akas;
+DROP TABLE IF EXISTS public.name_basics;
 DROP TABLE IF EXISTS public.title_basics;
 
 -- delete enum types

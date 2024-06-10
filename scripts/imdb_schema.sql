@@ -105,7 +105,10 @@ CREATE TYPE general_job AS ENUM (
 	'publicist',
 	'podcaster',
 	'legal',
-	'assistant'
+	'assistant',
+	'production_department',
+	'electrical_department',
+	'accountant'
 	-- TODO: add the rest
 );
 -- create the table name_basics
