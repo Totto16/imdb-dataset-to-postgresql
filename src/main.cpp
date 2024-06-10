@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
   std::cout << "It took " << prettyPrint(result->duration()) << "\n";
 
   if (options.ignoreErrors) {
-    std::cerr << "Ignored " << result->errors() << " Errors\n";
+    std::cout << "Ignored " << result->errors() << " Errors\n";
   }
 
   return EXIT_SUCCESS;
