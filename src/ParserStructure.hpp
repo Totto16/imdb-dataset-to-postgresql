@@ -64,17 +64,11 @@ public:
     T value = {};
 
     if (m_parser.size() != record.content.size()) {
-
-      std::cerr << "BEGIN WRONG ROW:\n";
-      for (const auto &field : record.content) {
-        std::cerr << field.content << "\t";
-      }
-      std::cerr << "\n";
-
       throw std::length_error(
           "parsers and records have to be the same size, expected " +
           std::to_string(m_parser.size()) + " but got " +
-          std::to_string(record.content.size()));
+          std::to_string(record.content.size()) +
+          " row:" + std::to_string(record.row));
     }
 
     size_t i = 0;
