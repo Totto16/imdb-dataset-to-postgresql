@@ -134,8 +134,8 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
         finalResult->addErrors(result->errors());
         finalResult->addLines(result->lines());
 
-        const double progress =
-            finalResult->lines() / static_cast<double>(lineAmount);
+        const double progress = (finalResult->lines() + finalResult->errors()) /
+                                static_cast<double>(lineAmount);
 
         std::cout << "Progress: " << (progress * 100.0) << " %\n";
       }
