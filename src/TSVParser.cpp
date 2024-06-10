@@ -10,6 +10,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
 #include "Models.hpp"
@@ -18,6 +19,7 @@
 #include "TSVParser.hpp"
 #include "helper/expected.hpp"
 #include "postgres/Error.h"
+#include "source/DataSource.hpp"
 
 TSVParser::TSVParser(std::filesystem::path file, std::string type,
                      OmitHeadType hasHead, std::shared_ptr<Parseable> structure)
@@ -102,14 +104,20 @@ std::uint64_t countLines(const std::filesystem::path &file) {
   return countLines(fileStream);
 }
 
+size_t getFilesize(const char *filename) {
+  struct stat st {};
+  ::stat(filename, &st);
+  return st.st_size;
+}
+
 } // namespace
 
 ParseResult TSVParser::parseData(postgres::Connection &connection,
                                  ParseOptions options) {
-  csv::utf8::FileDataSource input;
+  source::MemoryMappedDataSource input;
   input.separator = '\t';
 
-  if (!input.open(m_file.string().c_str())) {
+  if (!input.open(m_file, 0, getFilesize(m_file.string().c_str()))) {
     return helper::unexpected<std::string>{"Filepath was invalid: '" +
                                            m_file.string() + "'"};
   }

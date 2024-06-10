@@ -16,3 +16,4 @@ header_files += files(
 inc_dirs += include_directories('.')
 
 subdir('helper')
+subdir('source')

@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
       makeParser(arguments.file, arguments.type, arguments.hasHead);
 
   if (not maybeParser.has_value()) {
-    std::cerr << "parser error:" << maybeParser.error() << "\n";
+    std::cerr << "parser error: " << maybeParser.error() << "\n";
     ;
     return EXIT_FAILURE;
   }
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
   auto result = parser->parseData(connection, options);
 
   if (not result.has_value()) {
-    std::cerr << "parser error:" << result.error() << "\n";
+    std::cerr << "parser error: " << result.error() << "\n";
     ;
     return EXIT_FAILURE;
   }
