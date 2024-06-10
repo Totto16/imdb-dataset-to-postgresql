@@ -102,19 +102,6 @@ std::uint64_t countLines(const std::filesystem::path &file) {
   return countLines(fileStream);
 }
 
-// from here:
-// https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
-#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-#define PBWIDTH 60
-
-void printProgress(double percentage) {
-  int val = (int)(percentage * 100);
-  int lpad = (int)(percentage * PBWIDTH);
-  int rpad = PBWIDTH - lpad;
-  printf("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
-  fflush(stdout);
-}
-
 } // namespace
 
 ParseResult TSVParser::parseData(postgres::Connection &connection,
@@ -129,13 +116,19 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   ParseMetadata result{};
 
+  std::uint64_t availableLines = 0;
+
   if (options.verbose) {
-    std::uint64_t availableLines = countLines(m_file);
+    availableLines = countLines(m_file);
     std::cout << "There are " << availableLines << " lines to scan\n";
   }
 
   bool skippedHeader = false;
   double lastProgress = 0.0;
+
+  const auto printProgress = [&](double progress) {
+    std::cout << "Progress: " << (progress * 100.0) << " %\n";
+  };
 
   try {
     m_structure->setup_prepared_statement(connection);
@@ -173,9 +166,11 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                    result.addLine();
                  }
 
-                 if (progress - lastProgress >= 0.001) {
+                 if (progress - lastProgress >= 0.01) {
                    printProgress(progress);
                    lastProgress = progress;
+                 } else if (result.lines() % 10000 == 0) {
+                   printProgress(progress);
                  }
 
                  return true;
