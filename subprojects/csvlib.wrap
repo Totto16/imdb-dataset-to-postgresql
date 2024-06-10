@@ -1,8 +1,7 @@
 [wrap-git]
 url = https://github.com/Totto16/csvlib
-revision = head
+revision = master
 depth = 1
-patch_directory = csvlib
 
 [provide]
 csvlib = csvlib_dep

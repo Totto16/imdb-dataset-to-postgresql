@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
   }
 
   if (not result.has_value()) {
-    std::cerr << "parser error: " << result.error() << "\n";
+    std::cerr << "Parser error: " << result.error() << "\n";
     std::cerr << "It took " << prettyPrint(result->duration()) << "\n";
     return EXIT_FAILURE;
   }
