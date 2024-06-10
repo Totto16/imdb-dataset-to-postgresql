@@ -91,9 +91,18 @@ int main(int argc, char **argv) {
       threads = arguments.threads.value();
     }
 
+    if (arguments.verbose) {
+      std::cout << "Starting multi threaded import with " << threads
+                << " Threads\n";
+    }
+
     result =
         threads::multiThreadedParsers(std::move(arguments), options, threads);
   } else {
+    if (arguments.verbose) {
+      std::cout << "Starting single threaded import\n";
+    }
+
     result = threads::singleThreadedParser(std::move(arguments), options);
   }
 
@@ -113,3 +122,6 @@ int main(int argc, char **argv) {
 
   return EXIT_SUCCESS;
 }
+
+// TODO: better output, if this is used as lib, it should be possible to receive
+// only necessary or all events in formatted data (e.g. json lines)

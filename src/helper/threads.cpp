@@ -7,6 +7,7 @@
 
 #include <BS_thread_pool.hpp>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -65,6 +66,24 @@ getFileChunksByNewLine(const std::filesystem::path &file,
   return {result, usedChunkSize, lines};
 }
 
+// from: https://gist.github.com/dgoguerra/7194777
+template <size_t BASE = 1024,
+          std::enable_if_t<BASE == 1000 || BASE == 1024, int> = 0>
+std::string humanSize(std::uint64_t bytes) {
+  std::array<std::array<const char *, 5>, 2> suffix = {
+      {{"B", "KB", "MB", "GB", "TB"}, {"B", "KiB", "MiB", "GiB", "TiB"}}};
+
+  double dblBytes = bytes;
+  std::size_t i = 0;
+
+  if (bytes > BASE) {
+    for (i = 0; (bytes / BASE) > 0 && i < suffix.size() - 1; i++, bytes /= BASE)
+      dblBytes = bytes / static_cast<double>(BASE);
+  }
+
+  return std::format("{:0.2f} {}", dblBytes, suffix[BASE != 1000][i]);
+}
+
 } // namespace
 
 ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
@@ -80,8 +99,23 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
   std::uint64_t desiredChunkSize = arguments.memorySize / nproc;
 
-  auto [chunks, _, lineAmount] =
+  auto [chunks, usedChunkSize, lineAmount] =
       getFileChunksByNewLine(arguments.file, desiredChunkSize, nproc);
+
+  if (arguments.verbose) {
+    std::cout << "Using " << (chunks.size() - 1) << " Chunks with "
+              << humanSize<1024>(usedChunkSize) << "\n";
+
+    if (arguments.transactionSize.has_value()) {
+
+      std::cout << "Using " << arguments.transactionSize.value()
+                << " Executions per Transaction\n";
+    } else {
+      if (arguments.transactionSize.has_value()) {
+        std::cout << "Not Using Transactions\n";
+      }
+    }
+  }
 
   BS::thread_pool pool{nproc};
 
@@ -159,6 +193,18 @@ ParseResult threads::singleThreadedParser(CommandLineArguments &&arguments,
   }
 
   auto connection = std::move(maybeConnection.value());
+
+  if (arguments.verbose) {
+    if (arguments.transactionSize.has_value()) {
+
+      std::cout << "Using " << arguments.transactionSize.value()
+                << " Executions per Transaction\n";
+    } else {
+      if (arguments.transactionSize.has_value()) {
+        std::cout << "Not Using Transactions\n";
+      }
+    }
+  }
 
   MaybeParser maybeParser =
       makeParser(arguments.file, arguments.type, arguments.hasHead);

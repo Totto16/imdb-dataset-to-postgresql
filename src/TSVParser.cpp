@@ -44,6 +44,7 @@ MaybeParser makeParser(std::filesystem::path file,
     for (auto const &[key, structure] : parserMap) {
       if (type == key) {
         structure->setTransactionSize(transactionSize);
+
         return TSVParser{file, type, hasHead, structure, offset, length};
       }
     }
