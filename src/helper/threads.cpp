@@ -67,7 +67,8 @@ getFileChunksByNewLine(const std::filesystem::path &file,
 
 ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
                                           const ParseOptions &options,
-                                          int nproc) {
+                                          std::uint64_t memorySize,
+                                          std::uint32_t nproc) {
 
   const auto arguments = std::move(_arguments);
 
@@ -76,13 +77,12 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
     std::exit(EXIT_FAILURE);
   }
 
-  // TODO: make customizable
-  auto desiredChunkSize = 1024 * 1024 * 1024 / nproc; // 1GB / nproc
+  std::uint64_t desiredChunkSize = memorySize / nproc;
 
-  auto [chunks, _, lineAmount] = getFileChunksByNewLine(
-      arguments.file, desiredChunkSize, static_cast<std::uint32_t>(nproc));
+  auto [chunks, _, lineAmount] =
+      getFileChunksByNewLine(arguments.file, desiredChunkSize, nproc);
 
-  BS::thread_pool pool{static_cast<std::uint32_t>(nproc)};
+  BS::thread_pool pool{nproc};
 
   std::shared_ptr<ParseMetadata> finalResult =
       std::make_shared<ParseMetadata>();

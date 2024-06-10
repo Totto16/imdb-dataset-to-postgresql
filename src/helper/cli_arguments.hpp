@@ -2,6 +2,7 @@
 
 #include "helper/expected.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -21,6 +22,9 @@ struct CommandLineArguments {
   bool verbose;
   bool ignoreErrors;
   bool multiThreaded;
+  std::optional<std::uint32_t> threads;
+
+  std::uint64_t memorySize;
 };
 
 namespace helper {

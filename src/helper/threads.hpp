@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <string>
-
 #include "ParseMetadata.hpp"
 #include "TSVParser.hpp"
 #include "helper/cli_arguments.hpp"
@@ -11,7 +9,8 @@
 namespace threads {
 
 ParseResult multiThreadedParsers(CommandLineArguments &&arguments,
-                                 const ParseOptions &options, int nproc);
+                                 const ParseOptions &options,
+                                 std::uint64_t memorySize, std::uint32_t nproc);
 
 ParseResult singleThreadedParser(CommandLineArguments &&arguments,
                                  const ParseOptions &options);

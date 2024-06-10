@@ -3,6 +3,7 @@
 
 #include <argparse/argparse.hpp>
 #include <optional>
+#include <string.h>
 
 #define STRINGIFY(a) STRINGIFY_HELPER_(a)
 #define STRINGIFY_HELPER_(a) #a
@@ -17,6 +18,49 @@ inline std::optional<T> get_optional(argparse::ArgumentParser &parser,
   }
 
   return std::nullopt;
+}
+
+constexpr const std::uint64_t defaultMemorySize = 1UL << 28; // 256 MB
+
+static const char *human_readable_suffix = "kMGT";
+
+// from
+// https://stackoverflow.com/questions/16107613/parse-human-readable-sizes-k-m-g-t-into-bytes-in-c
+std::optional<std::uint64_t> getMemorySizeImpl(char *input) {
+  char *endp = input;
+  const char *match = nullptr;
+  size_t shift = 0;
+  errno = 0;
+
+  long double value = strtold(input, &endp);
+  if (errno || endp == input || value < 0) {
+    return std::nullopt;
+  }
+
+  if (!(match = strchr(human_readable_suffix, *endp))) {
+    return std::nullopt;
+  }
+
+  if (*match)
+    shift = (match - human_readable_suffix + 1) * 10;
+
+  std::uint64_t target = value * (1LU << shift);
+
+  return target;
+}
+
+std::optional<std::uint64_t> getMemorySize(const std::string &str) {
+  const auto size = str.size();
+  char *value = new char[size + 1];
+
+  memcpy(value, str.c_str(), size);
+  value[size] = 0;
+
+  const auto result = getMemorySizeImpl(value);
+
+  delete[] value;
+
+  return result;
 }
 
 } // namespace
@@ -74,6 +118,15 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .help("just use one thread to process the file")
       .flag();
 
+  parser.add_argument("--threads")
+      .help("how many threads to use")
+      .metavar("threads")
+      .scan<'u', std::uint32_t>();
+
+  parser.add_argument("-m", "--memory-size")
+      .help("the memory size to use")
+      .metavar("memory-size");
+
   auto &head_group = parser.add_mutually_exclusive_group();
 
   head_group.add_argument("--has-head")
@@ -100,6 +153,17 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       type = parser.get<std::string>("type");
     }
 
+    std::uint64_t memorySize = defaultMemorySize;
+    if (parser.present<std::string>("memory-size")) {
+      std::string memorySizeStr = parser.get<std::string>("memory-size");
+      const auto result = getMemorySize(memorySizeStr);
+      if (not result.has_value()) {
+        return helper::unexpected<std::string>{"Invalid memorySize option: '" +
+                                               memorySizeStr + "'"};
+      }
+      memorySize = result.value();
+    }
+
     return CommandLineArguments{
         .host = parser.get<std::string>("host"),
         .port = parser.get<int>("port"),
@@ -112,7 +176,8 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .verbose = parser.get<bool>("verbose"),
         .ignoreErrors = parser.get<bool>("ignore-errors"),
         .multiThreaded = !parser.get<bool>("single-threaded"),
-    };
+        .threads = get_optional<std::uint32_t>(parser, "threads"),
+        .memorySize = memorySize};
 
   } catch (const std::exception &error) {
     return helper::unexpected<std::string>{error.what()};
