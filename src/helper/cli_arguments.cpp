@@ -70,6 +70,10 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .help("ignore errors and just log them")
       .flag();
 
+  parser.add_argument("-s", "--single-threaded")
+      .help("just use one thread to process the file")
+      .flag();
+
   auto &head_group = parser.add_mutually_exclusive_group();
 
   head_group.add_argument("--has-head")
@@ -107,6 +111,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .hasHead = hasHead,
         .verbose = parser.get<bool>("verbose"),
         .ignoreErrors = parser.get<bool>("ignore-errors"),
+        .multiThreaded = parser.get<bool>("single-threaded"),
     };
 
   } catch (const std::exception &error) {

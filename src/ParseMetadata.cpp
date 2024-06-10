@@ -14,5 +14,6 @@ ParseMetadata::ParseMetadata()
 [[nodiscard]] std::uint64_t ParseMetadata::errors() const { return m_errors; }
 
 void ParseMetadata::addLine() { m_lines++; }
-
+void ParseMetadata::addLines(std::uint64_t lines) { m_lines += lines; }
 void ParseMetadata::addError() { m_errors++; }
+void ParseMetadata::addErrors(std::uint64_t errors) { m_errors += errors; }

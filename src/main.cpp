@@ -1,12 +1,14 @@
 
 
 #include <iostream>
+#include <sys/sysinfo.h>
 #include <vector>
 
 #include "ParseMetadata.hpp"
-#include "TSVParser.hpp"
+
 #include "helper/cli_arguments.hpp"
-#include "helper/postgres.hpp"
+
+#include "helper/threads.hpp"
 
 int main(int argc, char **argv) {
 
@@ -29,37 +31,21 @@ int main(int argc, char **argv) {
 
   auto arguments = std::move(parsedArguments.value());
 
-  auto maybeConnection = helper::get_connection(arguments);
-
-  if (not maybeConnection.has_value()) {
-
-    std::cerr << "error connecting to database: " << maybeConnection.error()
-              << "\n";
-    ;
-    return EXIT_FAILURE;
-  }
-
-  auto connection = std::move(maybeConnection.value());
-
-  MaybeParser maybeParser =
-      makeParser(arguments.file, arguments.type, arguments.hasHead);
-
-  if (not maybeParser.has_value()) {
-    std::cerr << "parser error: " << maybeParser.error() << "\n";
-    ;
-    return EXIT_FAILURE;
-  }
-
-  auto parser = std::move(maybeParser);
-
   ParseOptions options = {.ignoreErrors = arguments.ignoreErrors,
                           .verbose = arguments.verbose};
 
-  auto result = parser->parseData(connection, options);
+  helper::expected<ParseMetadata, std::string> result{};
+
+  if (arguments.multiThreaded) {
+    result = threads::multiThreadedParsers(std::move(arguments), options,
+                                           get_nprocs());
+  } else {
+    result = threads::singleThreadedParser(std::move(arguments), options);
+  }
 
   if (not result.has_value()) {
     std::cerr << "parser error: " << result.error() << "\n";
-    ;
+    std::cerr << "It took " << result->duration() << "\n";
     return EXIT_FAILURE;
   }
 

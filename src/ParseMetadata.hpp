@@ -25,6 +25,8 @@ public:
   [[nodiscard]] std::uint64_t errors() const;
 
   void addLine();
+  void addLines(std::uint64_t lines);
 
   void addError();
+  void addErrors(std::uint64_t errors);
 };

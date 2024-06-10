@@ -19,6 +19,15 @@ if not have_std_expected
 
 endif
 
-header_files += files('cli_arguments.hpp', 'expected.hpp', 'postgres.hpp')
+header_files += files(
+    'cli_arguments.hpp',
+    'expected.hpp',
+    'postgres.hpp',
+    'threads.cpp',
+)
 
-src_files += files('cli_arguments.cpp', 'postgres.cpp')
+src_files += files(
+    'cli_arguments.cpp',
+    'postgres.cpp',
+    'threads.hpp',
+)

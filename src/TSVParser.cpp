@@ -10,7 +10,6 @@
 #include <memory>
 #include <numeric>
 #include <string>
-#include <sys/stat.h>
 #include <vector>
 
 #include "Models.hpp"
@@ -22,12 +21,14 @@
 #include "source/DataSource.hpp"
 
 TSVParser::TSVParser(std::filesystem::path file, std::string type,
-                     OmitHeadType hasHead, std::shared_ptr<Parseable> structure)
-    : m_file{file}, m_type{type}, m_hasHead{hasHead}, m_structure{structure} {};
+                     OmitHeadType hasHead, std::shared_ptr<Parseable> structure,
+                     off_t offset, std::size_t length)
+    : m_file{file}, m_type{type}, m_hasHead{hasHead}, m_structure{structure},
+      m_offset{offset}, m_length{length} {};
 
 MaybeParser makeParser(std::filesystem::path file,
                        std::optional<std::string> optionalType,
-                       OmitHeadType hasHead) {
+                       OmitHeadType hasHead, off_t offset, std::size_t length) {
 
   if (!std::filesystem::exists(file)) {
     return helper::unexpected<std::string>{"File doesn't exist: '" +
@@ -41,7 +42,7 @@ MaybeParser makeParser(std::filesystem::path file,
 
     for (auto const &[key, structure] : parserMap) {
       if (type == key) {
-        return TSVParser{file, type, hasHead, structure};
+        return TSVParser{file, type, hasHead, structure, offset, length};
       }
     }
 
@@ -52,7 +53,7 @@ MaybeParser makeParser(std::filesystem::path file,
 
   for (auto const &[key, structure] : parserMap) {
     if (filename.contains(key)) {
-      return TSVParser{file, key, hasHead, structure};
+      return TSVParser{file, key, hasHead, structure, offset, length};
     }
   }
 
@@ -104,23 +105,26 @@ std::uint64_t countLines(const std::filesystem::path &file) {
   return countLines(fileStream);
 }
 
-size_t getFilesize(const char *filename) {
-  struct stat st {};
-  ::stat(filename, &st);
-  return st.st_size;
-}
-
 } // namespace
 
 ParseResult TSVParser::parseData(postgres::Connection &connection,
                                  ParseOptions options) {
-  source::MemoryMappedDataSource input;
-  input.separator = '\t';
+  std::unique_ptr<csv::utf8::DataSource> input{};
 
-  if (!input.open(m_file, 0, getFilesize(m_file.string().c_str()))) {
-    return helper::unexpected<std::string>{"Filepath was invalid: '" +
-                                           m_file.string() + "'"};
+  try {
+    if (m_length == 0) {
+      input = std::make_unique<source::MemoryMappedDataSource>(m_file, m_offset,
+                                                               m_length);
+    } else {
+      input =
+          std::make_unique<csv::utf8::FileDataSource>(m_file.string().c_str());
+    }
+  } catch (const std::exception &error) {
+    return helper::unexpected<std::string>{
+        "Filepath was invalid: '" + m_file.string() + "': " + error.what()};
   }
+
+  input->separator = '\t';
 
   ParseMetadata result{};
 
@@ -141,7 +145,7 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
   try {
     m_structure->setup_prepared_statement(connection);
 
-    csv::parse(input, nullptr,
+    csv::parse(*input, nullptr,
                [&](const csv::record &record, double progress) -> bool {
                  if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
