@@ -108,14 +108,13 @@ source::MemoryMappedDataSource::open(const std::filesystem::path &file,
 double source::MemoryMappedDataSource::progress() { return 0.0; }
 
 bool source::MemoryMappedDataSource::next() {
-  _current_pos++;
-
   if (_current_pos >= _length) {
     return false;
   }
 
   _prev = _current;
   _current = _data[_current_pos];
+  _current_pos++;
   return true;
 }
 
