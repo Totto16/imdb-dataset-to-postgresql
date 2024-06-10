@@ -22,6 +22,7 @@ source::MemoryMappedDataSource::~MemoryMappedDataSource() { close(); }
 
 void source::MemoryMappedDataSource::close() {
   if (_data != nullptr) {
+    munlock(_data, _length);
     munmap(_data, _length);
     ::close(_fd);
     _data = nullptr;
@@ -75,6 +76,14 @@ source::MemoryMappedDataSource::open(const std::filesystem::path &file,
 
   if (_data == MAP_FAILED) {
     std::string result{"Error in mmap: "};
+    result += strerror(errno);
+    return result;
+  }
+
+  int mlock_result = mlock(_data, _length);
+
+  if (mlock_result != 0) {
+    std::string result{"Error in mlock: "};
     result += strerror(errno);
     return result;
   }
