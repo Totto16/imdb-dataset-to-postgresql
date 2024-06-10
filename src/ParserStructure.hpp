@@ -5,6 +5,7 @@
 
 #include <csv/parser.hpp>
 #include <functional>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -63,7 +64,17 @@ public:
     T value = {};
 
     if (m_parser.size() != record.content.size()) {
-      throw std::length_error("parsers and records have to be the same size");
+
+      std::cerr << "BEGIN WRONG ROW:\n";
+      for (const auto &field : record.content) {
+        std::cerr << field.content << "\t";
+      }
+      std::cerr << "\n";
+
+      throw std::length_error(
+          "parsers and records have to be the same size, expected " +
+          std::to_string(m_parser.size()) + " but got " +
+          std::to_string(record.content.size()));
     }
 
     size_t i = 0;
