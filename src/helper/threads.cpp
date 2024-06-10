@@ -58,7 +58,7 @@ getFileChunksByNewLine(const std::filesystem::path &file,
     ++currentChunkSize;
   }
 
-  result.push_back(i);
+  result.push_back(i - 1);
 
   return {result, usedChunkSize, lines};
 }
@@ -77,7 +77,7 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
   }
 
   // TODO: make customizable
-  auto desiredChunkSize = 256 * 1024 * 1024 / nproc; // 256 MB / nproc
+  auto desiredChunkSize = 1024 * 1024 * 1024 / nproc; // 1GB / nproc
 
   auto [chunks, _, lineAmount] = getFileChunksByNewLine(
       arguments.file, desiredChunkSize, static_cast<std::uint32_t>(nproc));

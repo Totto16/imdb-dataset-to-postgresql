@@ -95,25 +95,24 @@ source::MemoryMappedDataSource::open(const std::filesystem::path &file,
   return std::nullopt;
 }
 
-double source::MemoryMappedDataSource::progress() {
-  double pos = _current_pos;
-  double len = _length;
-  return std::min(pos / len, 1.0);
-}
+double source::MemoryMappedDataSource::progress() { return 0.0; }
 
 bool source::MemoryMappedDataSource::next() {
+  _current_pos++;
+
   if (_current_pos >= _length) {
     return false;
   }
 
   _prev = _current;
   _current = _data[_current_pos];
-  _current_pos++;
   return true;
 }
 
 void source::MemoryMappedDataSource::back() {
-  _current = _prev;
-  _prev = 0;
-  _current_pos--;
+  if (_current_pos > 0) {
+    _current = _prev;
+    _prev = 0;
+    _current_pos--;
+  }
 }

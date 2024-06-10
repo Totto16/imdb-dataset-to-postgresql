@@ -62,9 +62,7 @@ public:
                      const csv::record &record) override {
     T value = {};
 
-    // dynamically!! (also in the original, the size has to be validated!)
     if (m_parser.size() != record.content.size()) {
-
       throw std::length_error("parsers and records have to be the same size");
     }
 
