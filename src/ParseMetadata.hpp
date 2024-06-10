@@ -18,7 +18,7 @@ private:
 public:
   ParseMetadata();
 
-  [[nodiscard]] std::chrono::seconds duration() const;
+  [[nodiscard]] std::chrono::milliseconds duration() const;
 
   [[nodiscard]] std::uint64_t lines() const;
 

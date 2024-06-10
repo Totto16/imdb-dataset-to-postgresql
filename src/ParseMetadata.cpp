@@ -1,12 +1,13 @@
 
 #include "ParseMetadata.hpp"
+#include <chrono>
 
 ParseMetadata::ParseMetadata()
     : m_lines{}, m_errors{}, m_start{std::chrono::steady_clock::now()} {}
 
-[[nodiscard]] std::chrono::seconds ParseMetadata::duration() const {
+[[nodiscard]] std::chrono::milliseconds ParseMetadata::duration() const {
   const auto now = std::chrono::steady_clock::now();
-  return std::chrono::duration_cast<std::chrono::seconds>(now - m_start);
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start);
 }
 
 [[nodiscard]] std::uint64_t ParseMetadata::lines() const { return m_lines; }
