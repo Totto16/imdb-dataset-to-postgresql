@@ -12,6 +12,7 @@ CREATE TYPE title_basics_titleType AS ENUM (
 	'tvMovie',
 	'tvSeries',
 	'tvShort',
+	'tvPilot',
 	'tvSpecial',
 	'video',
 	'videoGame'
