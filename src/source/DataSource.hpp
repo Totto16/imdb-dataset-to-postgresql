@@ -30,7 +30,7 @@ public:
   virtual double progress();
 
 private:
-  int _fd;
+  int _fd{};
   std::size_t _length{};
 
   std::uint8_t *_data{nullptr};

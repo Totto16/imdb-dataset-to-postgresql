@@ -21,12 +21,13 @@ static const std::array<std::uint8_t, _BOMS_SIZE> _BOMS = {0xEF, 0xBB, 0xBF};
 source::MemoryMappedDataSource::~MemoryMappedDataSource() { close(); }
 
 void source::MemoryMappedDataSource::close() {
-  if (_data == nullptr) {
+  if (_data != nullptr) {
     munmap(_data, _length);
     ::close(_fd);
     _data = nullptr;
     _length = 0;
     _current_pos = 0;
+    _fd = 0;
   }
 }
 
