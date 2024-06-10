@@ -69,7 +69,6 @@ getFileChunksByNewLine(const std::filesystem::path &file,
 
 ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
                                           const ParseOptions &options,
-                                          std::uint64_t memorySize,
                                           std::uint32_t nproc) {
 
   const auto arguments = std::move(_arguments);
@@ -79,7 +78,7 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
     std::exit(EXIT_FAILURE);
   }
 
-  std::uint64_t desiredChunkSize = memorySize / nproc;
+  std::uint64_t desiredChunkSize = arguments.memorySize / nproc;
 
   auto [chunks, _, lineAmount] =
       getFileChunksByNewLine(arguments.file, desiredChunkSize, nproc);
@@ -111,7 +110,8 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
       MaybeParser maybeParser =
           makeParser(arguments.file, arguments.type,
-                     start == 0 ? arguments.hasHead : false, start, length);
+                     start == 0 ? arguments.hasHead : false, start, length,
+                     arguments.transactionSize);
 
       if (not maybeParser.has_value()) {
         std::cerr << "parser error: " << maybeParser.error() << "\n";

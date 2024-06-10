@@ -28,7 +28,8 @@ TSVParser::TSVParser(std::filesystem::path file, std::string type,
 
 MaybeParser makeParser(std::filesystem::path file,
                        std::optional<std::string> optionalType,
-                       OmitHeadType hasHead, off_t offset, std::size_t length) {
+                       OmitHeadType hasHead, off_t offset, std::size_t length,
+                       std::optional<std::uint32_t> transactionSize) {
 
   if (!std::filesystem::exists(file)) {
     return helper::unexpected<std::string>{"File doesn't exist: '" +
@@ -42,6 +43,7 @@ MaybeParser makeParser(std::filesystem::path file,
 
     for (auto const &[key, structure] : parserMap) {
       if (type == key) {
+        structure->setTransactionSize(transactionSize);
         return TSVParser{file, type, hasHead, structure, offset, length};
       }
     }
@@ -53,6 +55,7 @@ MaybeParser makeParser(std::filesystem::path file,
 
   for (auto const &[key, structure] : parserMap) {
     if (filename.contains(key)) {
+      structure->setTransactionSize(transactionSize);
       return TSVParser{file, key, hasHead, structure, offset, length};
     }
   }
@@ -146,7 +149,9 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
     m_structure->setup_prepared_statement(connection);
 
     csv::parse(*input, nullptr,
-               [&](const csv::record &record, double progress) -> bool {
+               [&result, &skippedHeader, this, &options, &connection,
+                isMultithreaded, &lastProgress, &printProgress](
+                   const csv::record &record, double progress) -> bool {
                  if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
                      skippedHeader = true;
@@ -191,10 +196,13 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                });
 
   } catch (postgres::Error &error) {
+    m_structure->finish();
     return helper::unexpected<std::string>{error.what()};
   } catch (std::exception &exc) {
+    m_structure->finish();
     return helper::unexpected<std::string>{exc.what()};
   }
 
+  m_structure->finish();
   return result;
 }

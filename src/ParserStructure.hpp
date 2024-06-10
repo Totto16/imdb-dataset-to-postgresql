@@ -6,11 +6,13 @@
 #include <csv/parser.hpp>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "InternalParsers.hpp"
 #include "helper/postgres.hpp"
+#include "postgres/Transaction.h"
 
 template <typename T>
 using AdvancedParserFunction =
@@ -30,6 +32,18 @@ struct Parseable {
                              const csv::record &record) = 0;
 
   [[nodiscard]] virtual const std::vector<std::string> names() const = 0;
+
+  virtual void finish() = 0;
+
+  inline void setTransactionSize(std::optional<std::uint32_t> transactionSize) {
+    m_transaction_size =
+        transactionSize.has_value() ? transactionSize.value() : 0;
+  }
+
+protected:
+  std::uint32_t m_transaction_size{0};
+  std::uint32_t m_execs{0};
+  std::shared_ptr<postgres::Transaction> m_trans{};
 };
 
 template <typename T>
@@ -77,7 +91,24 @@ public:
       ++i;
     }
 
+    if (m_transaction_size != 0) {
+      if (m_trans == nullptr) {
+        m_trans = std::make_shared<postgres::Transaction>(connection.begin());
+      } else if (m_execs >= m_transaction_size) {
+        m_trans->commit();
+        m_trans = std::make_shared<postgres::Transaction>(connection.begin());
+      }
+    }
+
     connection.exec(postgres::PreparedCommand{m_prepared_command_name, value});
+    m_execs++;
+  }
+
+  void finish() override {
+    if (m_trans != nullptr) {
+      m_trans->commit();
+      m_trans = nullptr;
+    }
   }
 
   [[nodiscard]] virtual const std::vector<std::string> names() const override {

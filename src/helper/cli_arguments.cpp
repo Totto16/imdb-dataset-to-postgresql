@@ -128,6 +128,11 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .help("the memory size to use")
       .metavar("memory-size");
 
+  parser.add_argument("--transaction-size")
+      .help("set the amount of executions per transaction")
+      .scan<'u', std::uint32_t>()
+      .metavar("transaction-size");
+
   auto &head_group = parser.add_mutually_exclusive_group();
 
   head_group.add_argument("--has-head")
@@ -178,7 +183,10 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .ignoreErrors = parser.get<bool>("ignore-errors"),
         .multiThreaded = !parser.get<bool>("single-threaded"),
         .threads = get_optional<std::uint32_t>(parser, "threads"),
-        .memorySize = memorySize};
+        .memorySize = memorySize,
+        .transactionSize =
+            get_optional<std::uint32_t>(parser, "transaction-size"),
+    };
 
   } catch (const std::exception &error) {
     return helper::unexpected<std::string>{error.what()};

@@ -10,7 +10,7 @@ namespace threads {
 
 ParseResult multiThreadedParsers(CommandLineArguments &&arguments,
                                  const ParseOptions &options,
-                                 std::uint64_t memorySize, std::uint32_t nproc);
+                                 std::uint32_t nproc);
 
 ParseResult singleThreadedParser(CommandLineArguments &&arguments,
                                  const ParseOptions &options);

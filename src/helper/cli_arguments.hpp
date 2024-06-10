@@ -25,6 +25,7 @@ struct CommandLineArguments {
   std::optional<std::uint32_t> threads;
 
   std::uint64_t memorySize;
+  std::optional<std::uint32_t> transactionSize;
 };
 
 namespace helper {

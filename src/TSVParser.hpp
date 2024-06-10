@@ -43,7 +43,7 @@ private:
 
 using MaybeParser = tl::expected<TSVParser, std::string>;
 
-MaybeParser makeParser(std::filesystem::path file,
-                       std::optional<std::string> optionalType,
-                       OmitHeadType hasHead, off_t offset = 0,
-                       std::size_t length = 0);
+MaybeParser
+makeParser(std::filesystem::path file, std::optional<std::string> optionalType,
+           OmitHeadType hasHead, off_t offset = 0, std::size_t length = 0,
+           std::optional<std::uint32_t> transactionSize = std::nullopt);

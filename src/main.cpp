@@ -91,8 +91,8 @@ int main(int argc, char **argv) {
       threads = arguments.threads.value();
     }
 
-    result = threads::multiThreadedParsers(std::move(arguments), options,
-                                           arguments.memorySize, threads);
+    result =
+        threads::multiThreadedParsers(std::move(arguments), options, threads);
   } else {
     result = threads::singleThreadedParser(std::move(arguments), options);
   }
