@@ -111,7 +111,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .hasHead = hasHead,
         .verbose = parser.get<bool>("verbose"),
         .ignoreErrors = parser.get<bool>("ignore-errors"),
-        .multiThreaded = parser.get<bool>("single-threaded"),
+        .multiThreaded = !parser.get<bool>("single-threaded"),
     };
 
   } catch (const std::exception &error) {

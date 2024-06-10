@@ -20,7 +20,7 @@ struct CommandLineArguments {
 
   bool verbose;
   bool ignoreErrors;
-  bool multiThreaded{true};
+  bool multiThreaded;
 };
 
 namespace helper {

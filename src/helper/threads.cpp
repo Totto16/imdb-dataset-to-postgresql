@@ -20,9 +20,9 @@ size_t getFilesize(const char *filename) {
   return st.st_size;
 }
 
-std::vector<std::size_t>
+std::tuple<std::vector<std::size_t>, std::size_t, std::uint64_t>
 getFileChunksByNewLine(const std::filesystem::path &file,
-                       std::size_t minChunkSize) {
+                       std::size_t desiredChunkSize, std::size_t nproc) {
 
   std::ifstream fileStream{file, std::ios::binary};
   auto iterator = std::istreambuf_iterator<char>{fileStream};
@@ -31,15 +31,24 @@ getFileChunksByNewLine(const std::filesystem::path &file,
 
   const auto fileSize = getFilesize(file.c_str());
 
+  auto usedChunkSize = desiredChunkSize;
+
+  if (fileSize / desiredChunkSize < nproc) {
+    usedChunkSize = (fileSize / nproc) + 1;
+  }
+
   std::vector<std::size_t> result{0};
-  result.reserve(fileSize / minChunkSize);
+  result.reserve((fileSize / usedChunkSize) + 1);
+
+  std::uint64_t lines = 0;
 
   std::size_t i = 1;
   for (std::size_t currentChunkSize = 1; iterator != end; ++iterator) {
     const char value = *iterator;
 
     if (value == '\n') {
-      if (currentChunkSize >= minChunkSize) {
+      ++lines;
+      if (currentChunkSize >= usedChunkSize) {
         result.push_back(i);
         currentChunkSize = 0;
       }
@@ -51,7 +60,7 @@ getFileChunksByNewLine(const std::filesystem::path &file,
 
   result.push_back(i);
 
-  return result;
+  return {result, usedChunkSize, lines};
 }
 
 } // namespace
@@ -68,9 +77,10 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
   }
 
   // TODO: make customizable
-  const auto size = 256 * 1024 * 1024 / nproc; // 256 MB / nproc
+  auto desiredChunkSize = 256 * 1024 * 1024 / nproc; // 256 MB / nproc
 
-  auto chunks = getFileChunksByNewLine(arguments.file, size);
+  auto [chunks, _, lineAmount] = getFileChunksByNewLine(
+      arguments.file, desiredChunkSize, static_cast<std::uint32_t>(nproc));
 
   BS::thread_pool pool{static_cast<std::uint32_t>(nproc)};
 
@@ -85,7 +95,7 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
     const auto length = end - start;
 
     pool.detach_task([arguments, options, start, length, finalResult,
-                      resultLock] -> void {
+                      resultLock, lineAmount] -> void {
       auto maybeConnection = helper::get_connection(arguments);
 
       if (not maybeConnection.has_value()) {
@@ -97,8 +107,9 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
       auto connection = std::move(maybeConnection.value());
 
-      MaybeParser maybeParser = makeParser(arguments.file, arguments.type,
-                                           arguments.hasHead, start, length);
+      MaybeParser maybeParser =
+          makeParser(arguments.file, arguments.type,
+                     start == 0 ? arguments.hasHead : false, start, length);
 
       if (not maybeParser.has_value()) {
         std::cerr << "parser error: " << maybeParser.error() << "\n";
@@ -120,6 +131,11 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
         finalResult->addErrors(result->errors());
         finalResult->addLines(result->lines());
+
+        const double progress =
+            finalResult->lines() / static_cast<double>(lineAmount);
+
+        std::cout << "Progress: " << (progress * 100.0) << " %\n";
       }
     });
   }

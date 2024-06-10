@@ -111,8 +111,10 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                                  ParseOptions options) {
   std::unique_ptr<csv::utf8::DataSource> input{};
 
+  const auto isMultithreaded = m_length != 0;
+
   try {
-    if (m_length == 0) {
+    if (isMultithreaded) {
       input = std::make_unique<source::MemoryMappedDataSource>(m_file, m_offset,
                                                                m_length);
     } else {
@@ -128,10 +130,8 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   ParseMetadata result{};
 
-  std::uint64_t availableLines = 0;
-
-  if (options.verbose) {
-    availableLines = countLines(m_file);
+  if (options.verbose && !isMultithreaded) {
+    std::uint64_t availableLines = countLines(m_file);
     std::cout << "There are " << availableLines << " lines to scan\n";
   }
 
@@ -178,11 +178,13 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                    result.addLine();
                  }
 
-                 if (progress - lastProgress >= 0.01) {
-                   printProgress(progress);
-                   lastProgress = progress;
-                 } else if (result.lines() % 10000 == 0) {
-                   printProgress(progress);
+                 if (!isMultithreaded) {
+                   if (progress - lastProgress >= 0.01) {
+                     printProgress(progress);
+                     lastProgress = progress;
+                   } else if (result.lines() % 10000 == 0) {
+                     printProgress(progress);
+                   }
                  }
 
                  return true;

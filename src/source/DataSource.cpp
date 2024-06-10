@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <fcntl.h>
 #include <filesystem>
+#include <optional>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -29,8 +30,9 @@ void source::MemoryMappedDataSource::close() {
   }
 }
 
-bool source::MemoryMappedDataSource::open(const std::filesystem::path &file,
-                                          off_t offset, std::size_t length) {
+std::optional<std::string>
+source::MemoryMappedDataSource::open(const std::filesystem::path &file,
+                                     off_t offset, std::size_t length) {
 
   // If we have one open, close it first
   close();
@@ -39,20 +41,24 @@ bool source::MemoryMappedDataSource::open(const std::filesystem::path &file,
   _current_pos = 0;
 
   if (!std::filesystem::exists(file)) {
-    return false;
+    return "Fiel doesn't exist";
   }
 
   _fd = ::open(file.string().c_str(), O_RDONLY, 0);
 
   if (_fd < 0) {
-    return false;
+    std::string result{"Error opening file: "};
+    result += strerror(errno);
+    return result;
   }
 
   off_t final_offset = offset;
 
   long page_size = sysconf(_SC_PAGE_SIZE);
   if (page_size < 0) {
-    return false;
+    std::string result{"Error in sysconf: "};
+    result += strerror(errno);
+    return result;
   }
 
   if (offset % page_size != 0) {
@@ -67,12 +73,14 @@ bool source::MemoryMappedDataSource::open(const std::filesystem::path &file,
                                                  _fd, final_offset));
 
   if (_data == MAP_FAILED) {
-    return false;
+    std::string result{"Error in mmap: "};
+    result += strerror(errno);
+    return result;
   }
 
   if (_length < _BOMS_SIZE) {
     // If we have less chars in the file than the size of the BOM.
-    return true;
+    return std::nullopt;
   }
 
   // Check if we have a BOM - Read the first three bytes.
@@ -84,7 +92,7 @@ bool source::MemoryMappedDataSource::open(const std::filesystem::path &file,
     _current_pos += _BOMS_SIZE; // skip the bom bytes!
   }
 
-  return true;
+  return std::nullopt;
 }
 
 double source::MemoryMappedDataSource::progress() {

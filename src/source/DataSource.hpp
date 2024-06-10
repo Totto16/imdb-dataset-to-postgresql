@@ -2,8 +2,7 @@
 #pragma once
 
 #include <filesystem>
-#include <fstream>
-#include <iostream>
+#include <stdexcept>
 
 #include <csv/datasource/IDataSource.hpp>
 #include <csv/datasource/utf8/DataSource.hpp>
@@ -17,12 +16,12 @@ public:
   /// Throws csv::file_exception if unable to open file
   MemoryMappedDataSource(const std::filesystem::path &file, off_t offset,
                          std::size_t length) {
-    if (!open(file, offset, length)) {
-      throw csv::file_exception();
+    if (const auto value = open(file, offset, length); value.has_value()) {
+      throw std::runtime_error(value.value());
     }
   }
-  bool open(const std::filesystem::path &file, off_t offset,
-            std::size_t length);
+  std::optional<std::string> open(const std::filesystem::path &file,
+                                  off_t offset, std::size_t length);
   void close();
 
 public:
