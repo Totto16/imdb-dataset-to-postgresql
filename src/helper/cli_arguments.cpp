@@ -5,9 +5,6 @@
 #include <optional>
 #include <string.h>
 
-#define STRINGIFY(a) STRINGIFY_HELPER_(a)
-#define STRINGIFY_HELPER_(a) #a
-
 namespace {
 
 template <typename T>
@@ -67,7 +64,11 @@ std::optional<std::uint64_t> getMemorySize(const std::string &str) {
 
 helper::expected<CommandLineArguments, std::string>
 helper::parse_args(const std::vector<std::string> &arguments) {
-  argparse::ArgumentParser parser{"imdb-sql-importer", STRINGIFY(_APP_VERSION),
+
+#define STRINGIFY(a) STRINGIFY_HELPER_(a)
+#define STRINGIFY_HELPER_(a) #a
+
+  argparse::ArgumentParser parser{STRINGIFY(_APP_NAME), STRINGIFY(_APP_VERSION),
                                   argparse::default_arguments::all};
 
 #undef STRINGIFY

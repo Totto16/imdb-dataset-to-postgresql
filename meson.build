@@ -33,5 +33,9 @@ executable(
     header_files,
     dependencies: deps,
     include_directories: inc_dirs,
-    cpp_args: [compile_args, '-D_APP_VERSION=' + meson.project_version()],
+    cpp_args: [
+        compile_args,
+        '-D_APP_VERSION=' + meson.project_version(),
+        '-D_APP_NAME=imdb-sql-importer',
+    ],
 )

@@ -20,6 +20,15 @@ std::string pingResultToName(const PGPing input) {
   }
 }
 
+#define STRINGIFY(a) STRINGIFY_HELPER_(a)
+#define STRINGIFY_HELPER_(a) #a
+
+constexpr const char *application_name =
+    STRINGIFY(_APP_NAME) " v" STRINGIFY(_APP_VERSION);
+
+#undef STRINGIFY
+#undef STRINGIFY_HELPER_
+
 } // namespace
 
 [[nodiscard]] helper::expected<postgres::Connection, std::string>
@@ -30,6 +39,7 @@ helper::get_connection(const CommandLineArguments &arguments) {
   builder.host(arguments.host);
   builder.port(arguments.port);
   builder.dbname(arguments.dbname);
+  builder.application_name(application_name);
 
   if (arguments.user.has_value()) {
     builder.user(arguments.user.value());
