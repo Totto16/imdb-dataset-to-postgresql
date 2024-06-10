@@ -25,9 +25,12 @@ public:
   void close();
 
 public:
-  virtual bool next();
-  virtual void back();
-  virtual double progress();
+  bool next() override;
+  void back() override;
+  double progress() override;
+
+  // we don't support quotes
+  inline bool is_quote() const override { return false; }
 
 private:
   int _fd{};
