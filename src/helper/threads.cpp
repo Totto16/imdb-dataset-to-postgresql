@@ -58,7 +58,9 @@ getFileChunksByNewLine(const std::filesystem::path &file,
     ++currentChunkSize;
   }
 
-  result.push_back(i - 1);
+  if (result.at(result.size() - 1) != i - 1) {
+    result.push_back(i - 1);
+  }
 
   return {result, usedChunkSize, lines};
 }
