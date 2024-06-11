@@ -131,8 +131,7 @@ CREATE TYPE title_akas_type AS ENUM (
 	'video',
 	'working',
 	'original',
-	'imdbDisplay',
-	'imdbDisplayfestival'
+	'imdbDisplay'
 );
 -- create the table title_akas
 CREATE TABLE IF NOT EXISTS public.title_akas (

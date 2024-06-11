@@ -28,7 +28,7 @@ function download_all() {
 
     download "title.basics"
     download "name.basics"
-    download "title.akas"
+    download "title.akas" # TODO: preprocess, replace \2 by ,
     download "title.crew"
     download "title.episode"
     download "title.principals"
