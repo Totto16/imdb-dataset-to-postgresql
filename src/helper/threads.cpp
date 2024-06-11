@@ -66,7 +66,6 @@ getFileChunksByNewLine(const std::filesystem::path &file,
   return {result, usedChunkSize, lines};
 }
 
-// from: https://gist.github.com/dgoguerra/7194777
 template <size_t BASE = 1024,
           std::enable_if_t<BASE == 1000 || BASE == 1024, int> = 0>
 std::string humanSize(std::uint64_t bytes) {
@@ -76,10 +75,9 @@ std::string humanSize(std::uint64_t bytes) {
   double dblBytes = bytes;
   std::size_t i = 0;
 
-  if (bytes > BASE) {
-    for (i = 0; (bytes / BASE) > 0 && i < suffix.size() - 1; i++, bytes /= BASE)
-      dblBytes = bytes / static_cast<double>(BASE);
-  }
+  for (i = 0; (bytes / BASE) > 0 && i < suffix.at(0).size() - 1;
+       i++, bytes /= BASE)
+    dblBytes = dblBytes / static_cast<double>(BASE);
 
   return std::format("{:0.2f} {}", dblBytes, suffix[BASE != 1000][i]);
 }
