@@ -40,4 +40,12 @@ private:
   std::size_t _current_pos{};
 };
 
+class FileDataSource : public csv::utf8::FileDataSource {
+public:
+  FileDataSource(const char *file) : csv::utf8::FileDataSource{file} {}
+
+  // we don't support quotes
+  inline bool is_quote() const override { return false; }
+};
+
 } // namespace source

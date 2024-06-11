@@ -123,7 +123,7 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                                                                m_length);
     } else {
       input =
-          std::make_unique<csv::utf8::FileDataSource>(m_file.string().c_str());
+          std::make_unique<source::FileDataSource>(m_file.string().c_str());
     }
   } catch (const std::exception &error) {
     return helper::unexpected<std::string>{
