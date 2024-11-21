@@ -41,7 +41,7 @@ private:
   std::size_t m_length;
 };
 
-using MaybeParser = tl::expected<TSVParser, std::string>;
+using MaybeParser = helper::expected<TSVParser, std::string>;
 
 MaybeParser
 makeParser(std::filesystem::path file, std::optional<std::string> optionalType,
