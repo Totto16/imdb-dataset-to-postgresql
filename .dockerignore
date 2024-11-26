@@ -1,0 +1,7 @@
+./build/
+.cache/
+.mypy_cache/
+.pytest_cache/
+.vscode/
+downloads/
+*.sql.gz

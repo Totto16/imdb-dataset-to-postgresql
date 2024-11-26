@@ -1,0 +1,85 @@
+FROM ubuntu:24.04 AS cpp-buildenv
+
+WORKDIR /tmp
+
+RUN apt-get update && \
+    apt-get install wget \
+    ninja-build \
+    python3-pip \
+    lsb-release \
+    wget \
+    software-properties-common \
+    gnupg \
+    cmake \
+    pkg-config \
+    postgresql-common \
+    -y --no-install-recommends && \
+    wget https://apt.llvm.org/llvm.sh && \
+    chmod +x llvm.sh && \
+    ./llvm.sh 19 && \
+    /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
+    apt-get install postgresql-16 \
+    libpq-dev \
+    -y --no-install-recommends && \
+    pip install meson --break-system-packages
+
+COPY . /tmp/
+
+
+ENV CC=clang-19
+ENV CXX=clang++-19
+ENV LD=clang-19
+
+
+RUN meson setup build \
+    -Dbuildtype=release \
+    -Ddefault_library=static && \
+    meson compile -C build
+
+
+FROM ubuntu:24.04 AS import-stage
+
+WORKDIR /tmp
+
+COPY scripts/ /tmp/scripts/
+
+COPY --from=cpp-buildenv /tmp/build/imdb-sql-importer /tmp/
+
+RUN apt-get update && \
+    apt-get install postgresql-common \
+    wget \
+    unzip \
+    ca-certificates \
+    -y --no-install-recommends && \
+    /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
+    apt-get install postgresql-16 \
+    -y --no-install-recommends
+
+ENV PG_USER="imdb"
+ENV PG_PASSWORD="ODFiOWZkMDI0NTY4NWM5MzQzNjcyY2Jm"
+ENV PG_PORT="5432"
+ENV PG_HOST="/var/run/postgresql"
+ENV PG_DBNAME="imdb"
+
+ENV PGDATA="/data/"
+
+RUN ./scripts/dump_for_docker.sh
+
+# inspiration: https://cadu.dev/creating-a-docker-image-with-database-preloaded/
+FROM postgres:16-alpine AS dump-importer
+
+
+COPY --from=import-stage /tmp/result.sql.gz /docker-entrypoint-initdb.d/
+
+RUN ["sed", "-i", "s/exec \"$@\"/echo \"skipping...\"/", "/usr/local/bin/docker-entrypoint.sh"]
+
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV PGDATA=/data
+
+RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
+
+# final build stage
+FROM postgres:16-alpine
+
+COPY --from=dump-importer /data $PGDATA
