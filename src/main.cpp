@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   auto arguments = std::move(parsedArguments.value());
 
   ParseOptions options = {.ignoreErrors = arguments.ignoreErrors,
-                          .verbose = arguments.verbose};
+                          .verbose = arguments.should_print(LogLevel::Verbose)};
 
   helper::expected<ParseMetadata, std::string> result{};
 
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
       threads = arguments.threads.value();
     }
 
-    if (arguments.verbose) {
+    if (arguments.should_print(LogLevel::Info)) {
       std::cout << "Starting multi threaded import with " << threads
                 << " Threads\n";
     }
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     result =
         threads::multiThreadedParsers(std::move(arguments), options, threads);
   } else {
-    if (arguments.verbose) {
+    if (arguments.should_print(LogLevel::Info)) {
       std::cout << "Starting single threaded import\n";
     }
 
@@ -112,12 +112,14 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  std::cout << "Successfully inserted " << result->lines() << " rows\n";
+  if (arguments.should_print(LogLevel::Info)) {
 
-  std::cout << "It took " << prettyPrint(result->duration()) << "\n";
+    std::cout << "Successfully inserted " << result->lines() << " rows\n";
+    std::cout << "It took " << prettyPrint(result->duration()) << "\n";
 
-  if (options.ignoreErrors) {
-    std::cout << "Ignored " << result->errors() << " Errors\n";
+    if (options.ignoreErrors) {
+      std::cout << "Ignored " << result->errors() << " Errors\n";
+    }
   }
 
   return EXIT_SUCCESS;

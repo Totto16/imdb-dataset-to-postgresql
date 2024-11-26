@@ -170,6 +170,12 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       memorySize = result.value();
     }
 
+    LogLevel log_level = LogLevel::Error;
+
+    if (parser.get<bool>("verbose")) {
+      log_level = LogLevel::Verbose;
+    }
+
     return CommandLineArguments{
         .host = parser.get<std::string>("host"),
         .port = parser.get<int>("port"),
@@ -179,7 +185,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .file = parser.get<std::string>("file"),
         .type = type,
         .hasHead = hasHead,
-        .verbose = parser.get<bool>("verbose"),
+        .level = log_level,
         .ignoreErrors = parser.get<bool>("ignore-errors"),
         .multiThreaded = !parser.get<bool>("single-threaded"),
         .threads = get_optional<std::uint32_t>(parser, "threads"),
@@ -191,4 +197,9 @@ helper::parse_args(const std::vector<std::string> &arguments) {
   } catch (const std::exception &error) {
     return helper::unexpected<std::string>{error.what()};
   }
+}
+
+[[nodiscard]] bool
+CommandLineArguments::should_print(LogLevel message_level) const {
+  return std::to_underlying(this->level) >= std::to_underlying(message_level);
 }

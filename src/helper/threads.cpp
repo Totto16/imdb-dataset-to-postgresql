@@ -16,7 +16,7 @@
 
 namespace {
 size_t getFilesize(const char *filename) {
-  struct stat st {};
+  struct stat st{};
   ::stat(filename, &st);
   return st.st_size;
 }
@@ -100,7 +100,7 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
   auto [chunks, usedChunkSize, lineAmount] =
       getFileChunksByNewLine(arguments.file, desiredChunkSize, nproc);
 
-  if (arguments.verbose) {
+  if (arguments.should_print(LogLevel::Info)) {
     std::cout << "Using " << (chunks.size() - 1) << " Chunks with "
               << humanSize<1024>(usedChunkSize) << "\n";
 
@@ -166,10 +166,13 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
         finalResult->addErrors(result->errors());
         finalResult->addLines(result->lines());
 
-        const double progress = (finalResult->lines() + finalResult->errors()) /
-                                static_cast<double>(lineAmount);
+        if (arguments.should_print(LogLevel::Info)) {
+          const double progress =
+              (finalResult->lines() + finalResult->errors()) /
+              static_cast<double>(lineAmount);
 
-        std::cout << "Progress: " << (progress * 100.0) << " %\n";
+          std::cout << "Progress: " << (progress * 100.0) << " %\n";
+        }
       }
     });
   }
@@ -192,7 +195,7 @@ ParseResult threads::singleThreadedParser(CommandLineArguments &&arguments,
 
   auto connection = std::move(maybeConnection.value());
 
-  if (arguments.verbose) {
+  if (arguments.should_print(LogLevel::Info)) {
     if (arguments.transactionSize.has_value()) {
 
       std::cout << "Using " << arguments.transactionSize.value()
