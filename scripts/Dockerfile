@@ -11,6 +11,7 @@ RUN apt-get update && \
     software-properties-common \
     gnupg \
     cmake \
+    git \
     pkg-config \
     postgresql-common \
     -y --no-install-recommends && \
