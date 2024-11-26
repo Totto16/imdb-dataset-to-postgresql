@@ -14,6 +14,10 @@ DEBUG_FLAG="${2:-}"
 
 DO_DELETE_FILE="${3:-}"
 
+MEMORY_SIZE="${4:-16M}"
+
+THREAD_MULTIPLIER="${5:-14}"
+
 DEBUG_CONTENT=()
 
 if [ -n "$DEBUG_FLAG" ]; then
@@ -58,9 +62,9 @@ function import() {
         --has-head \
         "${DEBUG_CONTENT[@]}" \
         --ignore-errors \
-        --memory-size 16M \
+        --memory-size "$MEMORY_SIZE" \
         --transaction-size 0 \
-        --threads "$(($(nproc) * 14))"
+        --threads "$(($(nproc) * "$THREAD_MULTIPLIER"))"
 }
 
 function delete() {
