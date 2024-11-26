@@ -24,7 +24,7 @@ jobs:
             - name: Build and Push Image
               run: |
                   echo "CURRENT_DATE=$(date -u +"%Y%m%d")" >> $GITHUB_ENV
-                  docker build --ulimit memlock=-1:-1 -t ghcr.io/totto16/preseeded-imdb-database:latest . -f ./scripts/Dockerfile
+                  docker build --ulimit memlock=-1:-1 -t ghcr.io/totto16/preseeded-imdb-database:latest . -f ./scripts/Dockerfile --build-arg DEBUG=${{ runner.debug  && 'true' || ''}}
                   docker push ghcr.io/totto16/preseeded-imdb-database:latest
                   docker image tag "ghcr.io/totto16/preseeded-imdb-database:latest" "ghcr.io/totto16/preseeded-imdb-database:$CURRENT_DATE"
                   docker push "ghcr.io/totto16/preseeded-imdb-database:$CURRENT_DATE"

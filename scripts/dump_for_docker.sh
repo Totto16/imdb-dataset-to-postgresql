@@ -4,6 +4,8 @@ set -ex
 
 set -o pipefail
 
+DEBUG_FLAG="${1:-}"
+
 mkdir -p "$PGDATA"
 chmod 00700 "$PGDATA"
 
@@ -38,8 +40,8 @@ sql_command_imdb "PGPASSWORD=\"$PG_PASSWORD\" \"$PG_BIN_DIR/psql\" -h \"$PG_HOST
 
 ulimit -l unlimited unlimited
 
-sql_command_imdb "\"$(pwd)/scripts/process_all.sh\" \"/tmp\""
+sql_command_imdb "\"$(pwd)/scripts/process_all.sh\" \"/tmp\" \"$DEBUG_FLAG\""
 
-sql_command_imdb "\"$(pwd)/scripts/dump_all.sh\" \"/tmp/result.sql.gz\""
+sql_command_imdb "\"$(pwd)/scripts/dump_all.sh\" \"/tmp/result.sql.gz\" \"$DEBUG_FLAG\""
 
 service postgresql stop

@@ -10,6 +10,14 @@ DOWNLOAD_FOLDER="$SRC_DIR/downloads"
 
 EXEC_DIR="${1:-./build}"
 
+DEBUG_FLAG="${2:-}"
+
+DEBUG_CONTENT=()
+
+if [ -n "$DEBUG_FLAG" ]; then
+    DEBUG_CONTENT=("--verbose")
+fi
+
 function download() {
 
     NAME="$1"
@@ -46,7 +54,7 @@ function import() {
         --port "$PG_PORT" \
         --host "$PG_HOST" \
         --has-head \
-        --verbose \
+        "${DEBUG_CONTENT[@]}" \
         --ignore-errors \
         --memory-size 16M \
         --transaction-size 0 \

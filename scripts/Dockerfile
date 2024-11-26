@@ -1,5 +1,7 @@
 FROM ubuntu:24.04 AS cpp-buildenv
 
+ARG DEBUG=
+
 WORKDIR /tmp
 
 RUN apt-get update && \
@@ -64,7 +66,7 @@ ENV PG_DBNAME="imdb"
 
 ENV PGDATA="/data/"
 
-RUN ./scripts/dump_for_docker.sh
+RUN ./scripts/dump_for_docker.sh "$DEBUG"
 
 # inspiration: https://cadu.dev/creating-a-docker-image-with-database-preloaded/
 FROM postgres:16-alpine AS dump-importer
