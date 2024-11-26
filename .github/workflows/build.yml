@@ -1,0 +1,30 @@
+name: Build CI
+on:
+    push:
+        branches: ["master"]
+    pull_request:
+    workflow_dispatch:
+    schedule:
+        - cron: "0 0 * * 1,3,6"
+
+jobs:
+    image_builder:
+        name: Build Image
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: "Login to GitHub Container Registry"
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{github.actor}}
+                  password: ${{secrets.GITHUB_TOKEN}}
+
+            - name: Build and Push Image
+              run: |
+                  echo "$(date -u +"%Y%m%d")" >> "$CURRENT_DATE"
+                  docker build --ulimit memlock=-1:-1 -t ghcr.io/Totto16/preseeded-imdb-database:latest . -f ./scripts/Dockerfile
+                  docker push ghcr.io/Totto16/preseeded-imdb-database:latest
+                  docker image tag "ghcr.io/Totto16/preseeded-imdb-database:latest" "ghcr.io/Totto16/preseeded-imdb-database:$CURRENT_DATE"
+                  docker push "ghcr.io/Totto16/preseeded-imdb-database:$CURRENT_DATE"
