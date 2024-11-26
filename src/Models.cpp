@@ -106,7 +106,8 @@ std::shared_ptr<Parseable> Model::mappedTitlePrincipal() {
           MAKE_PARSER(TitlePrincipal, ordering,
                       StaticParsers::intParser<std::int64_t>),
           MAKE_PARSER(TitlePrincipal, nconst, StaticParsers::asIs),
-          MAKE_PARSER(TitlePrincipal, category, StaticParsers::asIs),
+          MAKE_PARSER(TitlePrincipal, category,
+                      StaticParsers::enumParser<GeneralJob>),
           MAKE_PARSER(
               TitlePrincipal, job,
               StaticParsers::orNullParser<std::string>(StaticParsers::asIs)),

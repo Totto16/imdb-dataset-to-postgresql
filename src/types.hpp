@@ -76,19 +76,19 @@ struct TitleEpisode {
                      episodeNumber);
 };
 
+POSTGRES_CXX_ENUM(GeneralJob, "general_job");
+
 struct TitlePrincipal {
   ImdbID tconst;
   std::int64_t ordering;
   NameID nconst;
-  std::string category;
+  GeneralJob category;
   std::optional<std::string> job;
   std::optional<std::string> characters;
 
   POSTGRES_CXX_TABLE("title_principals", tconst, ordering, nconst, category,
                      job, characters);
 };
-
-POSTGRES_CXX_ENUM(GeneralJob, "general_job");
 
 struct NameBasic {
   NameID nconst;

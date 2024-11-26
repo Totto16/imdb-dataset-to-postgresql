@@ -109,7 +109,8 @@ CREATE TYPE general_job AS ENUM (
 	'assistant',
 	'production_department',
 	'electrical_department',
-	'accountant'
+	'accountant',
+	'self'
 	-- TODO: add the rest
 );
 -- create the table name_basics
@@ -160,8 +161,8 @@ CREATE TABLE IF NOT EXISTS public.title_crew (
 CREATE TABLE IF NOT EXISTS public.title_episode (
 	tconst TEXT NOT NULL,
 	parentTconst TEXT NOT NULL,
-	seasonNumber INT NOT NULL,
-	episodeNumber INT NOT NULL,
+	seasonNumber INT,
+	episodeNumber INT,
 	PRIMARY KEY(tconst),
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst),
 	FOREIGN KEY (parentTconst) REFERENCES public.title_basics(tconst)
@@ -173,7 +174,7 @@ CREATE TABLE IF NOT EXISTS public.title_principals (
 	nconst TEXT NOT NULL,
 	category general_job NOT NULL,
 	job TEXT,
-	characters TEXT [],
+	characters TEXT,
 	PRIMARY KEY(tconst, ordering),
 	FOREIGN KEY (nconst) REFERENCES public.name_basics(nconst),
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
