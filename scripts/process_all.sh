@@ -12,6 +12,8 @@ EXEC_DIR="${1:-./build}"
 
 DEBUG_FLAG="${2:-}"
 
+DO_DELETE_FILE="${3:-}"
+
 DEBUG_CONTENT=()
 
 if [ -n "$DEBUG_FLAG" ]; then
@@ -61,12 +63,24 @@ function import() {
         --threads "$(($(nproc) * 14))"
 }
 
+function delete() {
+    if [ -n "$DO_DELETE_FILE" ]; then
+
+        if [ -e "$DOWNLOAD_FOLDER" ]; then
+            rm -rf "$DOWNLOAD_FOLDER"
+        fi
+
+    fi
+}
+
 function process() {
     NAME="$1"
 
     download "$NAME"
 
     import "$NAME"
+
+    delete "$NAME"
 
 }
 
