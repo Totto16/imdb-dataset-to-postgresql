@@ -40,7 +40,7 @@ sql_command_imdb "PGPASSWORD=\"$PG_PASSWORD\" \"$PG_BIN_DIR/psql\" -h \"$PG_HOST
 
 ulimit -l unlimited unlimited
 
-sql_command_imdb "\"$(pwd)/scripts/process_all.sh\" \"/tmp\" \"$DEBUG_FLAG\" \"true\" \"1G\" \"22\""
+sql_command_imdb "\"$(pwd)/scripts/process_all.sh\" \"/tmp\" \"$DEBUG_FLAG\" \"true\" \"1G\" \"12\""
 
 sql_command_imdb "\"$(pwd)/scripts/dump_all.sh\" \"/tmp/result.sql.gz\" \"$DEBUG_FLAG\""
 
