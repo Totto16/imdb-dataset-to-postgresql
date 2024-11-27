@@ -4,13 +4,13 @@ on:
         branches: ["master"]
     pull_request:
     workflow_dispatch:
-    schedule:
-        - cron: "0 0 * * 1,3,6"
+    # schedule:
+    #    - cron: "0 0 * * 1,3,6"
 
 jobs:
     image_builder:
         name: Build Image
-        runs-on: [self-hosted, linux, x64, ubuntu-24.04]
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4
 
