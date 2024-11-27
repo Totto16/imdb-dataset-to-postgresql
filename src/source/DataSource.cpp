@@ -43,7 +43,7 @@ source::MemoryMappedDataSource::open(const std::filesystem::path &file,
   _current_pos = 0;
 
   if (!std::filesystem::exists(file)) {
-    return "Fiel doesn't exist";
+    return "File doesn't exist";
   }
 
   _fd = ::open(file.string().c_str(), O_RDONLY, 0);
