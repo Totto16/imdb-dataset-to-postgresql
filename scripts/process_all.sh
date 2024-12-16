@@ -92,13 +92,18 @@ function process_all() {
 
     mkdir -p "$DOWNLOAD_FOLDER"
 
-    process "title.basics"
-    process "name.basics"
-    process "title.akas"
-    process "title.crew"
-    process "title.episode"
-    process "title.principals"
-    process "title.ratings"
+    NAME_ARRAY=("title.basics" "name.basics" "title.akas" "title.crew" "title.episode" "title.principals" "title.ratings")
+
+    ARR_LENGTH="${#NAME_ARRAY[@]}"
+
+    for INDEX in "${!NAME_ARRAY[@]}"; do
+
+        HUMAN_INDEX="$((INDEX + 1))"
+
+        echo "Item $HUMAN_INDEX/$ARR_LENGTH"
+        NAME="${NAME_ARRAY[$INDEX]}"
+        process "$NAME"
+    done
 
 }
 
