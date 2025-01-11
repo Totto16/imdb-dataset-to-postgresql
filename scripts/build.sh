@@ -2,9 +2,12 @@
 
 set -e
 
-REGISTRY="registry.totto.lt"
 IMAGE_NAME="imdb/preseeded-database"
-REMOTE_NAME="$IMAGE_NAME"
+
+REGISTRY_SELFHOSTED="registry.totto.lt"
+REMOTE_NAME_SELFHOSTED="$REGISTRY_SELFHOSTED/$IMAGE_NAME"
+
+REMOTE_NAME_GITHUB="ghcr.io/totto16/preseeded-imdb-database"
 
 DOCKERFILE="./scripts/Dockerfile"
 
@@ -15,8 +18,11 @@ function push_tag() {
     VERSION="$1"
     PUSH_VERSION="$2"
 
-    docker image tag "$IMAGE_NAME:$VERSION" "$REGISTRY/$REMOTE_NAME:$PUSH_VERSION"
-    docker push "$REGISTRY/$REMOTE_NAME:$PUSH_VERSION"
+    docker image tag "$IMAGE_NAME:$VERSION" "$REMOTE_NAME_SELFHOSTED:$PUSH_VERSION"
+    docker push "$REMOTE_NAME_SELFHOSTED:$PUSH_VERSION"
+
+    docker image tag "$IMAGE_NAME:$VERSION" "$REMOTE_NAME_GITHUB:$PUSH_VERSION"
+    docker push "$REMOTE_NAME_GITHUB:$PUSH_VERSION"
 
 }
 
@@ -35,8 +41,10 @@ function build_image_for_multiple_platforms() {
 
     docker buildx build --platform 'linux/amd64,linux/arm64/v8' \
         "${LIMIT_ARGS[@]}" \
-        -t "$REGISTRY/$REMOTE_NAME:latest" \
-        -t "$REGISTRY/$REMOTE_NAME:$CURRENT_DATE" \
+        -t "$REMOTE_NAME_SELFHOSTED:latest" \
+        -t "$REMOTE_NAME_SELFHOSTED:$CURRENT_DATE" \
+        -t "$REMOTE_NAME_GITHUB:latest" \
+        -t "$REMOTE_NAME_GITHUB:$CURRENT_DATE" \
         . -f "$DOCKERFILE" --push
 
 }
