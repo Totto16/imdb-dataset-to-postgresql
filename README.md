@@ -10,8 +10,7 @@ This [preseeds](https://cadu.dev/creating-a-docker-image-with-database-preloaded
 
 ## How to use
 
-Use the docker images on GitHub as base database image, e.g [latest](ghcr.io/totto16/preseeded-imdb-database:latest) or also specific dates [20241126](ghcr.io/totto16/preseeded-imdb-database:20241126). Use it like a normal `postgres:16-alpine` docker image, and you have the table `imdb`, which already has the data.
-
+Use the docker images on GitHub as base database image, e.g. [latest](https://ghcr.io/totto16/preseeded-imdb-database:latest) or also specific dates [20241126](https://ghcr.io/totto16/preseeded-imdb-database:20241126). Use it like a normal `postgres:16-alpine` docker image, and you have the table `imdb`, which already has the data.
 
 ## LICENSE
 
