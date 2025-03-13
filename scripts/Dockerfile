@@ -19,7 +19,7 @@ RUN apt-get update && \
     -y --no-install-recommends && \
     wget https://apt.llvm.org/llvm.sh && \
     chmod +x llvm.sh && \
-    ./llvm.sh 19 && \
+    ./llvm.sh 20 && \
     /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
     apt-get install postgresql-16 \
     libpq-dev \
@@ -29,9 +29,9 @@ RUN apt-get update && \
 COPY . /tmp/
 
 
-ENV CC=clang-19
-ENV CXX=clang++-19
-ENV LD=clang-19
+ENV CC=clang-20
+ENV CXX=clang++-20
+ENV LD=clang-20
 
 
 RUN meson setup build \
