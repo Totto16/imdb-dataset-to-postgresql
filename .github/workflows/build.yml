@@ -56,7 +56,6 @@ jobs:
               uses: TheMrMilchmann/setup-msvc-dev@v3
               with:
                   arch: x64
-                  toolset: latest
 
             - name: Setup Clang (Linux) (libc++)
               if: matrix.config.os == 'ubuntu' && matrix.config.use-clang == true && matrix.config.use-clang_stdlib
