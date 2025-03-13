@@ -6,7 +6,7 @@ project(
     default_options: {
         'buildtype': 'release',
         'optimization': '3',
-        'cpp_std': ['c++26', 'c++23'],
+        'cpp_std': ['c++26', 'c++23', 'c++latest'],
         'warning_level': '3',
         'werror': true,
         'b_ndebug': 'if-release',
