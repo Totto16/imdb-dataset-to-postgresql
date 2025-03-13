@@ -1,8 +1,8 @@
-name: Build CI
+name: Image CI
 on:
-    push:
-        branches: ["master"]
-    pull_request:
+    # push:
+    #     branches: ["master"]
+    # pull_request:
     workflow_dispatch:
     # schedule:
     #    - cron: "0 0 * * 1,3,6"
