@@ -1,6 +1,5 @@
 name: imdb_database
 
-version: "3.9"
 services:
     imdb_db:
         container_name: imdb_database_db
