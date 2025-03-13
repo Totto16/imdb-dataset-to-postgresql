@@ -1,8 +1,7 @@
 #pragma once
 
-#include "helper/expected.hpp"
-
 #include <cstdint>
+#include <expected>
 #include <optional>
 #include <string>
 #include <vector>
@@ -33,6 +32,6 @@ struct CommandLineArguments {
 };
 
 namespace helper {
-helper::expected<CommandLineArguments, std::string>
+std::expected<CommandLineArguments, std::string>
 parse_args(const std::vector<std::string> &arguments);
 } // namespace helper

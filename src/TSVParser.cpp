@@ -3,6 +3,7 @@
 #include <csv/datasource/utf8/DataSource.hpp>
 #include <csv/parser.hpp>
 #include <exception>
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -16,7 +17,6 @@
 #include "ParseMetadata.hpp"
 #include "ParserStructure.hpp"
 #include "TSVParser.hpp"
-#include "helper/expected.hpp"
 #include "postgres/Error.h"
 #include "source/DataSource.hpp"
 
@@ -32,8 +32,8 @@ MaybeParser makeParser(std::filesystem::path file,
                        std::optional<std::uint32_t> transactionSize) {
 
   if (!std::filesystem::exists(file)) {
-    return helper::unexpected<std::string>{"File doesn't exist: '" +
-                                           file.string() + "'"};
+    return std::unexpected<std::string>{"File doesn't exist: '" +
+                                        file.string() + "'"};
   }
 
   auto parserMap = TSVParser::getParserMap();
@@ -49,7 +49,7 @@ MaybeParser makeParser(std::filesystem::path file,
       }
     }
 
-    return helper::unexpected<std::string>{"Not a valid type: '" + type + "'"};
+    return std::unexpected<std::string>{"Not a valid type: '" + type + "'"};
   }
 
   auto filename = file.filename().string();
@@ -61,7 +61,7 @@ MaybeParser makeParser(std::filesystem::path file,
     }
   }
 
-  return helper::unexpected<std::string>{"Couldn't detect type based on file"};
+  return std::unexpected<std::string>{"Couldn't detect type based on file"};
 }
 
 ParserMap TSVParser::getParserMap() {
@@ -122,12 +122,11 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
       input = std::make_unique<source::MemoryMappedDataSource>(m_file, m_offset,
                                                                m_length);
     } else {
-      input =
-          std::make_unique<source::FileDataSource>(m_file.string().c_str());
+      input = std::make_unique<source::FileDataSource>(m_file.string().c_str());
     }
   } catch (const std::exception &error) {
-    return helper::unexpected<std::string>{
-        "Filepath was invalid: '" + m_file.string() + "': " + error.what()};
+    return std::unexpected<std::string>{"Filepath was invalid: '" +
+                                        m_file.string() + "': " + error.what()};
   }
 
   input->separator = '\t';
@@ -198,10 +197,10 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   } catch (postgres::Error &error) {
     m_structure->finish();
-    return helper::unexpected<std::string>{error.what()};
+    return std::unexpected<std::string>{error.what()};
   } catch (std::exception &exc) {
     m_structure->finish();
-    return helper::unexpected<std::string>{exc.what()};
+    return std::unexpected<std::string>{exc.what()};
   }
 
   m_structure->finish();

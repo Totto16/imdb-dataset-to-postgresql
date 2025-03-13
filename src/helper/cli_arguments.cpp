@@ -62,7 +62,7 @@ std::optional<std::uint64_t> getMemorySize(const std::string &str) {
 
 } // namespace
 
-helper::expected<CommandLineArguments, std::string>
+std::expected<CommandLineArguments, std::string>
 helper::parse_args(const std::vector<std::string> &arguments) {
 
 #define STRINGIFY(a) STRINGIFY_HELPER_(a)
@@ -164,8 +164,8 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       std::string memorySizeStr = parser.get<std::string>("memory-size");
       const auto result = getMemorySize(memorySizeStr);
       if (not result.has_value()) {
-        return helper::unexpected<std::string>{"Invalid memorySize option: '" +
-                                               memorySizeStr + "'"};
+        return std::unexpected<std::string>{"Invalid memorySize option: '" +
+                                            memorySizeStr + "'"};
       }
       memorySize = result.value();
     }
@@ -195,7 +195,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
     };
 
   } catch (const std::exception &error) {
-    return helper::unexpected<std::string>{error.what()};
+    return std::unexpected<std::string>{error.what()};
   }
 }
 

@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
   ParseOptions options = {.ignoreErrors = arguments.ignoreErrors,
                           .verbose = arguments.should_print(LogLevel::Verbose)};
 
-  helper::expected<ParseMetadata, std::string> result{};
+  std::expected<ParseMetadata, std::string> result{};
 
   if (arguments.multiThreaded) {
 

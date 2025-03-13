@@ -2,6 +2,7 @@
 #pragma once
 
 #include <csv/parser.hpp>
+#include <expected>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -11,11 +12,10 @@
 
 #include "ParseMetadata.hpp"
 #include "ParserStructure.hpp"
-#include "helper/expected.hpp"
 
 using OmitHeadType = std::optional<bool>;
 
-using ParseResult = helper::expected<ParseMetadata, std::string>;
+using ParseResult = std::expected<ParseMetadata, std::string>;
 
 using ParserMap = std::map<std::string, std::shared_ptr<Parseable>>;
 
@@ -41,7 +41,7 @@ private:
   std::size_t m_length;
 };
 
-using MaybeParser = helper::expected<TSVParser, std::string>;
+using MaybeParser = std::expected<TSVParser, std::string>;
 
 MaybeParser
 makeParser(std::filesystem::path file, std::optional<std::string> optionalType,

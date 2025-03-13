@@ -1,7 +1,7 @@
 
+#include <expected>
 
 #include "./postgres.hpp"
-#include "helper/expected.hpp"
 
 namespace {
 
@@ -31,7 +31,7 @@ constexpr const char *application_name =
 
 } // namespace
 
-[[nodiscard]] helper::expected<postgres::Connection, std::string>
+[[nodiscard]] std::expected<postgres::Connection, std::string>
 helper::get_connection(const CommandLineArguments &arguments) {
 
   postgres::Config::Builder builder{};
@@ -54,7 +54,7 @@ helper::get_connection(const CommandLineArguments &arguments) {
   const auto result = postgres::Connection::ping(config);
 
   if (result != PGPing::PQPING_OK) {
-    return helper::unexpected<std::string>{pingResultToName(result)};
+    return std::unexpected<std::string>{pingResultToName(result)};
   }
 
   postgres::Connection connection{config};
