@@ -21,14 +21,14 @@ inc_dirs = include_directories('include')
 postgres_version_range = get_option('postgres_version_range')
 
 if postgres_version_range == ''
-    deps += dependency('PostgreSQL')
+    deps += dependency('libpq', 'PostgreSQL')
 else
 
     if postgres_version_range.contains(',')
         postgres_version_range = postgres_version_range.split(',')
     endif
 
-    deps += dependency('PostgreSQL', version: postgres_version_range)
+    deps += dependency('libpq', 'PostgreSQL', version: postgres_version_range)
 endif
 
 subdir('src')
