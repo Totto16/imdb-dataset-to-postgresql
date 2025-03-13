@@ -18,7 +18,7 @@ deps = []
 
 deps += dependency('csvlib')
 deps += dependency('argparse')
-deps += dependency('postgres-cxx-client')
+deps += dependency('postgres-cxx-client', default_options: {'postgres_version_range': '>=16'})
 deps += dependency('bshoshany-thread-pool')
 src_files = []
 header_files = []

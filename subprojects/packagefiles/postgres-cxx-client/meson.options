@@ -10,3 +10,9 @@ option(
     value: false,
     description: 'Build tests',
 )
+option(
+    'postgres_version_range',
+    type: 'string',
+    value: '',
+    description: 'Constrict the version of postgres',
+)
