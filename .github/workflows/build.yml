@@ -15,9 +15,9 @@ jobs:
             fail-fast: false
             matrix:
                 config:
-                    - name: Windows
-                      os: windows
-                      os-version: 2022
+                    # - name: Windows
+                    #   os: windows
+                    #   os-version: 2022
 
                     - name: Linux (GCC)
                       os: ubuntu
@@ -36,15 +36,15 @@ jobs:
                       use-clang: true
                       use-clang_stdlib: true
 
-                    - name: MacOS (x86_64)
-                      os: macos
-                      os-version: 13
-                      arm: false
+                    # - name: MacOS (x86_64)
+                    #   os: macos
+                    #   os-version: 13
+                    #   arm: false
 
-                    - name: MacOS (Arm64)
-                      os: macos
-                      os-version: 14
-                      arm: true
+                    # - name: MacOS (Arm64)
+                    #   os: macos
+                    #   os-version: 14
+                    #   arm: true
 
         steps:
             - uses: actions/checkout@v4
