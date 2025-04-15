@@ -11,7 +11,7 @@ chmod 00700 "$PGDATA"
 
 service postgresql start
 
-PG_MAJOR="16"
+PG_MAJOR="${2:-17}"
 PG_BIN_DIR="/usr/lib/postgresql/$PG_MAJOR/bin"
 export PATH="$PATH:$PG_BIN_DIR"
 

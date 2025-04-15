@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS cpp-buildenv
+FROM ubuntu:24.10 AS cpp-buildenv
 
 ARG DEBUG=
 
@@ -21,7 +21,7 @@ RUN apt-get update && \
     chmod +x llvm.sh && \
     ./llvm.sh 20 && \
     /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
-    apt-get install postgresql-16 \
+    apt-get install postgresql-17 \
     libpq-dev \
     -y --no-install-recommends && \
     pip install meson --break-system-packages
@@ -36,11 +36,12 @@ ENV LD=clang-20
 
 RUN meson setup build \
     -Dbuildtype=release \
-    -Ddefault_library=static && \
+    -Ddefault_library=static \
+    -Dpostgres-cxx-client:postgres_version_range=">=17" && \
     meson compile -C build
 
 
-FROM ubuntu:24.04 AS import-stage
+FROM ubuntu:24.10 AS import-stage
 
 WORKDIR /tmp
 
@@ -55,7 +56,7 @@ RUN apt-get update && \
     ca-certificates \
     -y --no-install-recommends && \
     /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
-    apt-get install postgresql-16 \
+    apt-get install postgresql-17 \
     -y --no-install-recommends
 
 ENV PG_USER="imdb"
@@ -66,10 +67,10 @@ ENV PG_DBNAME="imdb"
 
 ENV PGDATA="/data/"
 
-RUN ./scripts/dump_for_docker.sh "$DEBUG"
+RUN ./scripts/dump_for_docker.sh "$DEBUG" "17"
 
 # inspiration: https://cadu.dev/creating-a-docker-image-with-database-preloaded/
-FROM postgres:16-alpine AS dump-importer
+FROM postgres:17-alpine AS dump-importer
 
 
 COPY --from=import-stage /tmp/result.sql.gz /docker-entrypoint-initdb.d/
@@ -83,6 +84,6 @@ ENV PGDATA=/data
 RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 
 # final build stage
-FROM postgres:16-alpine
+FROM postgres:17-alpine
 
 COPY --from=dump-importer /data $PGDATA
