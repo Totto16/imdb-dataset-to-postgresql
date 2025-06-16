@@ -125,7 +125,7 @@ jobs:
                   brew install libpq postgresql@16
 
             - name: Configure
-              run: meson setup build -Dbuildtype=release
+              run: meson setup build -Dbuildtype=release --fatal-meson-warnings
 
             - name: Build
               run: meson compile -C build
