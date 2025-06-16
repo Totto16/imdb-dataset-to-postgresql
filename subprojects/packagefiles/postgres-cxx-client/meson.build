@@ -28,7 +28,11 @@ else
         postgres_version_range = postgres_version_range.split(',')
     endif
 
-    deps += dependency('libpq', 'PostgreSQL', version: postgres_version_range)
+    deps += dependency(
+        'libpq',
+        'PostgreSQL',
+        version: postgres_version_range,
+    )
 endif
 
 subdir('src')
