@@ -36,7 +36,6 @@ void prettyPrintImpl(std::ostream &out,
     out << secs.count() << (1 != secs.count() ? " seconds" : " second") << ' ';
   }
   if (printed_earlier || msecs.count() >= 1) {
-    printed_earlier = true;
     out << msecs.count()
         << (1 != msecs.count() ? " milliseconds" : " millisecond");
   }
