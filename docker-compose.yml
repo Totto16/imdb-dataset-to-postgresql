@@ -3,7 +3,7 @@ name: imdb_database
 services:
     imdb_db:
         container_name: imdb_database_db
-        image: postgres:17
+        image: postgres:18
         volumes:
             - imdb_database_data:/var/lib/postgresql/data
         environment:
