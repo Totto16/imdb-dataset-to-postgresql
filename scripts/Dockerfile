@@ -37,7 +37,9 @@ ENV LD=clang-21
 RUN meson setup build \
     -Dbuildtype=release \
     -Ddefault_library=static \
-    -Dpostgres-cxx-client:postgres_version_range=">=18" && \
+    -Dpostgres-cxx-client:postgres_version_range=">=18" \
+    -Dc_args='-march=native' \
+    -Dcpp_args='-march=native' && \
     meson compile -C build
 
 
