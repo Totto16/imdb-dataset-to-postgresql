@@ -1,4 +1,4 @@
-FROM ubuntu:25.04 AS cpp-buildenv
+FROM ubuntu:25.10 AS cpp-buildenv
 
 ARG DEBUG=
 
@@ -43,7 +43,7 @@ RUN meson setup build \
     meson compile -C build
 
 
-FROM ubuntu:25.04 AS import-stage
+FROM ubuntu:25.10 AS import-stage
 
 WORKDIR /tmp
 
