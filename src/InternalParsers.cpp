@@ -35,9 +35,13 @@ StaticParsers::asIsNullable(const std::string &str) {
   }
 }
 
-enum class STR2DOUBLE_ERROR { SUCCESS, OUT_OF_RANGE, INCONVERTIBLE };
+enum class STR2DOUBLE_ERROR {
+  SUCCESS,
+  OUT_OF_RANGE,
+  INCONVERTIBLE,
+};
 
-STR2DOUBLE_ERROR str2double(double &d, char const *s) {
+static STR2DOUBLE_ERROR str2double(double &d, char const *s) {
   size_t pos;
   try {
     d = std::stod(s, &pos);

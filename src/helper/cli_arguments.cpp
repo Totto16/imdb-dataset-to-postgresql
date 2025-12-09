@@ -1,9 +1,15 @@
 
 #include "cli_arguments.hpp"
 
-#include <argparse/argparse.hpp>
 #include <optional>
 #include <string.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-noreturn"
+
+#include <argparse/argparse.hpp>
+
+#pragma GCC diagnostic pop
 
 namespace {
 
@@ -38,10 +44,11 @@ std::optional<std::uint64_t> getMemorySizeImpl(char *input) {
     return std::nullopt;
   }
 
-  if (*match)
+  if (*match) {
     shift = (match - human_readable_suffix + 1) * 10;
+  }
 
-  std::uint64_t target = value * (1LU << shift);
+  std::uint64_t target = static_cast<uint64_t>(value * (1LU << shift));
 
   return target;
 }
