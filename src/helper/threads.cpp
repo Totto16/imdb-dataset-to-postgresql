@@ -69,8 +69,10 @@ getFileChunksByNewLine(const std::filesystem::path &file,
 template <size_t BASE = 1024,
           std::enable_if_t<BASE == 1000 || BASE == 1024, int> = 0>
 std::string humanSize(std::uint64_t bytes) {
-  std::array<std::array<const char *, 5>, 2> suffix = {
-      {{"B", "KB", "MB", "GB", "TB"}, {"B", "KiB", "MiB", "GiB", "TiB"}}};
+  std::array<std::array<const char *, 5>, 2> suffix = {{
+      {{"B", "KB", "MB", "GB", "TB"}},    //
+      {{"B", "KiB", "MiB", "GiB", "TiB"}} //
+  }};
 
   double dblBytes = bytes;
   std::size_t i = 0;

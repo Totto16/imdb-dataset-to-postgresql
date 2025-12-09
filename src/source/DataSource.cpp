@@ -15,7 +15,7 @@
 namespace {
 // BOM definitions
 static const constexpr size_t _BOMS_SIZE = 3;
-static const std::array<std::uint8_t, _BOMS_SIZE> _BOMS = {0xEF, 0xBB, 0xBF};
+static const std::array<std::uint8_t, _BOMS_SIZE> _BOMS = {{0xEF, 0xBB, 0xBF}};
 
 } // namespace
 source::MemoryMappedDataSource::~MemoryMappedDataSource() { close(); }
@@ -96,7 +96,7 @@ source::MemoryMappedDataSource::open(const std::filesystem::path &file,
   // Check if we have a BOM - Read the first three bytes.
   static_assert(_BOMS_SIZE == 3);
   std::array<std::uint8_t, _BOMS_SIZE> utf8BOM = {
-      _data[_current_pos], _data[_current_pos + 1], _data[_current_pos + 2]};
+      {_data[_current_pos], _data[_current_pos + 1], _data[_current_pos + 2]}};
 
   if (memcmp(_BOMS.data(), utf8BOM.data(), _BOMS_SIZE) == 0) {
     _current_pos += _BOMS_SIZE; // skip the bom bytes!
