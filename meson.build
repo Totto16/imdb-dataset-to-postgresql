@@ -21,7 +21,7 @@ deps += dependency('argparse')
 deps += dependency(
     'postgres-cxx-client',
     default_options: {
-        'postgres_version_range': '>=16',
+        'postgres_version_range': '>=18',
     },
 )
 deps += dependency('bshoshany-thread-pool')
