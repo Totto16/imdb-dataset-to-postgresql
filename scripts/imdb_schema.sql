@@ -121,7 +121,11 @@ CREATE TABLE IF NOT EXISTS public.name_basics (
 	deathYear INT,
 	primaryProfession general_job [] NOT NULL,
 	knownForTitles TEXT [] NOT NULL,
-	PRIMARY KEY (nconst) -- FOREIGN KEY (EACH ELEMENT OF knownForTitles) REFERENCES public.title_basics(tconst)
+	PRIMARY KEY (nconst)
+	-- FOREIGN KEY (EACH ELEMENT OF knownForTitles) REFERENCES public.title_basics(tconst)
+
+	-- EACH ELEMENT not yet supported
+	-- see: https://stackoverflow.com/questions/41054507/postgresql-array-of-elements-that-each-are-a-foreign-key
 );
 -- create enum for type: ATTENTION: New values may be added in the future without warning
 CREATE TYPE title_akas_type AS ENUM (
