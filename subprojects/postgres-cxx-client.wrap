@@ -1,6 +1,6 @@
 [wrap-git]
 url = https://github.com/Totto16/postgres-cxx-client
-revision = improvements
+revision = v1.0.1
 depth = 1
 patch_directory = postgres-cxx-client
 [provide]
