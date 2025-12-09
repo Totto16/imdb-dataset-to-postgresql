@@ -8,5 +8,6 @@
 /subprojects/*.gz
 /subprojects/csvlib
 /subprojects/packagecache
+/subprojects/.wraplock
 !/subprojects/packagefiles/
 !subprojects/*.wrap
