@@ -79,9 +79,9 @@ COPY --from=import-stage /tmp/result.sql.gz /docker-entrypoint-initdb.d/
 
 RUN ["sed", "-i", "s/exec \"$@\"/echo \"skipping...\"/", "/usr/local/bin/docker-entrypoint.sh"]
 
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=postgres
-ENV PGDATA=/data
+ENV POSTGRES_USER="postgres"
+ENV POSTGRES_PASSWORD="postgres"
+ENV PGDATA="/data"
 
 RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 

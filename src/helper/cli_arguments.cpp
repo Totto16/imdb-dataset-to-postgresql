@@ -123,8 +123,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
   parser.add_argument("-i", "--ignore-errors")
       .help("ignore errors and just log them, optional to a log file")
       .default_value(std::string{""})
-      .metavar("ignore-errors")
-      .flag();
+      .metavar("ignore-errors");
 
   parser.add_argument("-s", "--single-threaded")
       .help("just use one thread to process the file")
