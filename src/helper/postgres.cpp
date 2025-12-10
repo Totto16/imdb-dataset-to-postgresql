@@ -115,7 +115,7 @@ struct TableDescriptor {
 #define TABLE_NAME_IDENT(Name) Name##_TABLE
 
 template <typename T>
-concept PostgresCxxVisitable = requires {
+concept IsPostgresCXXTable = requires {
   T::_POSTGRES_CXX_VISITABLE;
 } && std::is_convertible_v<decltype(T::_POSTGRES_CXX_VISITABLE), bool>;
 
@@ -289,10 +289,10 @@ CREATE TYPE title_akas_type AS ENUM (
 
   // tables
 
-  static_assert(PostgresCxxVisitable<TitleBasic>,
+  static_assert(IsPostgresCXXTable<TitleBasic>,
                 "TitleBasic needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleBasic) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitleBasic::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
@@ -302,7 +302,7 @@ CREATE TYPE title_akas_type AS ENUM (
           },
       .references = {},
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_basics (
+CREATE TABLE public.title_basics (
 	tconst TEXT NOT NULL,
 	titleType title_basics_title_type NOT NULL,
 	primaryTitle TEXT NOT NULL,
@@ -315,10 +315,10 @@ CREATE TABLE IF NOT EXISTS public.title_basics (
 	PRIMARY KEY(tconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<NameBasic>,
+  static_assert(IsPostgresCXXTable<NameBasic>,
                 "NameBasic needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(NameBasic) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = NameBasic::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS public.title_basics (
           },
       .references = {},
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.name_basics (
+CREATE TABLE public.name_basics (
 	nconst TEXT NOT NULL,
 	primaryName TEXT NOT NULL,
 	birthYear INT,
@@ -337,10 +337,10 @@ CREATE TABLE IF NOT EXISTS public.name_basics (
 	PRIMARY KEY (nconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<TitleAlternate>,
+  static_assert(IsPostgresCXXTable<TitleAlternate>,
                 "TitleAlternate needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleAlternate) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitleAlternate::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
@@ -352,7 +352,7 @@ CREATE TABLE IF NOT EXISTS public.name_basics (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_akas (
+CREATE TABLE public.title_akas (
 	titleId TEXT NOT NULL,
 	ordering INT NOT NULL,
 	title TEXT NOT NULL,
@@ -365,10 +365,10 @@ CREATE TABLE IF NOT EXISTS public.title_akas (
 	FOREIGN KEY (titleId) REFERENCES public.title_basics(tconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<TitleCrew>,
+  static_assert(IsPostgresCXXTable<TitleCrew>,
                 "TitleCrew needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleCrew) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitleCrew::_POSTGRES_CXX_TABLE_NAME,
       .dependencies = {},
       .references =
@@ -376,7 +376,7 @@ CREATE TABLE IF NOT EXISTS public.title_akas (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_crew (
+CREATE TABLE public.title_crew (
 	tconst TEXT NOT NULL,
 	directors TEXT [] NOT NULL,
 	writers TEXT [] NOT NULL,
@@ -384,10 +384,10 @@ CREATE TABLE IF NOT EXISTS public.title_crew (
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<TitleEpisode>,
+  static_assert(IsPostgresCXXTable<TitleEpisode>,
                 "TitleEpisode needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleEpisode) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitleEpisode::_POSTGRES_CXX_TABLE_NAME,
       .dependencies = {},
       .references =
@@ -395,7 +395,7 @@ CREATE TABLE IF NOT EXISTS public.title_crew (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_episode (
+CREATE TABLE public.title_episode (
 	tconst TEXT NOT NULL,
 	parentTconst TEXT NOT NULL,
 	seasonNumber INT NOT NULL,
@@ -405,10 +405,10 @@ CREATE TABLE IF NOT EXISTS public.title_episode (
 	FOREIGN KEY (parentTconst) REFERENCES public.title_basics(tconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<TitlePrincipal>,
+  static_assert(IsPostgresCXXTable<TitlePrincipal>,
                 "TitlePrincipal needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitlePrincipal) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitlePrincipal::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
@@ -419,7 +419,7 @@ CREATE TABLE IF NOT EXISTS public.title_episode (
               TABLE_NAME_IDENT(NameBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_principals (
+CREATE TABLE public.title_principals (
 	tconst TEXT NOT NULL,
 	ordering INT NOT NULL,
 	nconst TEXT NOT NULL,
@@ -431,10 +431,10 @@ CREATE TABLE IF NOT EXISTS public.title_principals (
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
 );)"};
 
-  static_assert(PostgresCxxVisitable<TitleRating>,
+  static_assert(IsPostgresCXXTable<TitleRating>,
                 "TitleRating needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleRating) = {
-      .type = TableType::Enum,
+      .type = TableType::Table,
       .name = TitleRating::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
@@ -445,7 +445,7 @@ CREATE TABLE IF NOT EXISTS public.title_principals (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE IF NOT EXISTS public.title_ratings (
+CREATE TABLE public.title_ratings (
 	tconst TEXT NOT NULL,
 	averageRating NUMERIC NOT NULL,
 	numVotes INT NOT NULL,
@@ -519,6 +519,10 @@ CREATE TABLE IF NOT EXISTS public.title_ratings (
       }
     }
 
+    if (has_descriptor(table)) {
+      continue;
+    }
+
     const auto is_present = check_for_presence(connection, table);
     if (is_present) {
       validated.push_back(table);
@@ -550,6 +554,8 @@ helper::validate_tables(postgres::Connection &connection,
     }
     }
 
+  } catch (const postgres::RuntimeError &err) {
+    return err.what();
   } catch (const std::runtime_error &err) {
     return err.what();
   }
