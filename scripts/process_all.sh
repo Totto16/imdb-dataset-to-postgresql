@@ -56,6 +56,7 @@ function import() {
     "${EXEC_DIR}/imdb-sql-importer" \
         -f "downloads/${NAME}.tsv" \
         --user "$PG_USER" \
+        --dbname "$PG_DBNAME" \
         --password "$PG_PASSWORD" \
         --port "$PG_PORT" \
         --host "$PG_HOST" \

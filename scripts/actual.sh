@@ -3,6 +3,7 @@
 set -e
 
 USER="imdb"
+DBNAME="imdb"
 PASSWORD="YTJlMGYyOWJlMjRiMTM0YmY4NjI5N2Y4"
 PORT="5555"
 HOST="localhost"
@@ -13,6 +14,7 @@ function import() {
     ./build/imdb-sql-importer \
         -f "downloads/${NAME}.tsv" \
         --user "$USER" \
+        --dbname "$DBNAME" \
         --password "$PASSWORD" \
         --port "$PORT" \
         --host "$HOST" \
