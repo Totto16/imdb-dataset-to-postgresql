@@ -4,7 +4,7 @@
 --
 
 -- create enum for titleType: ATTENTION: New values may be added in the future without warning
-CREATE TYPE title_basics_titleType AS ENUM (
+CREATE TYPE title_basics_title_type AS ENUM (
 	'movie',
 	'short',
 	'tvEpisode',
@@ -51,7 +51,7 @@ CREATE TYPE title_basics_genres AS ENUM (
 -- create the table title_basics
 CREATE TABLE IF NOT EXISTS public.title_basics (
 	tconst TEXT NOT NULL,
-	titleType title_basics_titleType NOT NULL,
+	titleType title_basics_title_type NOT NULL,
 	primaryTitle TEXT NOT NULL,
 	originalTitle TEXT NOT NULL,
 	isAdult boolean NOT NULL,

@@ -36,7 +36,7 @@ struct TitleAlternate {
                      types, attributes, isOriginalTitle);
 };
 
-POSTGRES_CXX_ENUM(TitleType, "title_basics_titleType");
+POSTGRES_CXX_ENUM(TitleType, "title_basics_title_type");
 
 POSTGRES_CXX_ENUM(Genre, "title_basics_genres");
 

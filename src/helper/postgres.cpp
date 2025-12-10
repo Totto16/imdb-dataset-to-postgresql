@@ -200,7 +200,7 @@ validate_all_tables(postgres::Connection &connection, bool allow_create) {
                       .dependencies = {},
                       .references = {},
                       .CREATE_STRING = R"(
-CREATE TYPE title_basics_titleType AS ENUM (
+CREATE TYPE title_basics_title_type AS ENUM (
 	'movie',
 	'short',
 	'tvEpisode',
@@ -304,7 +304,7 @@ CREATE TYPE title_akas_type AS ENUM (
       .CREATE_STRING = R"(
 CREATE TABLE IF NOT EXISTS public.title_basics (
 	tconst TEXT NOT NULL,
-	titleType title_basics_titleType NOT NULL,
+	titleType title_basics_title_type NOT NULL,
 	primaryTitle TEXT NOT NULL,
 	originalTitle TEXT NOT NULL,
 	isAdult boolean NOT NULL,
@@ -546,7 +546,7 @@ helper::validate_tables(postgres::Connection &connection,
       return validate_all_tables(connection, true);
     }
     default:
-      return "Error: invalid TableMOde enum";
+      return "Error: invalid TableMode enum";
     }
     }
 
