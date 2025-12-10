@@ -12,7 +12,10 @@ namespace helper {
 [[nodiscard]] std::expected<postgres::Connection, std::string>
 get_connection(const CommandLineArguments &arguments);
 
-std::optional<std::string>
+[[nodiscard]] std::optional<std::string>
 validate_connection(postgres::Connection &connection);
+
+[[nodiscard]] std::optional<std::string>
+validate_tables(postgres::Connection &connection, TableMode table_mode);
 
 } // namespace helper

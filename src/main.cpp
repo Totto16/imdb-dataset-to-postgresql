@@ -47,10 +47,18 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
     }
 
-    const auto conn_error =
-        helper::validate_connection(maybeConnection.value());
+    auto &connection = maybeConnection.value();
+
+    const auto conn_error = helper::validate_connection(connection);
     if (conn_error.has_value()) {
       std::cerr << "connection error: " << conn_error.value() << "\n";
+      return EXIT_FAILURE;
+    }
+
+    const auto validate_err =
+        helper::validate_tables(connection, arguments.table_mode);
+    if (validate_err.has_value()) {
+      std::cerr << "table validation error: " << validate_err.value() << "\n";
       return EXIT_FAILURE;
     }
   }
