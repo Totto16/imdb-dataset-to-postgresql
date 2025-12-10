@@ -119,8 +119,10 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
   BS::thread_pool pool{nproc};
 
-  std::shared_ptr<ParseMetadata> finalResult =
+  std::shared_ptr<ParseMetadata> finalMetadata =
       std::make_shared<ParseMetadata>();
+  std::shared_ptr<ParseResult> finalResult = std::make_shared<ParseResult>();
+
   std::shared_ptr<std::mutex> resultLock = std::make_shared<std::mutex>();
 
   for (std::size_t i = 1; i < chunks.size(); ++i) {
@@ -129,7 +131,7 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
     const auto end = chunks.at(i);
     const auto length = end - start;
 
-    pool.detach_task([arguments, options, start, length, finalResult,
+    pool.detach_task([arguments, options, start, length, finalMetadata,
                       resultLock, lineAmount] -> void {
       auto maybeConnection = helper::get_connection(arguments);
 
@@ -154,23 +156,25 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
 
       auto parser = std::move(maybeParser);
 
-      auto result = parser->parseData(connection, options);
+      auto parse_result = parser->parseData(connection, options);
 
       {
         std::lock_guard<std::mutex> lock(*resultLock);
 
-        if (not result.has_value()) {
-          std::cerr << "parser error: " << result.error() << "\n";
-          std::cerr << "It took " << result->duration() << "\n";
+        if (not parse_result.has_value()) {
+          std::cerr << "parser error: " << parse_result.error() << "\n";
+          std::cerr << "It took " << parse_result.duration() << "\n";
           std::exit(EXIT_FAILURE);
         }
 
-        finalResult->addErrors(result->errors());
-        finalResult->addLines(result->lines());
+        const auto result = parse_result.value();
+
+        finalMetadata->addErrors(result.errors());
+        finalMetadata->addLines(result.lines());
 
         if (arguments.should_print(LogLevel::Info)) {
           const double progress =
-              (finalResult->lines() + finalResult->errors()) /
+              (finalMetadata->lines() + finalMetadata->errors()) /
               static_cast<double>(lineAmount);
 
           std::cout << "Progress: " << (progress * 100.0) << " %\n";
@@ -180,6 +184,8 @@ ParseResult threads::multiThreadedParsers(CommandLineArguments &&_arguments,
   }
 
   pool.wait();
+
+  finalResult->set_value(*finalMetadata);
 
   return *finalResult;
 }

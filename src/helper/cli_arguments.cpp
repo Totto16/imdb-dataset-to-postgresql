@@ -198,6 +198,13 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       }
     }
 
+    std::optional<uint32_t> transactionSize =
+        get_optional<std::uint32_t>(parser, "transaction-size");
+
+    if (transactionSize == 0) {
+      transactionSize = std::nullopt;
+    }
+
     return CommandLineArguments{
         .host = parser.get<std::string>("host"),
         .port = parser.get<int>("port"),
@@ -212,8 +219,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .multiThreaded = !parser.get<bool>("single-threaded"),
         .threads = get_optional<std::uint32_t>(parser, "threads"),
         .memorySize = memorySize,
-        .transactionSize =
-            get_optional<std::uint32_t>(parser, "transaction-size"),
+        .transactionSize = transactionSize,
     };
 
   } catch (const std::exception &error) {

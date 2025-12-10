@@ -59,5 +59,9 @@ helper::get_connection(const CommandLineArguments &arguments) {
 
   postgres::Connection connection{config};
 
+  if (!connection.isOk()) {
+    return std::unexpected<std::string>{"Connection not ok"};
+  }
+
   return connection;
 }

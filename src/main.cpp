@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   ParseOptions options = {.ignoreErrors = arguments.ignoreErrors,
                           .verbose = arguments.should_print(LogLevel::Verbose)};
 
-  std::expected<ParseMetadata, std::string> result{};
+  ParseResult parse_result{};
 
   if (arguments.multiThreaded) {
 
@@ -48,29 +48,31 @@ int main(int argc, char **argv) {
                 << " Threads\n";
     }
 
-    result =
+    parse_result =
         threads::multiThreadedParsers(std::move(arguments), options, threads);
   } else {
     if (arguments.should_print(LogLevel::Info)) {
       std::cout << "Starting single threaded import\n";
     }
 
-    result = threads::singleThreadedParser(std::move(arguments), options);
+    parse_result = threads::singleThreadedParser(std::move(arguments), options);
   }
 
-  if (not result.has_value()) {
-    std::cerr << "Parser error: " << result.error() << "\n";
-    std::cerr << "It took " << prettyPrint(result->duration()) << "\n";
+  if (not parse_result.has_value()) {
+    std::cerr << "Parser error: " << parse_result.error() << "\n";
+    std::cerr << "It took " << prettyPrint(parse_result.duration()) << "\n";
     return EXIT_FAILURE;
   }
 
+  const auto result = parse_result.value();
+
   if (arguments.should_print(LogLevel::Info)) {
 
-    std::cout << "Successfully inserted " << result->lines() << " rows\n";
-    std::cout << "It took " << prettyPrint(result->duration()) << "\n";
+    std::cout << "Successfully inserted " << result.lines() << " rows\n";
+    std::cout << "It took " << prettyPrint(parse_result.duration()) << "\n";
 
     if (options.ignoreErrors.has_value()) {
-      std::cout << "Ignored " << result->errors() << " Errors\n";
+      std::cout << "Ignored " << result.errors() << " Errors\n";
     }
   }
 

@@ -15,7 +15,6 @@
 
 using OmitHeadType = std::optional<bool>;
 
-using ParseResult = std::expected<ParseMetadata, std::string>;
 
 using ParserMap = std::map<std::string, std::shared_ptr<Parseable>>;
 

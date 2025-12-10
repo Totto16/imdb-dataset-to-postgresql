@@ -116,6 +116,8 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                                  ParseOptions options) {
   std::unique_ptr<csv::utf8::DataSource> input{};
 
+  ParseResult result{};
+
   const auto isMultithreaded = m_length != 0;
 
   try {
@@ -126,13 +128,15 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
       input = std::make_unique<source::FileDataSource>(m_file.string().c_str());
     }
   } catch (const std::exception &error) {
-    return std::unexpected<std::string>{"Filepath was invalid: '" +
-                                        m_file.string() + "': " + error.what()};
+    //TODO: there might be other errors, report better
+    result.set_error("Filepath was invalid: '" + m_file.string() +
+                     "': " + error.what());
+    return result;
   }
 
   input->separator = '\t';
 
-  ParseMetadata result{};
+  ParseMetadata metadata{};
 
   if (options.verbose && !isMultithreaded) {
     std::uint64_t availableLines = countLines(m_file);
@@ -149,11 +153,11 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
     };
 
     printProgress = [&lastProgress, &printProgressImpl,
-                     &result](double progress) -> void {
+                     &metadata](double progress) -> void {
       if (progress - lastProgress >= 0.01) {
         printProgressImpl(progress);
         lastProgress = progress;
-      } else if (result.lines() % 10000 == 0) {
+      } else if (metadata.lines() % 10000 == 0) {
         printProgressImpl(progress);
       }
     };
@@ -188,26 +192,26 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
     if (options.verbose) {
       addAndPrintError = [&log_writer,
-                          &result](const std::string &message) -> void {
+                          &metadata](const std::string &message) -> void {
         std::cerr << "An error occurred, but was ignored: " << message << "\n";
 
         log_writer->write_error(message);
-        result.addError();
+        metadata.addError();
       };
     } else {
       addAndPrintError = [&log_writer,
-                          &result](const std::string &message) -> void {
+                          &metadata](const std::string &message) -> void {
         log_writer->write_error(message);
-        result.addError();
+        metadata.addError();
       };
     }
 
-    insertRecord = [&connection, this, &result,
+    insertRecord = [&connection, this, &metadata,
                     &addAndPrintError](const csv::record &record) -> void {
       try {
         this->m_structure->insert_record(connection, record);
 
-        result.addLine();
+        metadata.addLine();
       } catch (const std::exception &exc) {
         addAndPrintError(exc.what());
       }
@@ -218,10 +222,10 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
     log_writer = std::make_unique<LogWriterDummy>();
 
     insertRecord = [this, &connection,
-                    &result](const csv::record &record) -> void {
+                    &metadata](const csv::record &record) -> void {
       this->m_structure->insert_record(connection, record);
 
-      result.addLine();
+      metadata.addLine();
     };
   }
 
@@ -229,11 +233,11 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
     m_structure->setup_prepared_statement(connection);
 
     csv::parse(*input, nullptr,
-               [&result, &skippedHeader, this, &printProgress, &insertRecord](
+               [&metadata, &skippedHeader, this, &printProgress, &insertRecord](
                    const csv::record &record, double progress) -> bool {
                  // skip header
                  // TODO: this is the hot path, make this faster!
-                 if (result.lines() == 0 && !skippedHeader) {
+                 if (metadata.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
                      skippedHeader = true;
                      return true;
@@ -255,12 +259,16 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   } catch (const postgres::Error &error) {
     m_structure->finish();
-    return std::unexpected<std::string>{error.what()};
+    result.set_error(error.what());
+    return result;
   } catch (const std::exception &exc) {
     m_structure->finish();
-    return std::unexpected<std::string>{exc.what()};
+    result.set_error(exc.what());
+    return result;
   }
 
   m_structure->finish();
+
+  result.set_value(metadata);
   return result;
 }
