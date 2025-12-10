@@ -31,8 +31,6 @@ constexpr const char *application_name =
 
 } // namespace
 
-#include <iostream>
-
 [[nodiscard]] std::expected<postgres::Connection, std::string>
 helper::get_connection(const CommandLineArguments &arguments) {
 
@@ -45,16 +43,12 @@ helper::get_connection(const CommandLineArguments &arguments) {
     builder.dbname(arguments.dbname);
     builder.application_name(application_name);
 
-    std::cerr << "HERE CONFIG: " << arguments.host << " " << arguments.port
-              << " " << arguments.dbname << " " << application_name << "\n";
     if (arguments.user.has_value()) {
       builder.user(arguments.user.value());
-      std::cerr << "HERE user: " << arguments.user.value() << "\n";
     }
 
     if (arguments.password.has_value()) {
       builder.password(arguments.password.value());
-      std::cerr << "HERE password: " << arguments.password.value() << "\n";
     }
 
     postgres::Config config{builder.build()};
@@ -85,14 +79,11 @@ helper::validate_connection(postgres::Connection &connection) {
 
   try {
 
- /*    const auto result = connection.ping();
-    if (result != PQPING_OK) {
-      return pingResultToName(result);
-    } */
 
-    const auto raw_result = connection.execRaw("SELECT 1;");
 
-    if (!raw_result.isOk()) {
+    const auto result = connection.execRaw("SELECT 1;");
+
+    if (!result.isOk()) {
       return "Connection not ok: " + connection.message();
     }
 

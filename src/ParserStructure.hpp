@@ -97,7 +97,7 @@ public:
       if (m_trans == nullptr) {
         m_trans = std::make_shared<postgres::Transaction>(connection.begin());
       } else if (m_execs >= m_transaction_size) {
-        m_trans->commit();
+        auto _ = m_trans->commit();
         m_trans = std::make_shared<postgres::Transaction>(connection.begin());
       }
     }
@@ -112,7 +112,7 @@ public:
 
   void finish() override {
     if (m_trans != nullptr) {
-      m_trans->commit();
+      auto _ = m_trans->commit();
       m_trans = nullptr;
     }
   }
