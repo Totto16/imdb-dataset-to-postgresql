@@ -5,7 +5,7 @@ services:
         container_name: imdb_database_db
         image: postgres:18
         volumes:
-            - imdb_database_data:/var/lib/postgresql/data
+            - imdb_database_data:/var/lib/postgresql/18/docker
         environment:
             POSTGRES_DB: imdb
             POSTGRES_USER: imdb
