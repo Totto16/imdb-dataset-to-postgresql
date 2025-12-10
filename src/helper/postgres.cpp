@@ -127,7 +127,7 @@ static constexpr const char *SCHEMA = "public";
 #define CATALOG_SCHEMA "pg_catalog"
 
 #define TABLES_TABLE CATALOG_SCHEMA ".pg_tables"
-#define TYPES_TABLE CATALOG_SCHEMA ".pg_tables"
+#define TYPES_TABLE CATALOG_SCHEMA ".pg_type"
 
 #define PG_ENUM_TYPE "'e'"
 
@@ -138,7 +138,7 @@ check_for_presence(postgres::Connection &connection,
   switch (descriptor.type) {
   case TableType::Table: {
     const char *query = "SELECT * FROM " TABLES_TABLE
-                        "WHERE schemaname = $1 AND tablename = $2;";
+                        " WHERE schemaname = $1 AND tablename = $2;";
 
     const auto res =
         connection.exec(postgres::Command{query, SCHEMA, descriptor.name});
@@ -155,7 +155,7 @@ check_for_presence(postgres::Connection &connection,
   }
   case TableType::Enum: {
     const char *query = "SELECT * FROM " TYPES_TABLE
-                        "WHERE typtype = " PG_ENUM_TYPE " AND typname = $1;";
+                        " WHERE typtype = " PG_ENUM_TYPE " AND typname = $1;";
 
     const auto res = connection.exec(postgres::Command{query, descriptor.name});
 
@@ -465,12 +465,16 @@ CREATE TABLE IF NOT EXISTS public.title_ratings (
 
   const auto has_descriptor =
       [&validated](const TableDescriptor &desc) -> bool {
+    if (validated.empty()) {
+      return false;
+    }
+
     auto it = std::find_if(validated.begin(), validated.end(),
                            [desc](const TableDescriptor &t2) -> bool {
                              return desc.name == t2.name;
                            });
 
-    return (it == validated.end());
+    return (it != validated.end());
   };
 
   const auto is_not_present_handling =
