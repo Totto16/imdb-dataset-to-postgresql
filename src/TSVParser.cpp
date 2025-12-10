@@ -127,9 +127,12 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
     } else {
       input = std::make_unique<source::FileDataSource>(m_file.string().c_str());
     }
-  } catch (const std::exception &error) {
-    //TODO: there might be other errors, report better
+  } catch (const csv::file_exception &error) {
     result.set_error("Filepath was invalid: '" + m_file.string() +
+                     "': unable to open file");
+    return result;
+  } catch (const std::exception &error) {
+    result.set_error("Failed to create data source: '" + m_file.string() +
                      "': " + error.what());
     return result;
   }
