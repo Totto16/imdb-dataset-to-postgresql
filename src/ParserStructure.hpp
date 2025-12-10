@@ -66,9 +66,13 @@ public:
 
   void setup_prepared_statement(postgres::Connection &connection) override {
 
-    connection.exec(postgres::PrepareData{
+    const auto result = connection.exec(postgres::PrepareData{
         m_prepared_command_name, postgres::Statement<T>::insert(),
         postgres::PreparedStatement<T>::types()});
+
+    if (result.isOk()) {
+      throw std::runtime_error{result.message()};
+    }
   }
 
   void insert_record(postgres::Connection &connection,
@@ -98,7 +102,11 @@ public:
       }
     }
 
-    connection.exec(postgres::PreparedCommand{m_prepared_command_name, value});
+    const auto result = connection.exec(
+        postgres::PreparedCommand{m_prepared_command_name, value});
+    if (!result.isOk()) {
+      throw std::runtime_error{result.message()};
+    }
     m_execs++;
   }
 

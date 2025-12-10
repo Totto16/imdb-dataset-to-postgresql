@@ -34,34 +34,66 @@ constexpr const char *application_name =
 [[nodiscard]] std::expected<postgres::Connection, std::string>
 helper::get_connection(const CommandLineArguments &arguments) {
 
-  postgres::Config::Builder builder{};
+  try {
 
-  builder.host(arguments.host);
-  builder.port(arguments.port);
-  builder.dbname(arguments.dbname);
-  builder.application_name(application_name);
+    postgres::Config::Builder builder{};
 
-  if (arguments.user.has_value()) {
-    builder.user(arguments.user.value());
+    builder.host(arguments.host);
+    builder.port(arguments.port);
+    builder.dbname(arguments.dbname);
+    builder.application_name(application_name);
+
+    if (arguments.user.has_value()) {
+      builder.user(arguments.user.value());
+    }
+
+    if (arguments.password.has_value()) {
+      builder.password(arguments.password.value());
+    }
+
+    postgres::Config config{builder.build()};
+
+    postgres::Connection connection{config};
+
+    const auto result = connection.ping();
+
+    if (result != PGPing::PQPING_OK) {
+      return std::unexpected<std::string>{pingResultToName(result)};
+    }
+
+    if (!connection.isOk()) {
+      return std::unexpected<std::string>{"Connection not ok: " +
+                                          connection.message()};
+    }
+
+    return connection;
+
+  } catch (const postgres::Error &error) {
+    return std::unexpected<std::string>{std::string{"postgres error: "} +
+                                        error.what()};
   }
+}
 
-  if (arguments.password.has_value()) {
-    builder.password(arguments.password.value());
+std::optional<std::string>
+helper::validate_connection(postgres::Connection &connection) {
+
+  try {
+
+    const auto result = connection.ping();
+    if (result != PQPING_OK) {
+      return pingResultToName(result);
+    }
+
+    const auto raw_result = connection.execRaw("SELECT 1;");
+
+    if (!raw_result.isOk()) {
+      return "Connection not ok: " + connection.message();
+    }
+
+    return std::nullopt;
+
+  } catch (const postgres::Error &error) {
+    return std::optional<std::string>{std::string{"postgres error: "} +
+                                      error.what()};
   }
-
-  postgres::Config config{builder.build()};
-
-  const auto result = postgres::Connection::ping(config);
-
-  if (result != PGPing::PQPING_OK) {
-    return std::unexpected<std::string>{pingResultToName(result)};
-  }
-
-  postgres::Connection connection{config};
-
-  if (!connection.isOk()) {
-    return std::unexpected<std::string>{"Connection not ok"};
-  }
-
-  return connection;
 }

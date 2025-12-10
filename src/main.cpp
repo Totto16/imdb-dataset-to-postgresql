@@ -36,6 +36,22 @@ int main(int argc, char **argv) {
 
   ParseResult parse_result{};
 
+  // test connection
+  auto maybeConnection = helper::get_connection(arguments);
+
+  if (not maybeConnection.has_value()) {
+
+    std::cerr << "error connecting to database: " << maybeConnection.error()
+              << "\n";
+    return EXIT_FAILURE;
+  }
+
+  const auto conn_error = helper::validate_connection(maybeConnection.value());
+  if (conn_error.has_value()) {
+    std::cerr << "connection error: " << conn_error.value() << "\n";
+    return EXIT_FAILURE;
+  }
+
   if (arguments.multiThreaded) {
 
     std::uint32_t threads = static_cast<std::uint32_t>(get_nprocs());
