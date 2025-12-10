@@ -38,8 +38,9 @@ RUN meson setup build \
     -Dbuildtype=release \
     -Ddefault_library=static \
     -Dpostgres-cxx-client:postgres_version_range=">=18,<19" \
-    -Dc_args='-march=native' \
-    -Dcpp_args='-march=native' && \
+    -Db_lto=true \
+    -Dc_args='-march=native -flto=auto' \
+    -Dcpp_args='-march=native -flto=auto' && \
     meson compile -C build
 
 
