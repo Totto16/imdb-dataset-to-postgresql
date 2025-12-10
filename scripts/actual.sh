@@ -21,6 +21,7 @@ function import() {
         --has-head \
         --verbose \
         --ignore-errors \
+        --table-mode check \
         --memory-size 16M \
         --transaction-size 0 \
         --threads "$(($(nproc) * 14))"

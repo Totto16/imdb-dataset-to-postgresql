@@ -13,6 +13,12 @@ enum class LogLevel : std::uint8_t {
   Verbose,
 };
 
+enum class TableMode : std::uint8_t {
+  DoNohing = 0,
+  Check,
+  CheckAndCreate,
+};
+
 struct IgnoreErrors {
 private:
   std::expected<std::optional<std::string>, bool> m_underlying;
@@ -46,6 +52,8 @@ struct CommandLineArguments {
   std::string file;
   std::optional<std::string> type;
   std::optional<bool> hasHead;
+
+  TableMode table_mode;
 
   LogLevel level;
   IgnoreErrors ignoreErrors;

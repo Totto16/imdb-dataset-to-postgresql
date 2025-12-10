@@ -125,6 +125,11 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       .default_value(std::string{""})
       .metavar("ignore-errors");
 
+  parser.add_argument("--table-mode")
+      .help("set the table mode, available options are 'nothing', 'check', "
+            "'check_and_create'")
+      .metavar("table-mode");
+
   parser.add_argument("-s", "--single-threaded")
       .help("just use one thread to process the file")
       .metavar("single-threaded")
@@ -187,6 +192,27 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       log_level = LogLevel::Verbose;
     }
 
+    TableMode table_mode = TableMode::DoNohing;
+
+    if (auto table_mode_opt = get_optional<std::string>(parser, "table-mode");
+        table_mode_opt.has_value()) {
+
+      const auto table_mode_val = table_mode_opt.value();
+
+      if (table_mode_val == "nothing") {
+        table_mode = TableMode::DoNohing;
+      } else if (table_mode_val == "check") {
+        table_mode = TableMode::Check;
+      } else if (table_mode_val == "check_and_create") {
+        table_mode = TableMode::CheckAndCreate;
+      } else if (table_mode_val == "do_nothing") {
+        table_mode = TableMode::DoNohing;
+      } else {
+        return std::unexpected<std::string>{"Unrecognized table_mode: " +
+                                            table_mode_val};
+      }
+    }
+
     IgnoreErrors ignoreErrors = IgnoreErrors{};
     if (parser.is_used("ignore-errors")) {
 
@@ -214,6 +240,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .file = parser.get<std::string>("file"),
         .type = type,
         .hasHead = hasHead,
+        .table_mode = table_mode,
         .level = log_level,
         .ignoreErrors = ignoreErrors,
         .multiThreaded = !parser.get<bool>("single-threaded"),

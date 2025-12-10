@@ -63,6 +63,7 @@ function import() {
         --has-head \
         "${DEBUG_CONTENT[@]}" \
         --ignore-errors \
+        --table-mode check \
         --memory-size "$MEMORY_SIZE" \
         --transaction-size 0 \
         --threads "$(($(nproc) * "$THREAD_MULTIPLIER"))"
