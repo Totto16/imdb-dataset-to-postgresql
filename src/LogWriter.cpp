@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <cerrno>
+#include <filesystem>
 #include <system_error>
 
 LogWriter::~LogWriter() = default;
@@ -20,8 +21,19 @@ static char global_file_buf[1 << 20]; // 1 MiB buffer
 std::atomic_flag using_file_buf = false;
 
 void LogWriterFile::initialize_file(const std::string &file) {
+
+  std::filesystem::path file_path = file;
+
+  if (!std::filesystem::exists(file_path)) {
+    const auto parent = file_path.parent_path();
+
+    if (!std::filesystem::exists(parent)) {
+      std::filesystem::create_directories(parent);
+    }
+  }
+
   FILE *file_ptr = fopen(file.c_str(), "a");
-  if (file_ptr == NULL) {
+  if (file_ptr == nullptr) {
     throw std::system_error{errno, std::generic_category()};
   }
   bool was_set = using_file_buf.test_and_set(std::memory_order_acquire);
@@ -37,18 +49,23 @@ void LogWriterFile::initialize_file(const std::string &file) {
       throw std::system_error{errno, std::generic_category()};
     }
   }
+
+  this->m_file = file_ptr;
 }
 
-LogWriterFile::LogWriterFile(const std::string &file) { initialize_file(file); }
+LogWriterFile::LogWriterFile(const std::string &file) : m_file{nullptr} {
+  initialize_file(file);
+}
 
 void LogWriterFile::write_error(const std::string &error) {
   fprintf(this->m_file, "%s\n", error.c_str());
 }
 
 LogWriterFile::~LogWriterFile() {
-
-  fflush(this->m_file);
-  fclose(this->m_file);
+  if (this->m_file != nullptr) {
+    fflush(this->m_file);
+    fclose(this->m_file);
+  }
 }
 
 LogWriterFileMultithreaded::LogWriterFileMultithreaded(const std::string &file)

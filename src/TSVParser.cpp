@@ -262,7 +262,7 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
 
   } catch (const postgres::Error &error) {
     m_structure->finish();
-    result.set_error(error.what());
+    result.set_error(std::string{"Postgres error: "} + error.what());
     return result;
   } catch (const std::exception &exc) {
     m_structure->finish();

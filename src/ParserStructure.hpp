@@ -70,7 +70,7 @@ public:
         m_prepared_command_name, postgres::Statement<T>::insert(),
         postgres::PreparedStatement<T>::types()});
 
-    if (result.isOk()) {
+    if (!result.isOk()) {
       throw std::runtime_error{result.message()};
     }
   }
