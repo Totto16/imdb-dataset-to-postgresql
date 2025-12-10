@@ -36,9 +36,9 @@ struct TitleAlternate {
                      types, attributes, isOriginalTitle);
 };
 
-POSTGRES_CXX_ENUM(Genre, "title_basics_titleType");
+POSTGRES_CXX_ENUM(TitleType, "title_basics_titleType");
 
-POSTGRES_CXX_ENUM(TitleType, "title_basics_genres");
+POSTGRES_CXX_ENUM(Genre, "title_basics_genres");
 
 struct TitleBasic {
   ImdbID tconst;
