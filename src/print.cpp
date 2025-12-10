@@ -6,7 +6,7 @@
 
 // From: https://stackoverflow.com/questions/22063979/elegant-time-print-in-c11
 static void prettyPrintImpl(std::ostream &out,
-                     const std::chrono::milliseconds &input) {
+                            const std::chrono::milliseconds &input) {
   auto diff = input;
   auto const msecs = diff % 1000;
   diff /= 1000;

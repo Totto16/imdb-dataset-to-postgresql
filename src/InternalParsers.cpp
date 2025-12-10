@@ -45,9 +45,9 @@ static STR2DOUBLE_ERROR str2double(double &d, char const *s) {
   size_t pos;
   try {
     d = std::stod(s, &pos);
-  } catch (std::invalid_argument &ex) {
+  } catch (const std::invalid_argument &ex) {
     return STR2DOUBLE_ERROR::INCONVERTIBLE;
-  } catch (std::out_of_range &ex) {
+  } catch (const std::out_of_range &ex) {
     return STR2DOUBLE_ERROR::OUT_OF_RANGE;
   }
 

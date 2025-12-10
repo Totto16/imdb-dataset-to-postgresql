@@ -6,7 +6,34 @@
 #include <string>
 #include <vector>
 
-enum class LogLevel : std::uint8_t { Error = 0, Warning, Info, Verbose };
+enum class LogLevel : std::uint8_t {
+  Error = 0,
+  Warning,
+  Info,
+  Verbose,
+};
+
+struct IgnoreErrors {
+private:
+  std::expected<std::optional<std::string>, bool> m_underlying;
+
+public:
+  explicit IgnoreErrors() : m_underlying{std::unexpected<bool>{false}} {
+    //
+  }
+
+  void set_value(const std::optional<std::string> &value) {
+    this->m_underlying = std::expected<std::optional<std::string>, bool>{value};
+  }
+
+  [[nodiscard]] bool has_value() const {
+    return this->m_underlying.has_value();
+  }
+
+  [[nodiscard]] std::optional<std::string> value() const {
+    return this->m_underlying.value();
+  }
+};
 
 struct CommandLineArguments {
   std::string host;
@@ -21,7 +48,7 @@ struct CommandLineArguments {
   std::optional<bool> hasHead;
 
   LogLevel level;
-  bool ignoreErrors;
+  IgnoreErrors ignoreErrors;
   bool multiThreaded;
   std::optional<std::uint32_t> threads;
 

@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     std::cout << "Successfully inserted " << result->lines() << " rows\n";
     std::cout << "It took " << prettyPrint(result->duration()) << "\n";
 
-    if (options.ignoreErrors) {
+    if (options.ignoreErrors.has_value()) {
       std::cout << "Ignored " << result->errors() << " Errors\n";
     }
   }

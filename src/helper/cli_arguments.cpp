@@ -117,14 +117,18 @@ helper::parse_args(const std::vector<std::string> &arguments) {
 
   parser.add_argument("-v", "--verbose")
       .help("be more verbose about what's happening")
+      .metavar("verbose")
       .flag();
 
   parser.add_argument("-i", "--ignore-errors")
-      .help("ignore errors and just log them")
+      .help("ignore errors and just log them, optional to a log file")
+      .default_value(std::string{""})
+      .metavar("ignore-errors")
       .flag();
 
   parser.add_argument("-s", "--single-threaded")
       .help("just use one thread to process the file")
+      .metavar("single-threaded")
       .flag();
 
   parser.add_argument("--threads")
@@ -184,6 +188,17 @@ helper::parse_args(const std::vector<std::string> &arguments) {
       log_level = LogLevel::Verbose;
     }
 
+    IgnoreErrors ignoreErrors = IgnoreErrors{};
+    if (parser.is_used("ignore-errors")) {
+
+      const auto ignoreErrorsRaw = parser.get<std::string>("ignore-errors");
+      if (ignoreErrorsRaw.empty()) {
+        ignoreErrors.set_value(std::nullopt);
+      } else {
+        ignoreErrors.set_value(ignoreErrorsRaw);
+      }
+    }
+
     return CommandLineArguments{
         .host = parser.get<std::string>("host"),
         .port = parser.get<int>("port"),
@@ -194,7 +209,7 @@ helper::parse_args(const std::vector<std::string> &arguments) {
         .type = type,
         .hasHead = hasHead,
         .level = log_level,
-        .ignoreErrors = parser.get<bool>("ignore-errors"),
+        .ignoreErrors = ignoreErrors,
         .multiThreaded = !parser.get<bool>("single-threaded"),
         .threads = get_optional<std::uint32_t>(parser, "threads"),
         .memorySize = memorySize,

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "./LogWriter.hpp"
 #include "Models.hpp"
 #include "ParseMetadata.hpp"
 #include "ParserStructure.hpp"
@@ -141,17 +142,97 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
   bool skippedHeader = false;
   double lastProgress = 0.0;
 
-  const auto printProgress = [&](double progress) {
-    std::cout << "Progress: " << (progress * 100.0) << " %\n";
-  };
+  std::function<void(double progress)> printProgress;
+  if (!isMultithreaded) {
+    const auto printProgressImpl = [&](double progress) -> void {
+      std::cout << "Progress: " << (progress * 100.0) << " %\n";
+    };
+
+    printProgress = [&lastProgress, &printProgressImpl,
+                     &result](double progress) -> void {
+      if (progress - lastProgress >= 0.01) {
+        printProgressImpl(progress);
+        lastProgress = progress;
+      } else if (result.lines() % 10000 == 0) {
+        printProgressImpl(progress);
+      }
+    };
+  } else {
+    printProgress = [](double) -> void {
+      // ignore, noop
+    };
+  }
+
+  // store here, sot hat RAII cleans this up!
+  std::unique_ptr<LogWriter> log_writer = nullptr;
+
+  std::function<void(const csv::record &record)> insertRecord;
+
+  if (options.ignoreErrors.has_value()) {
+    const std::optional<std::string> ignoreErrors =
+        options.ignoreErrors.value();
+
+    if (ignoreErrors.has_value()) {
+      const auto file = ignoreErrors.value();
+
+      if (isMultithreaded) {
+        log_writer = std::make_unique<LogWriterFileMultithreaded>(file);
+      } else {
+        log_writer = std::make_unique<LogWriterFile>(file);
+      }
+    } else {
+      log_writer = std::make_unique<LogWriterDummy>();
+    }
+
+    std::function<void(const std::string &)> addAndPrintError;
+
+    if (options.verbose) {
+      addAndPrintError = [&log_writer,
+                          &result](const std::string &message) -> void {
+        std::cerr << "An error occurred, but was ignored: " << message << "\n";
+
+        log_writer->write_error(message);
+        result.addError();
+      };
+    } else {
+      addAndPrintError = [&log_writer,
+                          &result](const std::string &message) -> void {
+        log_writer->write_error(message);
+        result.addError();
+      };
+    }
+
+    insertRecord = [&connection, this, &result,
+                    &addAndPrintError](const csv::record &record) -> void {
+      try {
+        this->m_structure->insert_record(connection, record);
+
+        result.addLine();
+      } catch (const std::exception &exc) {
+        addAndPrintError(exc.what());
+      }
+    };
+
+  } else {
+
+    log_writer = std::make_unique<LogWriterDummy>();
+
+    insertRecord = [this, &connection,
+                    &result](const csv::record &record) -> void {
+      this->m_structure->insert_record(connection, record);
+
+      result.addLine();
+    };
+  }
 
   try {
     m_structure->setup_prepared_statement(connection);
 
     csv::parse(*input, nullptr,
-               [&result, &skippedHeader, this, &options, &connection,
-                isMultithreaded, &lastProgress, &printProgress](
+               [&result, &skippedHeader, this, &printProgress, &insertRecord](
                    const csv::record &record, double progress) -> bool {
+                 // skip header
+                 // TODO: this is the hot path, make this faster!
                  if (result.lines() == 0 && !skippedHeader) {
                    if (m_hasHead == true) {
                      skippedHeader = true;
@@ -164,41 +245,18 @@ ParseResult TSVParser::parseData(postgres::Connection &connection,
                    }
                  }
 
-                 if (options.ignoreErrors) {
-                   try {
-                     m_structure->insert_record(connection, record);
+                 insertRecord(record);
 
-                     result.addLine();
-                   } catch (std::exception &exc) {
-                     if (options.verbose) {
-                       std::cerr << "An error occurred, but was ignored: "
-                                 << exc.what() << "\n";
-                     }
-
-                     result.addError();
-                   }
-                 } else {
-                   m_structure->insert_record(connection, record);
-
-                   result.addLine();
-                 }
-
-                 if (!isMultithreaded) {
-                   if (progress - lastProgress >= 0.01) {
-                     printProgress(progress);
-                     lastProgress = progress;
-                   } else if (result.lines() % 10000 == 0) {
-                     printProgress(progress);
-                   }
-                 }
+                 // print progress
+                 printProgress(progress);
 
                  return true;
                });
 
-  } catch (postgres::Error &error) {
+  } catch (const postgres::Error &error) {
     m_structure->finish();
     return std::unexpected<std::string>{error.what()};
-  } catch (std::exception &exc) {
+  } catch (const std::exception &exc) {
     m_structure->finish();
     return std::unexpected<std::string>{exc.what()};
   }

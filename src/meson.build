@@ -1,5 +1,6 @@
 src_files += files(
     'InternalParsers.cpp',
+    'LogWriter.cpp',
     'Models.cpp',
     'ParseMetadata.cpp',
     'TSVParser.cpp',
@@ -9,6 +10,7 @@ src_files += files(
 
 header_files += files(
     'InternalParsers.hpp',
+    'LogWriter.hpp',
     'Models.hpp',
     'ParseMetadata.hpp',
     'ParserStructure.hpp',

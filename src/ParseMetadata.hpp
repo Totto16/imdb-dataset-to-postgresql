@@ -4,8 +4,10 @@
 #include <chrono>
 #include <cstdint>
 
+#include "./helper/cli_arguments.hpp"
+
 struct ParseOptions {
-  bool ignoreErrors;
+  IgnoreErrors ignoreErrors;
   bool verbose;
 };
 
