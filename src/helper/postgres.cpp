@@ -122,16 +122,16 @@ concept IsPostgresCXXTable = requires {
 } && std::is_convertible_v<decltype(T::_POSTGRES_CXX_VISITABLE), bool>;
 
 // TODO: maybe make this specifiable?
-static constexpr const char *SCHEMA = "public";
+#define SCHEMA_NAME "public"
 
 //
 
-#define CATALOG_SCHEMA "pg_catalog"
+#define PG_CATALOG_SCHEMA "pg_catalog"
 
-#define TABLES_TABLE CATALOG_SCHEMA ".pg_tables"
-#define TYPES_TABLE CATALOG_SCHEMA ".pg_type"
+#define PG_TABLES_TABLE PG_CATALOG_SCHEMA ".pg_tables"
+#define PG_TYPES_TABLE PG_CATALOG_SCHEMA ".pg_type"
 
-#define PG_ENUM_TYPE "'e'"
+#define PG_ENUM_TYPE "e"
 
 [[nodiscard]] static bool
 check_for_presence(postgres::Connection &connection,
@@ -139,11 +139,11 @@ check_for_presence(postgres::Connection &connection,
 
   switch (descriptor.type) {
   case TableType::Table: {
-    const char *query = "SELECT * FROM " TABLES_TABLE
-                        " WHERE schemaname = $1 AND tablename = $2;";
+    const char *query =
+        "SELECT * FROM " PG_TABLES_TABLE " WHERE schemaname = '" SCHEMA_NAME
+        "' AND tablename = $1;";
 
-    const auto res =
-        connection.exec(postgres::Command{query, SCHEMA, descriptor.name});
+    const auto res = connection.exec(postgres::Command{query, descriptor.name});
 
     if (!res.isOk()) {
       return false;
@@ -156,8 +156,8 @@ check_for_presence(postgres::Connection &connection,
     return false;
   }
   case TableType::Enum: {
-    const char *query = "SELECT * FROM " TYPES_TABLE
-                        " WHERE typtype = " PG_ENUM_TYPE " AND typname = $1;";
+    const char *query = "SELECT * FROM " PG_TYPES_TABLE
+                        " WHERE typtype = '" PG_ENUM_TYPE "' AND typname = $1;";
 
     const auto res = connection.exec(postgres::Command{query, descriptor.name});
 
@@ -192,17 +192,24 @@ static void create_type(postgres::Connection &connection,
 [[nodiscard]] static std::optional<std::string>
 validate_all_tables(postgres::Connection &connection, bool allow_create) {
 
+  // TODO: make this part of the types description!
+
   // enums
 
-  static_assert(std::is_base_of_v<postgres::Enum, TitleType>,
+  // taken from https://developer.imdb.com/non-commercial-datasets/
+  // CREATE statements taken from my imdb_schema.sql file
+
+  static_assert(std::is_base_of_v<postgres::Enum, pg_enums::TitleType>,
                 "TitleType Must be a postgres::Enum");
   TableDescriptor ENUM_NAME_IDENT(TitleType) =
       TableDescriptor{.type = TableType::Enum,
-                      .name = TitleType::name,
+                      .name = pg_enums::TitleType::name,
                       .dependencies = {},
                       .references = {},
+                      // create enum for title_type: ATTENTION: New values may
+                      // be added in the future without warning
                       .CREATE_STRING = R"(
-CREATE TYPE title_basics_title_type AS ENUM (
+CREATE TYPE )" SCHEMA_NAME R"(.title_basics_title_type AS ENUM (
 	'movie',
 	'short',
 	'tvEpisode',
@@ -215,15 +222,17 @@ CREATE TYPE title_basics_title_type AS ENUM (
 	'videoGame'
 );)"};
 
-  static_assert(std::is_base_of_v<postgres::Enum, Genre>,
+  static_assert(std::is_base_of_v<postgres::Enum, pg_enums::Genre>,
                 "Genre Must be a postgres::Enum");
   TableDescriptor ENUM_NAME_IDENT(Genre) =
       TableDescriptor{.type = TableType::Enum,
-                      .name = Genre::name,
+                      .name = pg_enums::Genre::name,
                       .dependencies = {},
                       .references = {},
+                      // create enum for genres: ATTENTION: New values may be
+                      // added in the future without warning
                       .CREATE_STRING = R"(
-CREATE TYPE title_basics_genres AS ENUM (
+CREATE TYPE )" SCHEMA_NAME R"(.title_basics_genres AS ENUM (
 	'Game-Show',
 	'Family',
 	'Music',
@@ -254,31 +263,77 @@ CREATE TYPE title_basics_genres AS ENUM (
 	'History'
 );)"};
 
-  static_assert(std::is_base_of_v<postgres::Enum, GeneralJob>,
+  static_assert(std::is_base_of_v<postgres::Enum, pg_enums::GeneralJob>,
                 "GeneralJobMust be a postgres::Enum");
   TableDescriptor ENUM_NAME_IDENT(GeneralJob) =
       TableDescriptor{.type = TableType::Enum,
-                      .name = GeneralJob::name,
+                      .name = pg_enums::GeneralJob::name,
                       .dependencies = {},
                       .references = {},
+                      // create enum for general_job: ATTENTION: New values may
+                      // be added in the future without warning
                       .CREATE_STRING = R"(
-CREATE TYPE general_job AS ENUM (
+CREATE TYPE )" SCHEMA_NAME R"(.general_job AS ENUM (
 	'director',
 	'cinematographer',
 	'composer',
 	'editor',
-	'actor'
+	'actor',
+	'miscellaneous',
+	'producer',
+	'actress',
+	'writer',
+	'soundtrack',
+	'archive_footage',
+	'music_department',
+	'stunts',
+	'make_up_department',
+	'assistant_director',
+	'casting_department',
+	'music_artist',
+	'camera_department',
+	'art_department',
+	'casting_director',
+	'executive',
+	'costume_designer',
+	'script_department',
+	'art_director',
+	'editorial_department',
+	'costume_department',
+	'animation_department',
+	'talent_agent',
+	'archive_sound',
+	'special_effects',
+	'production_manager',
+	'production_designer',
+	'sound_department',
+	'visual_effects',
+	'location_management',
+	'set_decorator',
+	'transportation_department',
+	'choreographer',
+	'manager',
+	'publicist',
+	'podcaster',
+	'legal',
+	'assistant',
+	'production_department',
+	'electrical_department',
+	'accountant',
+	'self'
 );)"};
 
-  static_assert(std::is_base_of_v<postgres::Enum, AlternativeType>,
+  static_assert(std::is_base_of_v<postgres::Enum, pg_enums::AlternativeType>,
                 "AlternativeType Must be a postgres::Enum");
   TableDescriptor ENUM_NAME_IDENT(AlternativeType) =
       TableDescriptor{.type = TableType::Enum,
-                      .name = AlternativeType::name,
+                      .name = pg_enums::AlternativeType::name,
                       .dependencies = {},
                       .references = {},
+                      // create enum for type: ATTENTION: New values may be
+                      // added in the future without warning
                       .CREATE_STRING = R"(
-CREATE TYPE title_akas_type AS ENUM (
+CREATE TYPE )" SCHEMA_NAME R"(.title_akas_type AS ENUM (
 	'alternative',
 	'dvd',
 	'festival',
@@ -291,17 +346,18 @@ CREATE TYPE title_akas_type AS ENUM (
 
   // tables
 
-  static_assert(IsPostgresCXXTable<IMDBImporterMetadata>,
+  static_assert(IsPostgresCXXTable<pg_tables::IMDBImporterMetadata>,
                 "IMDBImporterMetadata needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(IMDBImporterMetadata) = {
       .type = TableType::Table,
-      .name = IMDBImporterMetadata::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::IMDBImporterMetadata::_POSTGRES_CXX_TABLE_NAME,
       .dependencies = {},
       .references = {},
+      // create the table imdb_importer_metadata
       .CREATE_STRING = R"(
-CREATE TABLE public.imdb_importer_metadata (
-	id SERIAL NOT NULL,
-	version INT NOT NULL,
+CREATE TABLE  )" SCHEMA_NAME R"(.imdb_importer_metadata (
+	id SERIAL4 NOT NULL,
+	version INT4 NOT NULL,
 	versionString TEXT NOT NULL,
 	description TEXT NOT NULL,
 	timestamp TIMESTAMP NOT NULL,
@@ -309,11 +365,11 @@ CREATE TABLE public.imdb_importer_metadata (
 	PRIMARY KEY(id)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitleBasic>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitleBasic>,
                 "TitleBasic needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleBasic) = {
       .type = TableType::Table,
-      .name = TitleBasic::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitleBasic::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
               ENUM_NAME_IDENT(TitleType),
@@ -322,24 +378,24 @@ CREATE TABLE public.imdb_importer_metadata (
           },
       .references = {},
       .CREATE_STRING = R"(
-CREATE TABLE public.title_basics (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_basics (
 	tconst TEXT NOT NULL,
 	titleType title_basics_title_type NOT NULL,
 	primaryTitle TEXT NOT NULL,
 	originalTitle TEXT NOT NULL,
-	isAdult boolean NOT NULL,
-	startYear INT,
-	endYear INT,
-	runTimeMinutes INT,
+	isAdult BOOLEAN NOT NULL,
+	startYear INT4,
+	endYear INT4,
+	runTimeMinutes INT4,
 	genres title_basics_genres [],
 	PRIMARY KEY(tconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<NameBasic>,
+  static_assert(IsPostgresCXXTable<pg_tables::NameBasic>,
                 "NameBasic needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(NameBasic) = {
       .type = TableType::Table,
-      .name = NameBasic::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::NameBasic::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
               ENUM_NAME_IDENT(GeneralJob),
@@ -347,21 +403,21 @@ CREATE TABLE public.title_basics (
           },
       .references = {},
       .CREATE_STRING = R"(
-CREATE TABLE public.name_basics (
+CREATE TABLE  )" SCHEMA_NAME R"(.name_basics (
 	nconst TEXT NOT NULL,
 	primaryName TEXT NOT NULL,
-	birthYear INT,
-	deathYear INT,
+	birthYear INT4,
+	deathYear INT4,
 	primaryProfession general_job [] NOT NULL,
 	knownForTitles TEXT [] NOT NULL,
 	PRIMARY KEY (nconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitleAlternate>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitleAlternate>,
                 "TitleAlternate needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleAlternate) = {
       .type = TableType::Table,
-      .name = TitleAlternate::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitleAlternate::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
               ENUM_NAME_IDENT(AlternativeType),
@@ -372,9 +428,9 @@ CREATE TABLE public.name_basics (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE public.title_akas (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_akas (
 	titleId TEXT NOT NULL,
-	ordering INT NOT NULL,
+	ordering INT4 NOT NULL,
 	title TEXT NOT NULL,
 	region TEXT NOT NULL,
 	language TEXT,
@@ -382,54 +438,57 @@ CREATE TABLE public.title_akas (
 	attributes TEXT [] NOT NULL,
 	isOriginalTitle BOOLEAN NOT NULL,
 	PRIMARY KEY(titleId, ordering),
-	FOREIGN KEY (titleId) REFERENCES public.title_basics(tconst)
+	FOREIGN KEY (titleId) REFERENCES  )" SCHEMA_NAME
+                       R"(.title_basics(tconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitleCrew>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitleCrew>,
                 "TitleCrew needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleCrew) = {
       .type = TableType::Table,
-      .name = TitleCrew::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitleCrew::_POSTGRES_CXX_TABLE_NAME,
       .dependencies = {},
       .references =
           {
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE public.title_crew (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_crew (
 	tconst TEXT NOT NULL,
 	directors TEXT [] NOT NULL,
 	writers TEXT [] NOT NULL,
 	PRIMARY KEY(tconst),
-	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
+	FOREIGN KEY (tconst) REFERENCES  )" SCHEMA_NAME R"(.title_basics(tconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitleEpisode>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitleEpisode>,
                 "TitleEpisode needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleEpisode) = {
       .type = TableType::Table,
-      .name = TitleEpisode::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitleEpisode::_POSTGRES_CXX_TABLE_NAME,
       .dependencies = {},
       .references =
           {
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE public.title_episode (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_episode (
 	tconst TEXT NOT NULL,
 	parentTconst TEXT NOT NULL,
-	seasonNumber INT NOT NULL,
-	episodeNumber INT NOT NULL,
+	seasonNumber INT4 NOT NULL,
+	episodeNumber INT4 NOT NULL,
 	PRIMARY KEY(tconst),
-	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst),
-	FOREIGN KEY (parentTconst) REFERENCES public.title_basics(tconst)
+	FOREIGN KEY (tconst) REFERENCES  )" SCHEMA_NAME
+                       R"(.title_basics(tconst),
+	FOREIGN KEY (parentTconst) REFERENCES  )" SCHEMA_NAME
+                       R"(.title_basics(tconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitlePrincipal>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitlePrincipal>,
                 "TitlePrincipal needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitlePrincipal) = {
       .type = TableType::Table,
-      .name = TitlePrincipal::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitlePrincipal::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
               ENUM_NAME_IDENT(GeneralJob),
@@ -439,23 +498,23 @@ CREATE TABLE public.title_episode (
               TABLE_NAME_IDENT(NameBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE public.title_principals (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_principals (
 	tconst TEXT NOT NULL,
-	ordering INT NOT NULL,
+	ordering INT4 NOT NULL,
 	nconst TEXT NOT NULL,
 	category general_job NOT NULL,
 	job TEXT,
-	characters TEXT [],
+	characters TEXT [] NOT NULL,
 	PRIMARY KEY(tconst, ordering),
-	FOREIGN KEY (nconst) REFERENCES public.name_basics(nconst),
-	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
+	FOREIGN KEY (nconst) REFERENCES  )" SCHEMA_NAME R"(.name_basics(nconst),
+	FOREIGN KEY (tconst) REFERENCES  )" SCHEMA_NAME R"(.title_basics(tconst)
 );)"};
 
-  static_assert(IsPostgresCXXTable<TitleRating>,
+  static_assert(IsPostgresCXXTable<pg_tables::TitleRating>,
                 "TitleRating needs to be a postgres table");
   TableDescriptor TABLE_NAME_IDENT(TitleRating) = {
       .type = TableType::Table,
-      .name = TitleRating::_POSTGRES_CXX_TABLE_NAME,
+      .name = pg_tables::TitleRating::_POSTGRES_CXX_TABLE_NAME,
       .dependencies =
           {
               ENUM_NAME_IDENT(GeneralJob),
@@ -465,12 +524,12 @@ CREATE TABLE public.title_principals (
               TABLE_NAME_IDENT(TitleBasic),
           },
       .CREATE_STRING = R"(
-CREATE TABLE public.title_ratings (
+CREATE TABLE  )" SCHEMA_NAME R"(.title_ratings (
 	tconst TEXT NOT NULL,
-	averageRating NUMERIC NOT NULL,
-	numVotes INT NOT NULL,
+	averageRating REAL NOT NULL,
+	numVotes INT4 NOT NULL,
 	PRIMARY KEY(tconst),
-	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
+	FOREIGN KEY (tconst) REFERENCES  )" SCHEMA_NAME R"(.title_basics(tconst)
 );
 )"};
 
@@ -584,7 +643,9 @@ helper::validate_tables(postgres::Connection &connection,
   }
 }
 
-constexpr static std::int64_t CURRENT_TABLE_VERSION = 1;
+// stable Version, if this is not the same in the database as here, it is not
+// compatible!
+constexpr static std::int64_t CURRENT_TABLE_VERSION = 2;
 
 void helper::insert_version_marker(postgres::Connection &connection) {
   const std::int64_t version = CURRENT_TABLE_VERSION;
@@ -594,11 +655,11 @@ void helper::insert_version_marker(postgres::Connection &connection) {
   const std::string options = "";
 
   auto res = connection.exec(postgres::Command{
-      R"(INSERT INTO public.imdb_importer_metadata (version, versionString, description, timestamp, options) VALUES ($1, $2, $3, NOW(), $4);)",
+      R"(INSERT INTO  )" SCHEMA_NAME
+      R"(.imdb_importer_metadata (version, versionString, description, timestamp, options) VALUES ($1, $2, $3, NOW(), $4);)",
       version, versionString, description, options});
 
   if (!res.isOk()) {
-    throw std::runtime_error{std::string{"creation failed: "} +
-                             res.message()};
+    throw std::runtime_error{std::string{"creation failed: "} + res.message()};
   }
 }

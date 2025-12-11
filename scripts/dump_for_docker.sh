@@ -35,9 +35,6 @@ service postgresql restart
 #add imdb user
 useradd -ms /bin/bash imdb
 
-# import schema
-sql_command_imdb "PGPASSWORD=\"$PG_PASSWORD\" \"$PG_BIN_DIR/psql\" -h \"$PG_HOST\" -p \"$PG_PORT\" -U \"$PG_USER\" -f \"$(pwd)/scripts/imdb_schema.sql\" \"$PG_DBNAME\""
-
 ulimit -l unlimited unlimited
 
 sql_command_imdb "\"$(pwd)/scripts/process_all.sh\" \"/tmp\" \"$DEBUG_FLAG\" \"true\" \"1G\" \"12\""

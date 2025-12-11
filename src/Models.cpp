@@ -9,119 +9,124 @@
 #include "ParserStructure.hpp"
 #include "types.hpp"
 
-std::shared_ptr<Parseable> Model::mappedTitleAlternate() {
-  return make_shared<ParserStructure<TitleAlternate>>(
-      std::vector<AdvancedParser<TitleAlternate>>{
-          MAKE_PARSER(TitleAlternate, titleId, StaticParsers::asIs), //
-          MAKE_PARSER(TitleAlternate, ordering,
-                      StaticParsers::intParser<std::int64_t>),     //
-          MAKE_PARSER(TitleAlternate, title, StaticParsers::asIs), //
-          MAKE_PARSER(TitleAlternate, region,
-                      StaticParsers::asIsNullable), //
-          MAKE_PARSER(TitleAlternate, language,
-                      StaticParsers::asIsNullable), //
-          MAKE_PARSER(TitleAlternate, types,
-                      StaticParsers::arrayParser<AlternativeType>(
-                          StaticParsers::enumParser<AlternativeType>)), //
-          MAKE_PARSER(
-              TitleAlternate, attributes,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)), //
-          MAKE_PARSER(TitleAlternate, isOriginalTitle,
-                      StaticParsers::orNullParser<bool>(
-                          StaticParsers::booleanParser))});
+std::shared_ptr<Parseable> Model::mappedTitleBasic() {
+  return make_shared<ParserStructure<pg_tables::TitleBasic>>(
+      std::vector<AdvancedParser<pg_tables::TitleBasic>>{
+          MAKE_PARSER(pg_tables::TitleBasic, tconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleBasic, titleType,
+                      StaticParsers::enumParser<pg_enums::TitleType>),
+          MAKE_PARSER(pg_tables::TitleBasic, primaryTitle, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleBasic, originalTitle,
+                      StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleBasic, isAdult,
+                      StaticParsers::booleanParser),
+          MAKE_PARSER(pg_tables::TitleBasic, startYear,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::TitleBasic, endYear,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::TitleBasic, runtimeMinutes,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::TitleBasic, genres,
+                      StaticParsers::arrayParser<pg_enums::Genre>(
+                          StaticParsers::enumParser<pg_enums::Genre>))});
 }
 
 std::shared_ptr<Parseable> Model::mappedNameBasic() {
-  return make_shared<ParserStructure<NameBasic>>(
-      std::vector<AdvancedParser<NameBasic>>{
-          MAKE_PARSER(NameBasic, nconst, StaticParsers::asIs),
-          MAKE_PARSER(NameBasic, primaryName, StaticParsers::asIs),
-          MAKE_PARSER(NameBasic, birthYear,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(NameBasic, deathYear,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(NameBasic, primaryProfession,
-                      StaticParsers::arrayParser<GeneralJob>(
-                          StaticParsers::enumParser<GeneralJob>)),
-          MAKE_PARSER(
-              NameBasic, knownForTitles,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs))});
+  return make_shared<ParserStructure<pg_tables::NameBasic>>(
+      std::vector<AdvancedParser<pg_tables::NameBasic>>{
+          MAKE_PARSER(pg_tables::NameBasic, nconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::NameBasic, primaryName, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::NameBasic, birthYear,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::NameBasic, deathYear,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::NameBasic, primaryProfession,
+                      StaticParsers::arrayParser<pg_enums::GeneralJob>(
+                          StaticParsers::enumParser<pg_enums::GeneralJob>)),
+          MAKE_PARSER(pg_tables::NameBasic, knownForTitles,
+                      StaticParsers::arrayParser<pg_alias::ImdbID>(
+                          StaticParsers::asIs))});
 }
 
-std::shared_ptr<Parseable> Model::mappedTitleBasic() {
-  return make_shared<ParserStructure<TitleBasic>>(
-      std::vector<AdvancedParser<TitleBasic>>{
-          MAKE_PARSER(TitleBasic, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleBasic, titleType,
-                      StaticParsers::enumParser<TitleType>),
-          MAKE_PARSER(TitleBasic, primaryTitle, StaticParsers::asIs),
-          MAKE_PARSER(TitleBasic, originalTitle, StaticParsers::asIs),
-          MAKE_PARSER(TitleBasic, isAdult, StaticParsers::booleanParser),
-          MAKE_PARSER(TitleBasic, startYear,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(TitleBasic, endYear,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(TitleBasic, runtimeMinutes,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(TitleBasic, genres,
-                      StaticParsers::arrayParser<Genre>(
-                          StaticParsers::enumParser<Genre>))});
+std::shared_ptr<Parseable> Model::mappedTitleAlternate() {
+  return make_shared<ParserStructure<pg_tables::TitleAlternate>>(
+      std::vector<AdvancedParser<pg_tables::TitleAlternate>>{
+          MAKE_PARSER(pg_tables::TitleAlternate, titleId,
+                      StaticParsers::asIs), //
+          MAKE_PARSER(pg_tables::TitleAlternate, ordering,
+                      StaticParsers::intParser<pg_types::Int4>),              //
+          MAKE_PARSER(pg_tables::TitleAlternate, title, StaticParsers::asIs), //
+          MAKE_PARSER(pg_tables::TitleAlternate, region,
+                      StaticParsers::asIs), //
+          MAKE_PARSER(pg_tables::TitleAlternate, language,
+                      StaticParsers::asIsNullable), //
+          MAKE_PARSER(
+              pg_tables::TitleAlternate, types,
+              StaticParsers::arrayParser<pg_enums::AlternativeType>(
+                  StaticParsers::enumParser<pg_enums::AlternativeType>)), //
+          MAKE_PARSER(pg_tables::TitleAlternate, attributes,
+                      StaticParsers::arrayParser<pg_types::Text>(
+                          StaticParsers::asIs)), //
+          MAKE_PARSER(pg_tables::TitleAlternate, isOriginalTitle,
+                      StaticParsers::booleanParser)});
 }
 
 std::shared_ptr<Parseable> Model::mappedTitleCrew() {
-  return make_shared<ParserStructure<TitleCrew>>(
-      std::vector<AdvancedParser<TitleCrew>>{
-          MAKE_PARSER(TitleCrew, tconst, StaticParsers::asIs),
-          MAKE_PARSER(
-              TitleCrew, directors,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs)),
-          MAKE_PARSER(
-              TitleCrew, writers,
-              StaticParsers::arrayParser<std::string>(StaticParsers::asIs))});
+  return make_shared<ParserStructure<pg_tables::TitleCrew>>(
+      std::vector<AdvancedParser<pg_tables::TitleCrew>>{
+          MAKE_PARSER(pg_tables::TitleCrew, tconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleCrew, directors,
+                      StaticParsers::arrayParser<pg_alias::NameID>(
+                          StaticParsers::asIs)),
+          MAKE_PARSER(pg_tables::TitleCrew, writers,
+                      StaticParsers::arrayParser<pg_alias::NameID>(
+                          StaticParsers::asIs))});
 }
 
 std::shared_ptr<Parseable> Model::mappedTitleEpisode() {
-  return make_shared<ParserStructure<TitleEpisode>>(
-      std::vector<AdvancedParser<TitleEpisode>>{
-          MAKE_PARSER(TitleEpisode, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleEpisode, parentTconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleEpisode, seasonNumber,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
-          MAKE_PARSER(TitleEpisode, episodeNumber,
-                      StaticParsers::orNullParser<std::int64_t>(
-                          StaticParsers::intParser<std::int64_t>)),
+  return make_shared<ParserStructure<pg_tables::TitleEpisode>>(
+      std::vector<AdvancedParser<pg_tables::TitleEpisode>>{
+          MAKE_PARSER(pg_tables::TitleEpisode, tconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleEpisode, parentTconst,
+                      StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleEpisode, seasonNumber,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
+          MAKE_PARSER(pg_tables::TitleEpisode, episodeNumber,
+                      StaticParsers::orNullParser<pg_types::Int4>(
+                          StaticParsers::intParser<pg_types::Int4>)),
       });
 }
 
 std::shared_ptr<Parseable> Model::mappedTitlePrincipal() {
-  return make_shared<ParserStructure<TitlePrincipal>>(
-      std::vector<AdvancedParser<TitlePrincipal>>{
-          MAKE_PARSER(TitlePrincipal, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitlePrincipal, ordering,
-                      StaticParsers::intParser<std::int64_t>),
-          MAKE_PARSER(TitlePrincipal, nconst, StaticParsers::asIs),
-          MAKE_PARSER(TitlePrincipal, category,
-                      StaticParsers::enumParser<GeneralJob>),
+  return make_shared<ParserStructure<pg_tables::TitlePrincipal>>(
+      std::vector<AdvancedParser<pg_tables::TitlePrincipal>>{
+          MAKE_PARSER(pg_tables::TitlePrincipal, tconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitlePrincipal, ordering,
+                      StaticParsers::intParser<pg_types::Int4>),
+          MAKE_PARSER(pg_tables::TitlePrincipal, nconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitlePrincipal, category,
+                      StaticParsers::enumParser<pg_enums::GeneralJob>),
           MAKE_PARSER(
-              TitlePrincipal, job,
-              StaticParsers::orNullParser<std::string>(StaticParsers::asIs)),
-          MAKE_PARSER(
-              TitlePrincipal, characters,
-              StaticParsers::orNullParser<std::string>(StaticParsers::asIs))});
+              pg_tables::TitlePrincipal, job,
+              StaticParsers::orNullParser<pg_types::Text>(StaticParsers::asIs)),
+          MAKE_PARSER(pg_tables::TitlePrincipal, characters,
+                      StaticParsers::arrayParser<pg_types::Text>(
+                          StaticParsers::asIs))});
 }
 
 std::shared_ptr<Parseable> Model::mappedTitleRating() {
-  return make_shared<ParserStructure<TitleRating>>(
-      std::vector<AdvancedParser<TitleRating>>{
-          MAKE_PARSER(TitleRating, tconst, StaticParsers::asIs),
-          MAKE_PARSER(TitleRating, averageRating, StaticParsers::floatParser),
-          MAKE_PARSER(TitleRating, numVotes,
-                      StaticParsers::intParser<std::int64_t>),
+  return make_shared<ParserStructure<pg_tables::TitleRating>>(
+      std::vector<AdvancedParser<pg_tables::TitleRating>>{
+          MAKE_PARSER(pg_tables::TitleRating, tconst, StaticParsers::asIs),
+          MAKE_PARSER(pg_tables::TitleRating, averageRating,
+                      StaticParsers::floatParser),
+          MAKE_PARSER(pg_tables::TitleRating, numVotes,
+                      StaticParsers::intParser<pg_types::Int4>),
       });
 }

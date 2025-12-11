@@ -11,11 +11,11 @@
   return ("\\N" == str);
 }
 
-[[nodiscard]] std::string StaticParsers::asIs(const std::string &str) {
+[[nodiscard]] pg_types::Text StaticParsers::asIs(const std::string &str) {
   return str;
 }
 
-[[nodiscard]] std::optional<std::string>
+[[nodiscard]] pg_types::Nullable<pg_types::Text>
 StaticParsers::asIsNullable(const std::string &str) {
 
   if (StaticParsers::isNulledValue(str)) {
@@ -25,7 +25,8 @@ StaticParsers::asIsNullable(const std::string &str) {
   return str;
 }
 
-[[nodiscard]] bool StaticParsers::booleanParser(const std::string &str) {
+[[nodiscard]] pg_types::Bool
+StaticParsers::booleanParser(const std::string &str) {
   if (str == "0") {
     return false;
   } else if (str == "1") {
@@ -57,17 +58,19 @@ static STR2DOUBLE_ERROR str2double(double &d, char const *s) {
   return STR2DOUBLE_ERROR::SUCCESS;
 }
 
-[[nodiscard]] double StaticParsers::doubleParser(const std::string &str) {
+[[nodiscard]] pg_types::DoublePrecision
+StaticParsers::doubleParser(const std::string &str) {
   double d;
   const auto result = str2double(d, str.c_str());
   if (result != STR2DOUBLE_ERROR::SUCCESS) {
     throw std::runtime_error("Couldn't parse double of '" + str + "'");
   }
 
-  return d;
+  return static_cast<pg_types::DoublePrecision>(d);
 }
 
-[[nodiscard]] float StaticParsers::floatParser(const std::string &str) {
+[[nodiscard]] pg_types::Real
+StaticParsers::floatParser(const std::string &str) {
   double d = StaticParsers::doubleParser(str);
-  return static_cast<float>(d);
+  return static_cast<pg_types::Real>(d);
 }

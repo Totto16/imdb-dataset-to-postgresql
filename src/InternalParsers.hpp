@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 
+#include "./types.hpp"
+
 template <typename T>
 using ParserFunction = std::function<T(const std::string &str)>;
 
@@ -60,16 +62,17 @@ class StaticParsers {
 public:
   [[nodiscard]] static bool isNulledValue(const std::string &str);
 
-  [[nodiscard]] static std::string asIs(const std::string &str);
+  [[nodiscard]] static pg_types::Text asIs(const std::string &str);
 
-  [[nodiscard]] static std::optional<std::string>
+  [[nodiscard]] static pg_types::Nullable<pg_types::Text>
   asIsNullable(const std::string &str);
 
-  [[nodiscard]] static bool booleanParser(const std::string &str);
+  [[nodiscard]] static pg_types::Bool booleanParser(const std::string &str);
 
-  [[nodiscard]] static double doubleParser(const std::string &str);
+  [[nodiscard]] static pg_types::DoublePrecision
+  doubleParser(const std::string &str);
 
-  [[nodiscard]] static float floatParser(const std::string &str);
+  [[nodiscard]] static pg_types::Real floatParser(const std::string &str);
 
   template <std::integral T>
   [[nodiscard]] static T intParser(const std::string &str) {
@@ -97,9 +100,9 @@ public:
   }
 
   template <typename T>
-  [[nodiscard]] static ParserFunction<std::optional<T>>
+  [[nodiscard]] static ParserFunction<pg_types::Nullable<T>>
   orNullParser(const ParserFunction<T> &fn) {
-    return [fn](const std::string &str) -> std::optional<T> {
+    return [fn](const std::string &str) -> pg_types::Nullable<T> {
       if (StaticParsers::isNulledValue(str)) {
         return std::nullopt;
       }
@@ -109,22 +112,22 @@ public:
   }
 
   template <typename T>
-  [[nodiscard]] static ParserFunction<std::vector<T>>
+  [[nodiscard]] static ParserFunction<pg_types::Array<T>>
   arrayParser(const ParserFunction<T> &fn) {
 
-    return [fn](const std::string &str) -> std::vector<T> {
-      std::vector<T> vec = {};
+    return [fn](const std::string &str) -> pg_types::Array<T> {
+      pg_types::Array<T> array = {};
 
       if (StaticParsers::isNulledValue(str)) {
-        return vec;
+        return array;
       }
 
       auto parts = ParserHelper::split<std::vector>(str, ",");
       for (const auto &value : parts) {
-        vec.push_back(fn(value));
+        array.push_back(fn(value));
       }
 
-      return vec;
+      return array;
     };
   }
 
