@@ -62,8 +62,7 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
     }
 
-    // TODO: write some values into special table
-    //  e.g. version, current time, table version, postgres version etc?
+    helper::insert_version_marker(connection);
   }
 
   if (arguments.multiThreaded) {

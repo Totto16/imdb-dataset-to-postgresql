@@ -101,3 +101,22 @@ struct NameBasic {
   POSTGRES_CXX_TABLE("name_basics", nconst, primaryName, birthYear, deathYear,
                      primaryProfession, knownForTitles);
 };
+
+//TODO: support serials in the postgres_cxx client
+//TODO: use better types everywhere
+//TODO. create / deleted truncate all from c++, no .sql scripts needed
+using Serial4 = std::uint32_t;
+
+using Serial = Serial4;
+
+struct IMDBImporterMetadata {
+  Serial id;
+  std::int64_t version;
+  std::string versionString;
+  std::string description;
+  postgres::Time timestamp;
+  std::optional<std::string> options;
+
+  POSTGRES_CXX_TABLE("imdb_importer_metadata", id, version, versionString,
+                     description, timestamp, options);
+};

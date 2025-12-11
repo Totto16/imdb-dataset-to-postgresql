@@ -18,4 +18,6 @@ validate_connection(postgres::Connection &connection);
 [[nodiscard]] std::optional<std::string>
 validate_tables(postgres::Connection &connection, TableMode table_mode);
 
+void insert_version_marker(postgres::Connection &connection);
+
 } // namespace helper
