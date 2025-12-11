@@ -17,6 +17,7 @@ CREATE TYPE title_basics_title_type AS ENUM (
 	'video',
 	'videoGame'
 );
+
 -- create enum for genres: ATTENTION: New values may be added in the future without warning
 CREATE TYPE title_basics_genres AS ENUM (
 	'Game-Show',
@@ -48,6 +49,7 @@ CREATE TYPE title_basics_genres AS ENUM (
 	'Thriller',
 	'History'
 );
+
 -- create the table title_basics
 CREATE TABLE IF NOT EXISTS public.title_basics (
 	tconst TEXT NOT NULL,
@@ -113,6 +115,7 @@ CREATE TYPE general_job AS ENUM (
 	'self'
 	-- TODO: add the rest
 );
+
 -- create the table name_basics
 CREATE TABLE IF NOT EXISTS public.name_basics (
 	nconst TEXT NOT NULL,
@@ -127,6 +130,7 @@ CREATE TABLE IF NOT EXISTS public.name_basics (
 	-- EACH ELEMENT not yet supported
 	-- see: https://stackoverflow.com/questions/41054507/postgresql-array-of-elements-that-each-are-a-foreign-key
 );
+
 -- create enum for type: ATTENTION: New values may be added in the future without warning
 CREATE TYPE title_akas_type AS ENUM (
 	'alternative',
@@ -138,6 +142,7 @@ CREATE TYPE title_akas_type AS ENUM (
 	'original',
 	'imdbDisplay'
 );
+
 -- create the table title_akas
 CREATE TABLE IF NOT EXISTS public.title_akas (
 	titleId TEXT NOT NULL,
@@ -151,6 +156,7 @@ CREATE TABLE IF NOT EXISTS public.title_akas (
 	PRIMARY KEY(titleId, ordering),
 	FOREIGN KEY (titleId) REFERENCES public.title_basics(tconst)
 );
+
 -- create the table title_crew
 CREATE TABLE IF NOT EXISTS public.title_crew (
 	tconst TEXT NOT NULL,
@@ -161,6 +167,7 @@ CREATE TABLE IF NOT EXISTS public.title_crew (
 	-- FOREIGN KEY (EACH ELEMENT OF writers) REFERENCES public.name_basics(nconst),
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
 );
+
 -- create the table title_episode
 CREATE TABLE IF NOT EXISTS public.title_episode (
 	tconst TEXT NOT NULL,
@@ -171,6 +178,7 @@ CREATE TABLE IF NOT EXISTS public.title_episode (
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst),
 	FOREIGN KEY (parentTconst) REFERENCES public.title_basics(tconst)
 );
+
 -- create the table title_principals
 CREATE TABLE IF NOT EXISTS public.title_principals (
 	tconst TEXT NOT NULL,
@@ -183,6 +191,7 @@ CREATE TABLE IF NOT EXISTS public.title_principals (
 	FOREIGN KEY (nconst) REFERENCES public.name_basics(nconst),
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
 );
+
 -- create the table title_ratings
 CREATE TABLE IF NOT EXISTS public.title_ratings (
 	tconst TEXT NOT NULL,
@@ -191,3 +200,16 @@ CREATE TABLE IF NOT EXISTS public.title_ratings (
 	PRIMARY KEY(tconst),
 	FOREIGN KEY (tconst) REFERENCES public.title_basics(tconst)
 );
+
+-- create the table imdb_importer_metadata
+CREATE TABLE IF NOT EXISTS public.imdb_importer_metadata (
+	id SERIAL NOT NULL,
+	version INT NOT NULL,
+	versionString TEXT NOT NULL,
+	description TEXT NOT NULL,
+	timestamp TIMESTAMP NOT NULL,
+	options TEXT,
+	PRIMARY KEY(id)
+);
+
+

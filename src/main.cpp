@@ -61,6 +61,9 @@ int main(int argc, char **argv) {
       std::cerr << "table validation error: " << validate_err.value() << "\n";
       return EXIT_FAILURE;
     }
+
+    // TODO: write some values into special table
+    //  e.g. version, current time, table version, postgres version etc?
   }
 
   if (arguments.multiThreaded) {
